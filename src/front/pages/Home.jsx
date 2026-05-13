@@ -19,7 +19,7 @@ export const Home = () => {
 						<p className="hero-subtitle">
 							Desván es el lugar que reúne organizadores y exploradores en eventos donde objetos únicos encuentran una nueva historia.
 						</p>
-						<Link to="/explore" style={{ textDecoration: 'none' }}>
+						<Link to="/explorar" style={{ textDecoration: 'none' }}>
 							<button className="btn-explore">
 								EXPLORA EVENTOS <i className="fa-solid fa-arrow-right"></i>
 							</button>
