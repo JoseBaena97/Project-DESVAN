@@ -32,8 +32,8 @@ h1, h2, h3, h4, h5, h6 {
   right: 0px;
   top: 0px;
   background: #F1DABE;
-  border-bottom: 1px solid #E5E7EB;
   z-index: 1000;
+  box-shadow: 0px 1px 10px 0px rgba(148, 148, 148, 0.308);
 }
 
 .custom-navbar .container-fluid {
@@ -309,11 +309,9 @@ h1, h2, h3, h4, h5, h6 {
 /* Banner Section */
 .banner-section {
   padding: 0 0 5rem 0;
-  background-color: var(--bg-main);
 }
 
 .banner-card {
-  background-color: #ebdcb9;
   border-radius: 20px;
   padding: 4rem;
   position: relative;
@@ -321,10 +319,11 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-image: url('./assets/img/banner_pattern.png');
+  background-image: url('./assets/img/banner_bg.png');
   background-size: cover;
   background-position: center;
   background-blend-mode: overlay;
+  box-shadow: 0px 1px 10px 0px rgba(148, 148, 148, 0.308);
 }
 
 .banner-content {
@@ -380,12 +379,16 @@ h1, h2, h3, h4, h5, h6 {
   flex: 1;
   display: flex;
   justify-content: flex-end;
+  align-self: flex-end;
+  margin-bottom: -7rem;
+  margin-right: 11rem;
   z-index: 2;
 }
 
 .banner-image img {
-  max-width: 300px;
-  transform: translateY(20px);
+  max-width: 320px;
+  transform: translateY(45px);
+  filter: drop-shadow(0 -10px 15px rgba(0,0,0,0.1));
 }
 
 /* Footer Section */
