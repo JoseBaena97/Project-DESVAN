@@ -25,7 +25,7 @@ export const Navbar = () => {
 					<Link to="/profile">
 						<img src={user_ico} alt="user" className="user_ico"/>
 					</Link>
-					<Link to="/create" style={{ textDecoration: 'none' }}>
+					<Link to="/crear-evento" style={{ textDecoration: 'none' }}>
 						<button className="btn-primary-custom">
 							<img src={create_ico} alt="sdsdsd" className="ico_create"/> Crear evento
 						</button>
