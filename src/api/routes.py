@@ -12,6 +12,7 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 from api.custom_routes.test import *
+from api.custom_routes.user import *
 
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():
