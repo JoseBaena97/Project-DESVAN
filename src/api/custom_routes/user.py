@@ -1,16 +1,17 @@
 from flask import request, jsonify
 from api.routes import api
 from api.models import db, User
+from datetime import datetime, timezone
 
 @api.route("/user", methods=["GET"])
 def get_users():
-    users = db.session.execute(db.select(User)).scalars().all()
+    users = db.session.execute(db.select(User).where(User.deleted_at.is_(None))).scalars().all()
     return jsonify([user.serialize() for user in users]), 200
 
 @api.route("/user/<int:user_id>", methods=["GET"])
 def get_user(user_id):
     user = db.session.get(User, user_id)
-    if not user:
+    if not user or user.deleted_at:
         return jsonify({"message": "User not found"}), 404
     return jsonify(user.serialize()), 200
 
@@ -74,9 +75,9 @@ def update_user(user_id):
 @api.route("/user/<int:user_id>", methods=["DELETE"])
 def delete_user(user_id):
     user = db.session.get(User, user_id)
-    if not user:
+    if not user or user.deleted_at:
         return jsonify({"message": "User not found"}), 404
         
-    db.session.delete(user)
+    user.deleted_at = datetime.now(timezone.utc)
     db.session.commit()
     return jsonify({"message": "User deleted successfully"}), 200
