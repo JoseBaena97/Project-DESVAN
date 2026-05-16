@@ -88,7 +88,7 @@ def update_event(event_id):
         event.postal_code = body['postal_code']
 
     db.session.commit()
-    return jsonify(event.serialize()), 200
+    return jsonify({"success": True, "data": "All Ok"}), 200
 
 @api.route("/event/<int:event_id>", methods=['DELETE'])
 def delete_event(event_id):

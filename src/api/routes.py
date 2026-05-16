@@ -14,6 +14,7 @@ CORS(api)
 from api.custom_routes.test import *
 from api.custom_routes.event import *
 from api.custom_routes.user import *
+from api.custom_routes.category import*
 from api.custom_routes.profile import *
 
 @api.route('/hello', methods=['POST', 'GET'])
