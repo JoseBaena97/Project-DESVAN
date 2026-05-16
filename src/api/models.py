@@ -62,7 +62,7 @@ class Category (db.Model):
     name:  Mapped[str] = mapped_column(String(100), nullable=False)
     
     #relacion
-    event_categories:Mapped[List["EventCategory"] ]= relationship(back_populates = "category")
+    event_categories:Mapped[List["EventCategory"] ]= relationship(back_populates = "category", cascade= "all, delete-orphan")
     #def serialize
     def serialize(self):
         return {
@@ -166,23 +166,23 @@ class Event (db.Model): #ESTA TABLA DEBE IR ARRIBA?
 
 
     #relación
-    reservations: Mapped[List["Reservation"]]= relationship(back_populates="event")
+    reservations: Mapped[List["Reservation"]]= relationship(back_populates="event", cascade= "all, delete-orphan")
 
 
     #relación
-    reviews: Mapped[List["Review"]] = relationship(back_populates="event")
+    reviews: Mapped[List["Review"]] = relationship(back_populates="event", cascade= "all, delete-orphan")
 
 
     #relación
-    favorites: Mapped[List["Favorite"]] = relationship(back_populates="event")
+    favorites: Mapped[List["Favorite"]] = relationship(back_populates="event", cascade= "all, delete-orphan")
 
 
     #relación con categorías 
-    event_categories: Mapped[List["EventCategory"]] = relationship(back_populates="event")
+    event_categories: Mapped[List["EventCategory"]] = relationship(back_populates="event", cascade= "all, delete-orphan")
 
 
     #relación con tags 
-    event_tags: Mapped[List["EventTag"]] = relationship(back_populates="event")
+    event_tags: Mapped[List["EventTag"]] = relationship(back_populates="event", cascade= "all, delete-orphan")
 
 
     # rating calculado desde las reviews en vez de columna almacenada
@@ -216,7 +216,9 @@ class Event (db.Model): #ESTA TABLA DEBE IR ARRIBA?
             } if self.seller else None,
             "favorites":[favorite.serialize()for favorite in self.favorites],
             "reservations":[reservation.serialize()for reservation in self.reservations],
-            "reviews":[review.serialize()for review in self.reviews]
+            "reviews":[review.serialize()for review in self.reviews],
+            "event_categories":[event_category.serialize()for event_category in self.event_categories],
+            "event_tags": [event_tag.serialize()for event_tag in self.event_tags],
         }
 
 
@@ -362,13 +364,19 @@ class Profile (db.Model):
     phone: Mapped[str] = mapped_column(String(20), nullable=False)
     firstname: Mapped[str] = mapped_column(String(100), nullable=False)
     lastname: Mapped[str] = mapped_column(String(100), nullable=False)
-    events_created_count: Mapped[int] =mapped_column(Integer, nullable=True)
+    
     #clave foránea
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, unique=True)
    
     #1-1
     user:Mapped["User"] = relationship(back_populates="profile")
-   
+    
+    @property
+    def events_created_count(self):
+        if not self.user or not self.user.events:
+            return 0
+        return len(self.user.events)
+
     def serialize(self):
         return {
             "id": self.id,
@@ -398,7 +406,7 @@ class Tag(db.Model):
 
 
     #relación
-    event_tags: Mapped[List["EventTag"]] = relationship(back_populates="tag")
+    event_tags: Mapped[List["EventTag"]] = relationship(back_populates="tag", cascade="all, delete-orphan")
 
 
     def serialize(self):
