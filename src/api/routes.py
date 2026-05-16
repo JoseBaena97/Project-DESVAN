@@ -21,6 +21,7 @@ from api.custom_routes.favorite import *
 from api.custom_routes.reservation import *
 from api.custom_routes.review import *
 from api.custom_routes.tag import *
+from api.custom_routes.event_tag import *
 
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():
