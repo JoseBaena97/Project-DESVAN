@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from api.routes import api
-from api.models import db, Review
+from api.models import db, Review, User, Event
 
 
 @api.route("/review", methods=['GET'])
@@ -17,6 +17,42 @@ def get_review(review_id):
         return jsonify({"success": True, "data": transformed}), 200
     else:
         return jsonify({"success": False, "msg": "Review not found"}), 404
+    
+#Get de reviews escritas por un usurario
+@api.route("/user/<int:user_id>/written_reviews", methods=['GET'])
+def get_written_reviews_by_user(user_id):
+    user = db.session.get(User, user_id)
+    if user:
+        reviews = db.session.execute(db.select(Review).where(Review.reviewer_id == user_id)).scalars().all()
+        transformed = [review.serialize for review in reviews]
+        return jsonify({"success":True, "msg": transformed}), 200
+    else:
+        return jsonify({"success": False, "msg": "User not found"}), 404
+
+
+#Get de reviews recibidas por una usuario
+@api.route("/user/<int:user_id>/recieved_reviews", methods=['GET'])
+def get_recieved_reviews_by_user(user_id):
+    user = db.session.get(User, user_id)
+    if user:
+        reviews = db.session.execute(db.select(Review).where(Review.reviewed_id == user_id)).scalars().all()
+        transformed = [review.serialize for review in reviews]
+        return jsonify({"success":True, "msg": transformed}), 200
+    else:
+        return jsonify({"success": False, "msg": "User not found"}), 404
+
+
+#Get reviews de un evento
+@api.route("/event/<int:event_id>/reviews", methods=['GET'])
+def get_reviews_by_event(event_id):
+    user = db.session.get(Event, event_id)
+    if user:
+        reviews = db.session.execute(db.select(Review).where(Review.event_id == event_id)).scalars().all()
+        transformed = [review.serialize for review in reviews]
+        return jsonify({"success":True, "msg": transformed}), 200
+    else:
+        return jsonify({"success": False, "msg": "Event not found"}), 404
+
 
 @api.route("/review", methods=['POST'])
 def create_review():
