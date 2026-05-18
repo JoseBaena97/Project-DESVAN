@@ -6,6 +6,8 @@ import user_ico from "../assets/img/profile_ico+.png";
 
 export const Navbar = () => {
 	const location = useLocation();
+	const isAuthenticated = !!localStorage.getItem("token");
+
 	return (
 		<nav className="custom-navbar">
 			<div className="container-fluid">
@@ -19,13 +21,13 @@ export const Navbar = () => {
 					<input type="text" placeholder="Buscar rastros, ferias, antigüedades..." />
 				</div>
 				<div className="nav-actions">
-					<Link to="/favorites">
+					<Link to={isAuthenticated ? "/favorites" : "/login"}>
 						<img src={favorites_ico} alt="favorites" className="favorites_ico"/>
 					</Link>
-					<Link to="/profile">
+					<Link to={isAuthenticated ? "/profile" : "/login"}>
 						<img src={user_ico} alt="user" className="user_ico"/>
 					</Link>
-					<Link to="/crear-evento" style={{ textDecoration: 'none' }}>
+					<Link to={isAuthenticated ? "/crear-evento" : "/login"} style={{ textDecoration: 'none' }}>
 						<button className="btn-primary-custom">
 							<img src={create_ico} alt="sdsdsd" className="ico_create"/> Crear evento
 						</button>
