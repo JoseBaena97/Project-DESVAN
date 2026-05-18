@@ -32,6 +32,9 @@ export const Explore = () => {
     const [distance, setDistance] = useState("10km");
     const [favorites, setFavorites] = useState({});
 
+
+    
+
     const toggleFavorite = (id) => {
         setFavorites(prev => ({ ...prev, [id]: !prev[id] }));
     };
