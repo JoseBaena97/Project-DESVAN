@@ -338,6 +338,7 @@ class User(db.Model):
         return {
             "id": self.id,
             "email": self.email,
+            "username":self.username,
             "bio": self.bio,
             "profile_picture_url": self.profile_picture_url,
             "is_verified": self.is_verified,
