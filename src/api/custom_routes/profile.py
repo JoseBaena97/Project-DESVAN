@@ -8,7 +8,7 @@ def get_profiles():
     return jsonify([profile.serialize() for profile in profiles]), 200
 
 @api.route("/profile/<int:profile_id>", methods=["GET"])
-def get_profile(profile_id):
+def get_perfil(profile_id):
     profile = db.session.get(Profile, profile_id)
     if not profile:
         return jsonify({"message": "Profile not found"}), 404

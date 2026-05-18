@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 @api.route('/register', methods=['POST'])
 def register():
     body = request.get_json()
-    if not body ["email"] or not body["password"]:
+    if not body["email"] or not body["password"]:
         return jsonify({"msg": "Missing JSON in request"}), 403
     
     # Check if user already exists
@@ -19,7 +19,7 @@ def register():
         # Hash the password
         hashed_password = generate_password_hash(body["password"])
         
-        new_user = User(email=body["email"], password=hashed_password)
+        new_user = User(email=body["email"], username=body["username"], password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         return jsonify({"msg": "User created successfully"}), 201

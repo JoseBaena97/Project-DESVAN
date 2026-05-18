@@ -12,6 +12,7 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 from api.custom_routes.test import *
+from api.custom_routes.auth import *
 from api.custom_routes.event import *
 from api.custom_routes.user import *
 from api.custom_routes.category import*
