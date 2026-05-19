@@ -19,17 +19,17 @@ export const initialStore=()=>{
 
 export default function storeReducer(store, action = {}) {
   switch(action.type){
-    case 'register':
+    case 'auth':
       return {
         ...store, 
-        register:true, 
+        auth:true, 
         user:action.payload.user
       }
 
     case 'logout':
       return{
         ...store,
-        profile:false, //no se si está bien y debería poner un case login?
+        auth:false, //no se si está bien y debería poner un case login? o no porque hace ya login en el auth?
         user:null
       }
     case 'set_hello':

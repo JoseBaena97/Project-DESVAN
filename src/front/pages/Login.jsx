@@ -16,6 +16,7 @@ export const Login = () => {
     username: "",
     email: "",
     password: "",
+    type:"login",
   });
 
   // UI States
@@ -34,60 +35,91 @@ export const Login = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setError(null);
     setLoading(true);
 
-    try {
-      // Build payload for backend
-      const payload = {
-        email: formData.email,
-        password: formData.password,
-        type: isRegister ? "register" : "login",
-      };
+    authService.auth(formData).then((data)=>{
+      //Para register y autologin
+      if (formData.type === 'register'){
+                return authService.auth({...formData, type:'login'})
+            }
+            return data;
+        })
+        .then(data=>{
+            dispatch({
+                type: 'auth',
+                payload: {
+                    user: data.data
+                }
+            });
 
-      if (isRegister) {
-        payload.username = formData.username; // Required for backend registration
-      }
+            navigate('/explorar');
+        })
+        .catch((err)=> {
+          console.log(err);
 
-      // Call central authentication service
-      const data = await authService.auth(payload);
+          setError( err.message || "Error inesperado.")
 
-      if (isRegister) {
-        // Registration successful
-        // For convenience and smooth user flow, we can automatically switch to login form
-        // or auto-login if the backend returns access_token.
-        if (data.access_token) {
-          // If the backend returns access_token on register, log in immediately
-          dispatch({
-            type: "register", // Action name from storeReducer that handles logged-in state
-            payload: { user: data.data || { email: formData.email, username: formData.username } },
-          });
-          navigate("/explorar");
-        } else {
-          // Switch to login form with clean data and success feedback
-          setIsRegister(false);
-          setError("¡Registro completado! Por favor, inicia sesión con tus credenciales.");
-          setFormData({
-            username: "",
-            email: formData.email,
-            password: "",
-          });
-        }
-      } else {
-        // Login successful
-        dispatch({
-          type: "register", // In storeReducer, 'register' is used to set authenticated state
-          payload: { user: data.data },
+        })
+        .finally(()=>{
+          setLoading(false);
         });
-        navigate("/explorar");
-      }
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Ocurrió un error inesperado al procesar tu solicitud.");
-    } finally {
-      setLoading(false);
-    }
-  };
+
+      };
+    
+
+    // try {
+    //   // Build payload for backend
+    //   const payload = {
+    //     email: formData.email,
+    //     password: formData.password,
+    //     type: isRegister ? "register" : "login",
+    //   };
+
+    //   if (isRegister) {
+    //     payload.username = formData.username; // Required for backend registration
+    //   }
+
+    //   // Call central authentication service
+    //   const data = await authService.auth(payload);
+
+    //   if (isRegister) {
+    //     // Registration successful
+    //     // For convenience and smooth user flow, we can automatically switch to login form
+    //     // or auto-login if the backend returns access_token.
+    //     if (data.access_token) {
+    //       // If the backend returns access_token on register, log in immediately
+    //       dispatch({
+    //         type: "register", // Action name from storeReducer that handles logged-in state
+    //         payload: { user: data.data || { email: formData.email, username: formData.username } },
+    //       });
+    //       navigate("/explorar");
+    //     } else {
+    //       // Switch to login form with clean data and success feedback
+    //       setIsRegister(false);
+    //       setError("¡Registro completado! Por favor, inicia sesión con tus credenciales.");
+    //       setFormData({
+    //         username: "",
+    //         email: formData.email,
+    //         password: "",
+    //       });
+    //     }
+    //   } else {
+    //     // Login successful
+    //     dispatch({
+    //       type: "register", // In storeReducer, 'register' is used to set authenticated state
+    //       payload: { user: data.data },
+    //     });
+    //     navigate("/explorar");
+    //   }
+    // } catch (err) {
+    //   console.error(err);
+    //   setError(err.message || "Ocurrió un error inesperado al procesar tu solicitud.");
+    // } finally {
+    //   setLoading(false);
+    // }
+ // };
 
   // Toggle state between Login and Register
   const handleToggleMode = () => {
@@ -97,6 +129,7 @@ export const Login = () => {
       username: "",
       email: "",
       password: "",
+      type: formData.type === "register" ? "login" : "register",
     });
   };
 

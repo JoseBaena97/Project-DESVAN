@@ -3,7 +3,7 @@ const url = import.meta.env.VITE_BACKEND_URL;
 
 authService.auth = async (FormData) => {
   try {
-    const resp = await fetch(url + "api/register", {
+    const resp = await fetch(url + "api/auth", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
