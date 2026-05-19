@@ -12,6 +12,11 @@ import { Demo } from "./pages/Demo";
 import { Explore } from "./pages/Explore";
 import { CreateEvent } from "./pages/CreateEvent";
 import { Login } from "./pages/Login";
+import { AccountLayout } from "./pages/account/AccountLayout";
+import { Profile } from "./pages/account/Profile";
+import { Favorites } from "./pages/account/Favorites";
+import { Reservations } from "./pages/account/Reservations";
+import { MyEvents } from "./pages/account/MyEvents";
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
@@ -25,6 +30,14 @@ export const router = createBrowserRouter(
           <Route path="/demo" element={<Demo />} />
           <Route path="/explorar" element={<Explore />} />
           <Route path="/crear-evento" element={<CreateEvent />} />
+        </Route>
+
+        {/* Área de cuenta — navbar + sidebar, sin footer */}
+        <Route element={<AccountLayout />}>
+          <Route path="/perfil" element={<Profile />} />
+          <Route path="/favoritos" element={<Favorites />} />
+          <Route path="/mis-reservas" element={<Reservations />} />
+          <Route path="/mis-eventos" element={<MyEvents />} />
         </Route>
 
         {/* Login / Registration Page separado sin navbar ni footer */}

@@ -21,10 +21,10 @@ export const Navbar = () => {
 					<input type="text" placeholder="Buscar rastros, ferias, antigüedades..." />
 				</div>
 				<div className="nav-actions">
-					<Link to={isAuthenticated ? "/favorites" : "/login"}>
+					<Link to={isAuthenticated ? "/favoritos" : "/login"}>
 						<img src={favorites_ico} alt="favorites" className="favorites_ico"/>
 					</Link>
-					<Link to={isAuthenticated ? "/profile" : "/login"}>
+					<Link to={isAuthenticated ? "/perfil" : "/login"}>
 						<img src={user_ico} alt="user" className="user_ico"/>
 					</Link>
 					<Link to={isAuthenticated ? "/crear-evento" : "/login"} style={{ textDecoration: 'none' }}>
