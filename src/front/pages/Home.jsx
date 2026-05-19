@@ -82,7 +82,7 @@ export const Home = () => {
 								Únete a Desván, explora eventos locales llenos de objetos únicos, historias y descubrimientos inesperados, o bien, créalos tú.
 							</p>
 							<div className="banner-actions">
-								<Link to="/register" style={{ textDecoration: 'none' }}>
+								<Link to="/login" style={{ textDecoration: 'none' }}>
 									<button className="btn-free-account">
 										CREAR CUENTA GRATUITA <i className="fa-solid fa-arrow-right"></i>
 									</button>
@@ -100,4 +100,4 @@ export const Home = () => {
 			</div>
 		</div>
 	);
-}; 
+};
