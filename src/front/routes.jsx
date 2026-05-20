@@ -17,6 +17,7 @@ import { Profile } from "./pages/account/Profile";
 import { Favorites } from "./pages/account/Favorites";
 import { Reservations } from "./pages/account/Reservations";
 import { MyEvents } from "./pages/account/MyEvents";
+import { Details } from "./pages/Details"
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
@@ -30,6 +31,7 @@ export const router = createBrowserRouter(
           <Route path="/demo" element={<Demo />} />
           <Route path="/explorar" element={<Explore />} />
           <Route path="/crear-evento" element={<CreateEvent />} />
+          <Route path="/detalles/:eventId" element={<Details />} />
         </Route>
 
         {/* Área de cuenta — navbar + sidebar, sin footer */}

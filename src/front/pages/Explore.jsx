@@ -1,5 +1,6 @@
 import { useState } from "react";
 import caja05 from "../assets/img/caja05.png";
+import { Link } from "react-router-dom";
 
 const CATEGORIES = ["Todos los rastros", "Muebles", "Ropa", "Joyería", "Libros", "Decoración", "Vintage"];
 
@@ -179,7 +180,9 @@ export const Explore = () => {
                                 <div className="event-card-body">
                                     <h3 className="event-card-title">{event.title}</h3>
                                     <p className="event-card-desc">{event.description}</p>
-                                    <button className="btn-ver-rastro">Ver rastro</button>
+                                    <Link to={`/detalles/${event.id}`}>
+                                        <button className="btn-ver-rastro">Ver rastro</button>
+                                    </Link>
                                 </div>
                             </div>
                         ))}
