@@ -15,38 +15,6 @@ def get_user(user_id):
         return jsonify({"message": "User not found"}), 404
     return jsonify(user.serialize()), 200
 
-@api.route("/user", methods=["POST"])
-def create_user():
-    body = request.get_json()
-    if not body:
-        return jsonify({"message": "Request body is required"}), 400
-    
-    email = body.get("email")
-    password = body.get("password")
-    username = body.get("username")
-
-    if not email or not password or not username:
-        return jsonify({"message": "Email, password and username are required"}), 400
-    
-    # Check if user already exists
-    existing_user = db.session.execute(
-        db.select(User).where((User.email == email) | (User.username == username))
-    ).scalar_one_or_none()
-    
-    if existing_user:
-        return jsonify({"message": "User with this email or username already exists"}), 400
-
-    new_user = User(
-        email=email,
-        password=password,
-        username=username,
-        bio=body.get("bio"),
-        profile_picture_url=body.get("profile_picture_url")
-    )
-    db.session.add(new_user)
-    db.session.commit()
-    
-    return jsonify({"message": "User created successfully", "user": new_user.serialize()}), 201
 
 @api.route("/user/<int:user_id>", methods=["PUT"])
 def update_user(user_id):
