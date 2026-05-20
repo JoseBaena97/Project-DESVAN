@@ -13,7 +13,7 @@ authService.auth = async (FormData) => {
     if (!resp.ok) throw new Error("Error auth");
     const data = await resp.json(); //se cuela solo la info necesaria
     
-    if (data.access_token) localStorage.setItem("token", data.token);
+    if (data.access_token) localStorage.setItem("token", data.access_token);
     return data;
   } catch (error) {
     console.log(error);
