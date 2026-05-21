@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import mascotOpen from "../assets/img/caja04.png";
+import eventService from "../services/event.service";
 
 const CATEGORIES = [
     { value: "", label: "Selecciona una categoría" },
@@ -22,21 +23,23 @@ export const CreateEvent = () => {
         return <Navigate to="/login" replace />;
     }
 
-    const [form, setForm] = useState({
-        name: "",
-        type: "",
+    const [eventData, setEventData] = useState({
+        title: "",
         description: "",
-        place: "",
+        status: "", // tengo que rellenarlo como activo yo?
+        event_type: "",
+        start_time: "",
+        end_time: "",
+        start_date: "",
+        end_date: "",
+        latitude: "",
+        longitude: "",
+        exact_address: "",
         city: "",
-        address: "",
-        postalCode: "",
-        startDate: "",
-        endDate: "",
-        startTime: "",
-        endTime: "",
-        multiDay: false,
-        category: "",
-        tags: "",
+        place: "",
+        max_capacity: "",
+        postal_code: "",
+        seller_id: "",
     });
 
     const [images, setImages] = useState([]);
@@ -44,7 +47,7 @@ export const CreateEvent = () => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setForm((prev) => ({
+        setEventData((prev) => ({
             ...prev,
             [name]: type === "checkbox" ? checked : value,
         }));
@@ -65,7 +68,16 @@ export const CreateEvent = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("Event data:", form, mainImage, images);
+        eventService.createEvent(eventData)
+            .then((data) => {
+                console.log("Evento creado:", data);
+                
+            })
+            .catch((err) => {
+                console.error("Error al crear el evento:", err);
+                
+            });
+        
     };
 
     return (
@@ -103,9 +115,9 @@ export const CreateEvent = () => {
                                     </label>
                                     <input
                                         type="text"
-                                        name="name"
+                                        name="title"
                                         placeholder="Ej: Rastro de San Fernando"
-                                        value={form.name}
+                                        value={eventData.title}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -115,8 +127,8 @@ export const CreateEvent = () => {
                                     </label>
                                     <div className="select-wrap">
                                         <select
-                                            name="type"
-                                            value={form.type}
+                                            name="event_type"
+                                            value={eventData.event_type}
                                             onChange={handleChange}
                                         >
                                             {EVENT_TYPES.map((t) => (
@@ -139,12 +151,12 @@ export const CreateEvent = () => {
                                         name="description"
                                         placeholder="Cuéntanos más sobre tu evento..."
                                         maxLength={500}
-                                        value={form.description}
+                                        value={eventData.description}
                                         onChange={handleChange}
                                         rows={5}
                                     />
                                     <span className="char-count">
-                                        {form.description.length}/500
+                                        {eventData.description.length}/500
                                     </span>
                                 </div>
                             </div>
@@ -168,7 +180,7 @@ export const CreateEvent = () => {
                                         type="text"
                                         name="place"
                                         placeholder="Ej: Plaza de San Fernando"
-                                        value={form.place}
+                                        value={eventData.place}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -180,7 +192,7 @@ export const CreateEvent = () => {
                                         type="text"
                                         name="city"
                                         placeholder="Ej: Madrid"
-                                        value={form.city}
+                                        value={eventData.city}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -191,9 +203,9 @@ export const CreateEvent = () => {
                                     <label>Dirección exacta</label>
                                     <input
                                         type="text"
-                                        name="address"
+                                        name="exact_address"
                                         placeholder="Ej: Calle de Embajadores, 5"
-                                        value={form.address}
+                                        value={eventData.exact_address}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -201,9 +213,9 @@ export const CreateEvent = () => {
                                     <label>Código postal</label>
                                     <input
                                         type="text"
-                                        name="postalCode"
+                                        name="postal_code"
                                         placeholder="Ej: 28012"
-                                        value={form.postalCode}
+                                        value={eventData.postal_code}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -226,8 +238,8 @@ export const CreateEvent = () => {
                                     </label>
                                     <input
                                         type="date"
-                                        name="startDate"
-                                        value={form.startDate}
+                                        name="start_date"
+                                        value={eventData.start_date} 
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -237,8 +249,8 @@ export const CreateEvent = () => {
                                     </label>
                                     <input
                                         type="date"
-                                        name="endDate"
-                                        value={form.endDate}
+                                        name="end_date"
+                                        value={eventData.end_date}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -249,8 +261,8 @@ export const CreateEvent = () => {
                                     <label>Hora de inicio</label>
                                     <input
                                         type="time"
-                                        name="startTime"
-                                        value={form.startTime}
+                                        name="start_time"
+                                        value={eventData.start_time}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -258,22 +270,22 @@ export const CreateEvent = () => {
                                     <label>Hora de fin</label>
                                     <input
                                         type="time"
-                                        name="endTime"
-                                        value={form.endTime}
+                                        name="end_time"
+                                        value={eventData.end_time}
                                         onChange={handleChange}
                                     />
                                 </div>
                             </div>
 
-                            <label className="checkbox-inline">
+                            {/*<label className="checkbox-inline">
                                 <input
                                     type="checkbox"
                                     name="multiDay"
-                                    checked={form.multiDay}
+                                    checked={eventData.multiDay}          QUITAR NO TENEMOS OPCIÓN MULTIDAY
                                     onChange={handleChange}
                                 />
                                 <span>Evento de varios días</span>
-                            </label>
+                            </label>*/}
                         </div>
 
                         {/* Categoría y etiquetas */}
@@ -294,7 +306,7 @@ export const CreateEvent = () => {
                                     <div className="select-wrap">
                                         <select
                                             name="category"
-                                            value={form.category}
+                                            value={eventData.category}
                                             onChange={handleChange}
                                         >
                                             {CATEGORIES.map((c) => (
@@ -312,7 +324,7 @@ export const CreateEvent = () => {
                                         type="text"
                                         name="tags"
                                         placeholder="Añade etiquetas (máx. 5)"
-                                        value={form.tags}
+                                        value={eventData.tags}
                                         onChange={handleChange}
                                     />
                                     <span className="input-hint">

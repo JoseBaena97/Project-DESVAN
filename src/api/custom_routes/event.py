@@ -2,14 +2,24 @@ from flask import request, jsonify
 from api.routes import api
 from api.models import db, Event, EventType, EventStatus
 from datetime import datetime
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
-@api.route("/event", methods=['GET'])
-def get_events():
+
+@api.route("/event/public", methods=['GET'])
+def get_events_public():
+    events = db.session.execute(db.select(Event)).scalars().all()
+    transformed = [event.public_serialize() for event in events]
+    return jsonify({"success": True, "data": transformed}), 200
+
+@api.route("/event/private", methods=['GET'])
+@jwt_required()
+def get_events_private():
     events = db.session.execute(db.select(Event)).scalars().all()
     transformed = [event.serialize() for event in events]
     return jsonify({"success": True, "data": transformed}), 200
 
 @api.route("/event/<int:event_id>", methods=['GET'])
+@jwt_required()
 def get_event(event_id):
     event = db.session.get(Event, event_id)
     transformed = event.serialize()
@@ -19,10 +29,11 @@ def get_event(event_id):
         return jsonify({"success": False, "msg": "Event not found"}), 404
 
 @api.route("/event", methods=['POST'])
+@jwt_required()
 def create_event():
     #Verificación de datos necesarios
     body = request.get_json()
-    
+    seller_id = get_jwt_identity()
 
     required_fields = ['title', 'status', 'event_type', 'start_time', 'end_time', 'latitude', 'longitude', 'exact_address', 'city', 'seller_id']
     for field in required_fields:
@@ -40,7 +51,7 @@ def create_event():
         longitude=body['longitude'],
         exact_address=body['exact_address'],
         city=body['city'],
-        seller_id=body['seller_id']
+        seller_id = seller_id
     )
 
     db.session.add(new_event)

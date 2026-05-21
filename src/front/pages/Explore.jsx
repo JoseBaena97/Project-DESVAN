@@ -1,44 +1,69 @@
 import { useState } from "react";
 import caja05 from "../assets/img/caja05.png";
+import { useEffect } from "react";
+import eventService from "../services/event.service";
 
 const CATEGORIES = ["Todos los rastros", "Muebles", "Ropa", "Joyería", "Libros", "Decoración", "Vintage"];
 
-const EVENTS = [
-    {
-        id: 1,
-        title: "Mercado de Motores",
-        description: "Una cuidadosa selección de mobiliario vintage, ropa retro y curiosidades en un entorno industrial...",
-        badge: { text: "Destacado", icon: "fa-star", type: "destacado" },
-        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=380&fit=crop",
-    },
-    {
-        id: 2,
-        title: "Feria de Almoneda",
-        description: "Antigüedades clásicas, joyería de época y piezas únicas de coleccionista. Ideal para los más...",
-        badge: null,
-        image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&h=380&fit=crop",
-    },
-    {
-        id: 3,
-        title: "Mercado Vintage",
-        description: "Exclusiva selección de prendas de los años 70 y 80, accesorios retro y moda circular de calidad.",
-        badge: { text: "Especial Moda", icon: null, type: "moda" },
-        image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&h=380&fit=crop",
-    },
-];
+// const EVENTS = [
+//     {
+//         id: 1,
+//         title: "Mercado de Motores",
+//         description: "Una cuidadosa selección de mobiliario vintage, ropa retro y curiosidades en un entorno industrial...",
+//         badge: { text: "Destacado", icon: "fa-star", type: "destacado" },
+//         image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=380&fit=crop",
+//     },
+//     {
+//         id: 2,
+//         title: "Feria de Almoneda",
+//         description: "Antigüedades clásicas, joyería de época y piezas únicas de coleccionista. Ideal para los más...",
+//         badge: null,
+//         image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&h=380&fit=crop",
+//     },
+//     {
+//         id: 3,
+//         title: "Mercado Vintage",
+//         description: "Exclusiva selección de prendas de los años 70 y 80, accesorios retro y moda circular de calidad.",
+//         badge: { text: "Especial Moda", icon: null, type: "moda" },
+//         image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&h=380&fit=crop",
+//     },
+// ];
+
+
 
 export const Explore = () => {
-    const [selectedCategory, setSelectedCategory] = useState("Todos los rastros");
-    const [distance, setDistance] = useState("10km");
-    const [favorites, setFavorites] = useState({});
 
+    const [events, setEvents] = useState([]);
+
+    const [selectedCategory, setSelectedCategory] = useState("Todos los rastros");
+    
+    const [distance, setDistance] = useState("10km");
+    
+    const [favorites, setFavorites] = useState({});
+    
+    
+   
+    //Para que carguen los eventos
+    useEffect(() => {
+        if (localStorage.getItem("token")){
+            eventService.getEvents()
+            
+                .then(data => setEvents(data.data))
+                .catch(err => console.log(err));
+
+        } else {
+            eventService.getEventsPublic()
+                .then(data => setEvents(data.data))
+                .catch(err => console.log(err));
+        }
+
+    }, []);
 
     
 
     const toggleFavorite = (id) => {
         setFavorites(prev => ({ ...prev, [id]: !prev[id] }));
     };
-
     return (
         <div className="explore-page">
             <div className="explore-layout">
@@ -158,7 +183,7 @@ export const Explore = () => {
                     </div>
 
                     <div className="events-grid">
-                        {EVENTS.map(event => (
+                        {events?.map(event => (
                             <div key={event.id} className="event-card">
                                 <div className="event-img-wrapper">
                                     <img src={event.image} alt={event.title} className="event-img" />
@@ -179,6 +204,7 @@ export const Explore = () => {
                                 <div className="event-card-body">
                                     <h3 className="event-card-title">{event.title}</h3>
                                     <p className="event-card-desc">{event.description}</p>
+                                    <p className="event-card-desc">{event.city}</p>
                                     <button className="btn-ver-rastro">Ver rastro</button>
                                 </div>
                             </div>
