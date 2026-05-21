@@ -33,7 +33,6 @@ authService.getMe = async () => {
     });
     if (!resp.ok) throw new Error("Error auth");
     const data = await resp.json(); //se cuela solo la info necesaria
-    console.log(data)
     return data;
   } catch (error) {
     console.log(error);

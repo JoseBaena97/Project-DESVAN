@@ -141,9 +141,11 @@ class Event (db.Model): #ESTA TABLA DEBE IR ARRIBA?
     status: Mapped[EventStatus] = mapped_column(Enum(EventStatus), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     
-    event_type: Mapped[EventType] = mapped_column(Enum(EventType), nullable=False)  # Punto 9: publico/privado
+    event_type: Mapped[EventType] = mapped_column(Enum(EventType), nullable=False) 
     start_time: Mapped[datetime]  = mapped_column(DateTime(timezone=True))
     end_time: Mapped[datetime]  = mapped_column(DateTime(timezone=True))
+    start_date: Mapped[datetime]  = mapped_column(DateTime(timezone=True)) #añadido 
+    end_date: Mapped[datetime]  = mapped_column(DateTime(timezone=True)) #añadido
     max_capacity: Mapped[int] = mapped_column(Integer, nullable= True)
 
 
@@ -191,6 +193,12 @@ class Event (db.Model): #ESTA TABLA DEBE IR ARRIBA?
         if not self.reviews:
             return None
         return round(sum(r.rating for r in self.reviews) / len(self.reviews), 2)
+    def public_serialize(self):
+        return {
+            "title": self.title,
+            "description": self.description,
+            "image_url":self.image_url
+        }
     def serialize(self):
         return {
             "id": self.id,
@@ -205,6 +213,8 @@ class Event (db.Model): #ESTA TABLA DEBE IR ARRIBA?
             "postal_code": self.postal_code,
             "start_time":self.start_time.isoformat() if self.start_time else None,
             "end_time": self.end_time.isoformat() if self.end_time else None,
+            "start_date":self.start_date.isoformat() if self.start_date else None,
+            "end_date": self.end_date.isoformat() if self.end_date else None,
             "max_capacity":self.max_capacity,
             "status":self.status.value,
             "created_at":self.created_at.isoformat() if self.created_at else None,
