@@ -37,18 +37,18 @@ export const Explore = () => {
     const [events, setEvents] = useState([]);
 
     const [selectedCategory, setSelectedCategory] = useState("Todos los rastros");
-    
+
     const [distance, setDistance] = useState("10km");
-    
+
     const [favorites, setFavorites] = useState({});
-    
-    
-   
+
+
+
     //Para que carguen los eventos
     useEffect(() => {
-        if (localStorage.getItem("token")){
+        if (localStorage.getItem("token")) {
             eventService.getEvents()
-            
+
                 .then(data => setEvents(data.data))
                 .catch(err => console.log(err));
 
@@ -60,7 +60,7 @@ export const Explore = () => {
 
     }, []);
 
-    
+
 
     const toggleFavorite = (id) => {
         setFavorites(prev => ({ ...prev, [id]: !prev[id] }));
@@ -184,35 +184,42 @@ export const Explore = () => {
                     </div>
 
                     <div className="events-grid">
-                        {events?.map(event => (
-                            <div key={event.id} className="event-card">
-                                <div className="event-img-wrapper">
-                                    <img src={event.image} alt={event.title} className="event-img" />
-                                    {event.badge && (
-                                        <span className={`event-badge event-badge--${event.badge.type}`}>
-                                            {event.badge.icon && <i className={`fa-solid ${event.badge.icon}`}></i>}
-                                            {event.badge.text}
-                                        </span>
-                                    )}
-                                    <button
-                                        className={`event-fav-btn${favorites[event.id] ? " active" : ""}`}
-                                        onClick={() => toggleFavorite(event.id)}
-                                        aria-label="Añadir a favoritos"
-                                    >
-                                        <i className={favorites[event.id] ? "fa-solid fa-heart" : "fa-regular fa-heart"}></i>
-                                    </button>
+                        {events?.map(event => {
+                           
+                            return (
+                                <div key={event.id} className="event-card">
+                                    <div className="event-img-wrapper">
+                                        <img src={event.image} alt={event.title} className="event-img" />
+
+                                        {event.badge && (
+                                            <span className={`event-badge event-badge--${event.badge.type}`}>
+                                                {event.badge.icon && <i className={`fa-solid ${event.badge.icon}`}></i>}
+                                                {event.badge.text}
+                                            </span>
+                                        )}
+
+                                        <button
+                                            className={`event-fav-btn${favorites[event.id] ? " active" : ""}`}
+                                            onClick={() => toggleFavorite(event.id)}
+                                            aria-label="Añadir a favoritos"
+                                        >
+                                            <i className={favorites[event.id] ? "fa-solid fa-heart" : "fa-regular fa-heart"}></i>
+                                        </button>
+                                    </div>
+
+                                    <div className="event-card-body">
+                                        <h3 className="event-card-title">{event.title}</h3>
+                                        <p className="event-card-desc">{event.description}</p>
+
+                                        <Link to={`/detalles/${event.id}`}>
+                                            <button className="btn-ver-rastro">Ver rastro</button>
+                                        </Link>
+
+                                        <p className="event-card-desc">{event.city}</p>
+                                    </div>
                                 </div>
-                                <div className="event-card-body">
-                                    <h3 className="event-card-title">{event.title}</h3>
-                                    <p className="event-card-desc">{event.description}</p>
-                                    <Link to={`/detalles/${event.id}`}>
-                                        <button className="btn-ver-rastro">Ver rastro</button>
-                                    </Link>
-                                    <p className="event-card-desc">{event.city}</p>
-                                    <button className="btn-ver-rastro">Ver rastro</button>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
 
                         {/* Discover more card */}
                         <div className="event-card discover-card">

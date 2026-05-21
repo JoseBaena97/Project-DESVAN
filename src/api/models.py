@@ -195,6 +195,7 @@ class Event (db.Model): #ESTA TABLA DEBE IR ARRIBA?
         return round(sum(r.rating for r in self.reviews) / len(self.reviews), 2)
     def public_serialize(self):
         return {
+            
             "title": self.title,
             "description": self.description,
             "image_url":self.image_url

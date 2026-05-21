@@ -72,6 +72,10 @@ const getEvent = async (eventId) => {
     },
   });
 
+   if (resp.status === 401 || resp.status === 422) {
+      throw new Error("UNAUTHORIZED");
+    }
+
   if (!resp.ok) throw new Error("Error getting event");
 
   const data = await resp.json();
