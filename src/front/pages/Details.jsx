@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import "./Details.css";
 import caja04 from "../assets/img/caja04.png";
 import eventService from "../services/event.service";
+import favoriteService from "../services/favorite.service";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 export const Details = () => {
   const { eventId } = useParams();
@@ -13,6 +15,9 @@ export const Details = () => {
   const [shareFeedback, setShareFeedback] = useState("");
   const [showAllModal, setShowAllModal] = useState(false);
   const [event, setEvent] = useState(null);
+  const [favoriteRecord, setFavoriteRecord] = useState(null);
+
+  const { store } = useGlobalReducer();
 
   // ── FETCH EVENT ──
   useEffect(() => {
@@ -32,6 +37,18 @@ export const Details = () => {
       .catch(err => console.log(err));
 
   }, [eventId]);
+
+  useEffect(() => {
+    if (!event || !store.user) {
+      setFavoriteRecord(null);
+      setIsSaved(false);
+      return;
+    }
+
+    const currentFavorite = event.favorites?.find((fav) => fav.user?.id === store.user.id) ?? null;
+    setFavoriteRecord(currentFavorite);
+    setIsSaved(Boolean(currentFavorite));
+  }, [event, store.user]);
 
   // ── LOADING STATE ──
   if (!event) {
@@ -60,7 +77,36 @@ export const Details = () => {
       });
   };
 
-  const toggleSave = () => setIsSaved(prev => !prev);
+  const toggleSave = async () => {
+    if (!store.user) {
+      navigate("/login");
+      return;
+    }
+
+    if (favoriteRecord) {
+      const resp = await favoriteService.deleteFavorite(favoriteRecord.id);
+      if (resp) {
+        setFavoriteRecord(null);
+        setIsSaved(false);
+        setEvent((prevEvent) => ({
+          ...prevEvent,
+          favorites: (prevEvent.favorites || []).filter((fav) => fav.id !== favoriteRecord.id),
+        }));
+      }
+      return;
+    }
+
+    const resp = await favoriteService.createFavorite(event.id);
+    if (resp?.favorite) {
+      setFavoriteRecord(resp.favorite);
+      setIsSaved(true);
+      setEvent((prevEvent) => ({
+        ...prevEvent,
+        favorites: [...(prevEvent.favorites || []), resp.favorite],
+      }));
+    }
+  };
+
   const handleReserve = () => setIsReserved(prev => !prev);
 
   return (

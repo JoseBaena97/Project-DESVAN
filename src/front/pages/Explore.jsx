@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import caja05 from "../assets/img/caja05.png";
-import { Link } from "react-router-dom";
-import { useEffect } from "react";
 import eventService from "../services/event.service";
+import favoriteService from "../services/favorite.service";
+import authService from "../services/auth.service";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 const CATEGORIES = ["Todos los rastros", "Muebles", "Ropa", "Joyería", "Libros", "Decoración", "Vintage"];
 
@@ -40,30 +42,100 @@ export const Explore = () => {
 
     const [distance, setDistance] = useState("10km");
 
-    const [favorites, setFavorites] = useState({});
+    const [favoriteMap, setFavoriteMap] = useState({});
+
+    const { store, dispatch } = useGlobalReducer();
+    const navigate = useNavigate();
+
+    const buildFavoriteMap = (loadedEvents, userId) => {
+        return loadedEvents.reduce((map, event) => {
+            const favorite = event.favorites?.find((fav) => fav.user?.id === userId);
+            if (favorite) {
+                map[event.id] = favorite.id;
+            }
+            return map;
+        }, {});
+    };
 
 
 
     //Para que carguen los eventos
     useEffect(() => {
-        if (localStorage.getItem("token")) {
-            eventService.getEvents()
-
-                .then(data => setEvents(data.data))
-                .catch(err => console.log(err));
-
-        } else {
-            eventService.getEventsPublic()
-                .then(data => setEvents(data.data))
-                .catch(err => console.log(err));
+        if (localStorage.getItem("token") && !store.user) {
+            authService.getMe()
+                .then((data) => {
+                    if (data?.data) {
+                        dispatch({
+                            type: "auth",
+                            payload: { user: data.data },
+                        });
+                    }
+                })
+                .catch(() => {
+                    localStorage.removeItem("token");
+                });
         }
+
+        const loader = localStorage.getItem("token") ? eventService.getEvents() : eventService.getEventsPublic();
+
+        loader
+            .then((data) => {
+                const items = data?.data || [];
+                setEvents(items);
+                if (store.user) {
+                    setFavoriteMap(buildFavoriteMap(items, store.user.id));
+                }
+            })
+            .catch((err) => console.log(err));
 
     }, []);
 
+    useEffect(() => {
+        if (store.user && events.length) {
+            setFavoriteMap(buildFavoriteMap(events, store.user.id));
+        }
+    }, [store.user, events]);
 
 
-    const toggleFavorite = (id) => {
-        setFavorites(prev => ({ ...prev, [id]: !prev[id] }));
+
+    const toggleFavorite = async (event) => {
+        if (!store.user) {
+            navigate("/login");
+            return;
+        }
+
+        const favoriteId = favoriteMap[event.id];
+
+        if (favoriteId) {
+            const resp = await favoriteService.deleteFavorite(favoriteId);
+            if (resp) {
+                setEvents((prevEvents) =>
+                    prevEvents.map((evt) =>
+                        evt.id === event.id
+                            ? { ...evt, favorites: (evt.favorites || []).filter((fav) => fav.id !== favoriteId) }
+                            : evt
+                    )
+                );
+                setFavoriteMap((prev) => {
+                    const next = { ...prev };
+                    delete next[event.id];
+                    return next;
+                });
+            }
+            return;
+        }
+
+        const resp = await favoriteService.createFavorite(event.id);
+        if (resp?.favorite) {
+            setEvents((prevEvents) =>
+                prevEvents.map((evt) =>
+                    evt.id === event.id
+                        ? { ...evt, favorites: [...(evt.favorites || []), resp.favorite] }
+                        : evt
+                )
+            );
+            setFavoriteMap((prev) => ({ ...prev, [event.id]: resp.favorite.id }));
+        }
     };
     return (
         <div className="explore-page">
@@ -185,11 +257,11 @@ export const Explore = () => {
 
                     <div className="events-grid">
                         {events?.map(event => {
-                           
+
                             return (
                                 <div key={event.id} className="event-card">
                                     <div className="event-img-wrapper">
-                                        <img src={event.image} alt={event.title} className="event-img" />
+                                        <img src={event.image_url?.cover || event.image} alt={event.title} className="event-img" />
 
                                         {event.badge && (
                                             <span className={`event-badge event-badge--${event.badge.type}`}>
@@ -199,11 +271,11 @@ export const Explore = () => {
                                         )}
 
                                         <button
-                                            className={`event-fav-btn${favorites[event.id] ? " active" : ""}`}
-                                            onClick={() => toggleFavorite(event.id)}
-                                            aria-label="Añadir a favoritos"
+                                            className={`event-fav-btn${favoriteMap[event.id] ? " active" : ""}`}
+                                            onClick={() => toggleFavorite(event)}
+                                            aria-label={favoriteMap[event.id] ? "Quitar de favoritos" : "Añadir a favoritos"}
                                         >
-                                            <i className={favorites[event.id] ? "fa-solid fa-heart" : "fa-regular fa-heart"}></i>
+                                            <i className={favoriteMap[event.id] ? "fa-solid fa-heart" : "fa-regular fa-heart"}></i>
                                         </button>
                                     </div>
 

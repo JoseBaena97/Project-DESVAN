@@ -883,7 +883,11 @@ h6 {
 }
 
 .btn-ver-rastro {
+  display: inline-flex;
   width: 100%;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
   background: transparent;
   color: var(--text-red);
   border: 1.5px solid var(--text-red);
@@ -901,6 +905,7 @@ h6 {
 .btn-ver-rastro:hover {
   background-color: var(--text-red);
   color: white;
+  text-decoration: none;
 }
 
 /* Discover more card */
