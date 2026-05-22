@@ -1,42 +1,61 @@
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
+import favoriteService from "../../services/favorite.service";
+import authService from "../../services/auth.service";
+import useGlobalReducer from "../../hooks/useGlobalReducer";
 
-const FAVORITES = [
-	{
-		id: 1,
-		badge: { text: "Destacado", variant: "destacado" },
-		tags: ["Vintage", "Cámaras"],
-		title: "Mercado de Coleccionismo Vintage",
-		location: "Madrid Centro",
-		date: "15 Octubre, 2023",
-		description:
-			"Una cuidadosa selección de cámaras analógicas, lentes raras y accesorios fotográficos de época en un entorno industrial recuperado.",
-		/* TODO: Imagen de la tarjeta 1
-		   imageSrc: import ... o ruta en /assets/img/...
-		*/
-	},
-	{
-		id: 2,
-		badge: { text: "Popular", variant: "popular" },
-		tags: ["Antigüedades", "Muebles"],
-		title: "Feria de Antigüedades del Sur",
-		location: "Sevilla",
-		date: "22 Octubre, 2023",
-		description:
-			"Antigüedades clásicas, muebles de mediados de siglo y piezas únicas de coleccionista en un mercado al aire libre.",
-	},
-	{
-		id: 3,
-		badge: null,
-		tags: ["Joyas", "Relojes"],
-		title: "Exhibición de Relojería Clásica",
-		location: "Barcelona",
-		date: "03 Noviembre, 2023",
-		description:
-			"Exposición dedicada a relojes de bolsillo, cronómetros militares y joyería vintage de los siglos XVIII al XX.",
-	},
-];
 
 export const Favorites = () => {
+	const [favorites, setFavorites] = useState([]);
+	const { store, dispatch } = useGlobalReducer();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		if (!token) {
+			navigate("/login");
+			return;
+		}
+
+		const loadUserAndFavorites = async () => {
+			let user = store.user;
+			if (!user) {
+				try {
+					const profile = await authService.getMe();
+					user = profile?.data;
+					if (user) {
+						dispatch({ type: "auth", payload: { user } });
+					}
+				} catch (error) {
+					navigate("/login");
+					return;
+				}
+			}
+
+			if (!user) {
+				navigate("/login");
+				return;
+			}
+
+			favoriteService
+				.getFavoritesByUser(user.id)
+				.then((data) => {
+					setFavorites(data || []);
+				})
+				.catch((err) => console.log(err));
+		};
+
+		loadUserAndFavorites();
+	}, [store.user, dispatch, navigate]);
+
+	const handleRemove = async (favoriteId) => {
+		const resp = await favoriteService.deleteFavorite(favoriteId);
+		if (resp) {
+			setFavorites((prev) => prev.filter((fav) => fav.id !== favoriteId));
+		}
+	};
+
 	return (
 		<div className="favorites-page">
 			<AccountPageHeader
@@ -47,53 +66,52 @@ export const Favorites = () => {
 			/>
 
 			<div className="favorites-grid">
-				{FAVORITES.map((item) => (
-					<article key={item.id} className="favorite-card">
-						<div className="favorite-card-image">
-							{/* TODO: Imagen del evento favorito — sustituye el div por:
-							    <img src={item.imageSrc} alt={item.title} />
-							*/}
-							<div className="account-img-placeholder" aria-hidden="true" />
+				{favorites.length === 0 ? (
+					<div className="favorite-empty-state">
+						<p>No tienes favoritos todavía.</p>
+					</div>
+				) : (
+					favorites.map((item) => (
+						<article key={item.id} className="favorite-card">
+							<div className="favorite-card-image">
+								{item.event?.image_url?.cover ? (
+									<img src={item.event.image_url.cover} alt={item.event?.title} />
+								) : (
+									<div className="account-img-placeholder" aria-hidden="true" />
+								)}
 
-							{item.badge && (
-								<span className={`favorite-badge favorite-badge--${item.badge.variant}`}>
-									{item.badge.text}
-								</span>
-							)}
+								<button
+									type="button"
+									className="event-fav-btn active"
+									aria-label="Quitar de favoritos"
+									onClick={() => handleRemove(item.id)}
+								>
+									<i className="fa-solid fa-heart" />
+								</button>
+							</div>
 
-							<button type="button" className="favorite-heart" aria-label="Quitar de favoritos">
-								<i className="fa-solid fa-heart" />
-							</button>
-						</div>
+							<div className="favorite-card-body">
+								<h2 className="favorite-card-title">{item.event?.title}</h2>
 
-						<div className="favorite-card-body">
-							<div className="favorite-tags">
-								{item.tags.map((tag) => (
-									<span key={tag} className="favorite-tag">
-										{tag}
+								<div className="favorite-meta">
+									<span>
+										<i className="fa-solid fa-location-dot" /> {item.event?.city}
 									</span>
-								))}
+									<span>
+										<i className="fa-regular fa-calendar" />
+										{item.event?.start_time ? new Date(item.event.start_time).toLocaleDateString() : ""}
+									</span>
+								</div>
+
+								<p className="favorite-card-desc">{item.event?.description}</p>
+
+								<Link to={`/detalles/${item.event?.id}`} className="btn-ver-rastro">
+									Ver rastro
+								</Link>
 							</div>
-
-							<h2 className="favorite-card-title">{item.title}</h2>
-
-							<div className="favorite-meta">
-								<span>
-									<i className="fa-solid fa-location-dot" /> {item.location}
-								</span>
-								<span>
-									<i className="fa-regular fa-calendar" /> {item.date}
-								</span>
-							</div>
-
-							<p className="favorite-card-desc">{item.description}</p>
-
-							<button type="button" className="favorite-btn-rastro">
-								Ver rastro
-							</button>
-						</div>
-					</article>
-				))}
+						</article>
+					))
+				)}
 			</div>
 		</div>
 	);
