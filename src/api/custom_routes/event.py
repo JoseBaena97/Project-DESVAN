@@ -39,8 +39,8 @@ def create_event():
     
     seller_id = get_jwt_identity()
 
-    required_fields = ['title', 'status', 'event_type', 'start_time',
-                       'end_time', 'latitude', 'longitude', 'city']
+    required_fields = ['title', 'event_type', 'start_time',
+                       'end_time', 'city']
     for field in required_fields:
         if not body.get(field):
             return jsonify({"success": False, "data": f"Missing field: {field}"}), 403
@@ -102,8 +102,6 @@ def create_event():
         end_time=end_time,
         start_date=start_date,
         end_date=end_date,
-        latitude=body['latitude'],
-        longitude=body['longitude'],
         exact_address=exact_address,
         city=body['city'],
         seller_id=seller_id
@@ -147,10 +145,6 @@ def update_event(event_id):
             body['end_time'].replace('Z', '+00:00'))
     if 'max_capacity' in body:
         event.max_capacity = body['max_capacity']
-    if 'latitude' in body:
-        event.latitude = body['latitude']
-    if 'longitude' in body:
-        event.longitude = body['longitude']
     if 'exact_address' in body:
         event.exact_address = body['exact_address']
     if 'place' in body:

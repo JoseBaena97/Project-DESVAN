@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import mascotOpen from "../assets/img/caja04.png";
 import eventService from "../services/event.service";
-import { getCoordinates } from "../services/geocoding.service";
+
 
 const CATEGORIES = [
     { value: "", label: "Selecciona una categoría" },
@@ -34,9 +34,6 @@ export const CreateEvent = () => {
         end_time: "",
         start_date: "",
         end_date: "",
-
-        latitude: "",
-        longitude: "",
 
         exact_address: "",
         city: "",
@@ -89,17 +86,11 @@ export const CreateEvent = () => {
                 eventData.exact_address?.trim() ||
                 `${eventData.place.trim()}, ${eventData.city.trim()}`;
 
-            const coords = await getCoordinates(addressToUse, eventData.city);
-
-            console.log("COORDS FINAL:", coords);
-
             const payload = {
                 ...eventData,
                 start_time: `${eventData.start_date}T${eventData.start_time}`,
                 end_time: `${eventData.end_date}T${eventData.end_time}`,
-                exact_address: addressToUse,
-                latitude: coords.lat,
-                longitude: coords.lon,
+                exact_address: addressToUse
             };
 
             delete payload.seller_id;
@@ -116,7 +107,7 @@ export const CreateEvent = () => {
             alert("Evento creado, pero no se pudo navegar automáticamente.");
 
         } catch (err) {
-            console.error("Error geocoding o creando evento:", err);
+            console.error("Error creando evento:", err);
             alert("Error creando evento. Revisa la consola para más detalles.");
         }
     };

@@ -150,9 +150,7 @@ class Event (db.Model): #ESTA TABLA DEBE IR ARRIBA?
 
 
     #columnas con respecto a ubicación
-    latitude: Mapped[str] = mapped_column(String(50), nullable=False)
-    longitude: Mapped[str] = mapped_column(String(50), nullable=False)
-    
+        
     exact_address: Mapped[str] = mapped_column(String(255), nullable= False)
     place: Mapped[str] = mapped_column(String(255), nullable=True)       # Punto 10: nombre del lugar
     city: Mapped[str] = mapped_column(String(100), nullable=False)       # Punto 10: ciudad
@@ -205,9 +203,7 @@ class Event (db.Model): #ESTA TABLA DEBE IR ARRIBA?
             "id": self.id,
             "title": self.title,
             "description": self.description,
-            "event_type": self.event_type.value,
-            "latitude": self.latitude,
-            "longitude": self.longitude, 
+            "event_type": self.event_type.value, 
             "exact_address":self.exact_address,
             "place": self.place,
             "city": self.city,
