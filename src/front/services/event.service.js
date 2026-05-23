@@ -21,19 +21,17 @@ const createEvent = async (eventData) => {
   }
 };
 
-
 // obtener todos los eventos
 const getEventsPublic = async () => {
   try {
     const resp = await fetch(url + "api/event/public", {
-      method: "GET"
-  });
+      method: "GET",
+    });
 
-  if (!resp.ok) throw new Error("Error getting events");
+    if (!resp.ok) throw new Error("Error getting events");
 
-  const data = await resp.json();
-console.log("ejecutandose geteventspublic")
-console.log(data)
+    const data = await resp.json();
+    
     return data;
   } catch (error) {
     console.log(error);
@@ -46,22 +44,20 @@ const getEvents = async () => {
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("token"),
-    },
-  });
+      },
+    });
 
-  if (!resp.ok) throw new Error("Error getting events");
+    if (!resp.ok) throw new Error("Error getting events");
 
-  const data = await resp.json();
-console.log("ejecutandose getevents")
-console.log(data)
+    const data = await resp.json();
+    
     return data;
   } catch (error) {
     console.log(error);
   }
 };
 
-
-//obtener un evento 
+//obtener un evento
 const getEvent = async (eventId) => {
   try {
     const resp = await fetch(url + "api/event/" + eventId, {
@@ -69,16 +65,16 @@ const getEvent = async (eventId) => {
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("token"),
-    },
-  });
+      },
+    });
 
-   if (resp.status === 401 || resp.status === 422) {
+    if (resp.status === 401 || resp.status === 422) {
       throw new Error("UNAUTHORIZED");
     }
 
-  if (!resp.ok) throw new Error("Error getting event");
+    if (!resp.ok) throw new Error("Error getting event");
 
-  const data = await resp.json();
+    const data = await resp.json();
 
     return data;
   } catch (error) {
@@ -94,18 +90,18 @@ const updateEvent = async (eventId, eventData) => {
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("token"),
-    },
-    body: JSON.stringify(eventData),
-  });
+      },
+      body: JSON.stringify(eventData),
+    });
 
-  if (!resp.ok) throw new Error("Error updating event");
+    if (!resp.ok) throw new Error("Error updating event");
 
-  const data = await resp.json();
+    const data = await resp.json();
 
     return data;
   } catch (error) {
     console.log(error);
-  };
+  }
 };
 
 //eliminar un evento
@@ -116,18 +112,25 @@ const deleteEvent = async (eventId) => {
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("token"),
-    },
-  });
+      },
+    });
 
-  if (!resp.ok) throw new Error("Error deleting event");
+    if (!resp.ok) throw new Error("Error deleting event");
 
-  const data = await resp.json();
+    const data = await resp.json();
 
-  return data;
+    return data;
   } catch (error) {
     console.log(error);
     return false;
   }
 };
 
-export default { createEvent, getEvents, getEventsPublic, getEvent, updateEvent, deleteEvent };
+export default {
+  createEvent,
+  getEvents,
+  getEventsPublic,
+  getEvent,
+  updateEvent,
+  deleteEvent,
+};

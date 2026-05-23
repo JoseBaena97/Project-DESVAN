@@ -117,27 +117,39 @@ class Favorite (db.Model):
 class Event (db.Model):  # ESTA TABLA DEBE IR ARRIBA?
     __tablename__ = "events"
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=True)
-    image_url: Mapped[dict] = mapped_column(JSON, nullable=True)
-    status: Mapped[EventStatus] = mapped_column(
-        Enum(EventStatus), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=lambda: datetime.now(timezone.utc))
+    title: Mapped[str] = mapped_column(String(255), nullable= False)
+    description: Mapped[str] = mapped_column(Text, nullable= True)
+    image_url: Mapped[dict] = mapped_column(JSON, nullable= True)
+    status: Mapped[EventStatus] = mapped_column(Enum(EventStatus), default="active", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    event_type: Mapped[EventType] = mapped_column(Enum(EventType), nullable=False) 
+    start_time: Mapped[datetime]  = mapped_column(DateTime(timezone=True))
+    end_time: Mapped[datetime]  = mapped_column(DateTime(timezone=True))
+    start_date: Mapped[datetime]  = mapped_column(DateTime(timezone=True)) #añadido 
+    end_date: Mapped[datetime]  = mapped_column(DateTime(timezone=True)) #añadido
+    max_capacity: Mapped[int] = mapped_column(Integer, nullable= True)
 
-    event_type: Mapped[EventType] = mapped_column(
-        Enum(EventType), nullable=False)
-    start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    end_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    start_date: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True))  # añadido
-    end_date: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True))  # añadido
-    max_capacity: Mapped[int] = mapped_column(Integer, nullable=True)
 
-    # columnas con respecto a ubicación
-    latitude: Mapped[str] = mapped_column(String(50), nullable=False)
-    longitude: Mapped[str] = mapped_column(String(50), nullable=False)
+    #columnas con respecto a ubicación
+        
+    exact_address: Mapped[str] = mapped_column(String(255), nullable= False)
+    place: Mapped[str] = mapped_column(String(255), nullable=True)       # Punto 10: nombre del lugar
+    city: Mapped[str] = mapped_column(String(100), nullable=False)       # Punto 10: ciudad
+    postal_code: Mapped[str] = mapped_column(String(10), nullable=True)  # Punto 10: código postal
+
+
+    #clave foránea
+    seller_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+
+
+    #1-M
+    seller: Mapped["User"] = relationship(back_populates = "events")
+
+
+    #relación
+    reservations: Mapped[List["Reservation"]]= relationship(back_populates="event", cascade= "all, delete-orphan")
+
 
     exact_address: Mapped[str] = mapped_column(String(255), nullable=False)
     place: Mapped[str] = mapped_column(
@@ -195,10 +207,8 @@ class Event (db.Model):  # ESTA TABLA DEBE IR ARRIBA?
             "id": self.id,
             "title": self.title,
             "description": self.description,
-            "event_type": self.event_type.value,
-            "latitude": self.latitude,
-            "longitude": self.longitude,
-            "exact_address": self.exact_address,
+            "event_type": self.event_type.value, 
+            "exact_address":self.exact_address,
             "place": self.place,
             "city": self.city,
             "postal_code": self.postal_code,
