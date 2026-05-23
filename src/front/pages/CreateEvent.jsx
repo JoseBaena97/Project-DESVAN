@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, Navigate, useNavigate, useLocation } from "react-router-dom";
 import mascotOpen from "../assets/img/caja04.png";
 import eventService from "../services/event.service";
 
@@ -46,6 +46,27 @@ export const CreateEvent = () => {
 
     const [images, setImages] = useState([]);
     const [mainImage, setMainImage] = useState(null);
+    const [isEdit, setIsEdit] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const location = useLocation();
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const eventId = params.get('eventId');
+        if (eventId) {
+            // cargar evento para editar
+            eventService.getEvent(eventId).then((res) => {
+                const evt = res && res.data ? res.data : res;
+                if (evt) {
+                    setEventData((prev) => ({ ...prev, ...evt }));
+                    setIsEdit(true);
+                    setEditingId(eventId);
+                }
+            }).catch((err) => {
+                console.error('Error cargando evento para editar', err);
+            });
+        }
+    }, [location.search]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -69,66 +90,91 @@ export const CreateEvent = () => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+    e.preventDefault();
 
-        try {
-            if (!eventData.city || !eventData.place) {
-                alert("Debes completar lugar y ciudad para crear el evento.");
+    try {
+        if (!eventData.city || !eventData.place) {
+            alert("Debes completar lugar y ciudad para crear el evento.");
+            return;
+        }
+
+        if (!eventData.start_date || !eventData.end_date || !eventData.start_time || !eventData.end_time) {
+            alert("Debes completar fecha y hora de inicio y fin.");
+            return;
+        }
+
+        if (eventData.event_type === "privado") {
+            const cap = Number(eventData.max_capacity);
+
+            if (!eventData.max_capacity || isNaN(cap) || cap <= 0) {
+                alert("Debes especificar un aforo máximo válido para eventos privados.");
                 return;
             }
+        }
 
-            if (!eventData.start_date || !eventData.end_date || !eventData.start_time || !eventData.end_time) {
-                alert("Debes completar fecha y hora de inicio y fin.");
-                return;
-            }
+        const addressToUse =
+            eventData.exact_address?.trim() ||
+            `${eventData.place.trim()}, ${eventData.city.trim()}`;
 
-            if (eventData.event_type === "privado") {
-                const cap = Number(eventData.max_capacity);
-                if (!eventData.max_capacity || isNaN(cap) || cap <= 0) {
-                    alert("Debes especificar un aforo máximo válido para eventos privados.");
-                    return;
-                }
-            }
+        const payload = {
+            ...eventData,
+            start_time: `${eventData.start_date}T${eventData.start_time}`,
+            end_time: `${eventData.end_date}T${eventData.end_time}`,
+            exact_address: addressToUse
+        };
 
-            const addressToUse =
-                eventData.exact_address?.trim() ||
-                `${eventData.place.trim()}, ${eventData.city.trim()}`;
+        // Asegurar tipo numérico y eliminar si no aplica
+        if (payload.max_capacity) {
+            payload.max_capacity = Number(payload.max_capacity);
 
-            const payload = {
-                ...eventData,
-                start_time: `${eventData.start_date}T${eventData.start_time}`,
-                end_time: `${eventData.end_date}T${eventData.end_time}`,
-                exact_address: addressToUse
-            };
-
-            // Asegurar tipo numérico y eliminar si no aplica
-            if (payload.max_capacity) {
-                payload.max_capacity = Number(payload.max_capacity);
-                if (isNaN(payload.max_capacity) || payload.max_capacity <= 0) {
-                    delete payload.max_capacity;
-                }
-            } else {
+            if (isNaN(payload.max_capacity) || payload.max_capacity <= 0) {
                 delete payload.max_capacity;
             }
-
-            delete payload.seller_id;
-
-            const data = await eventService.createEvent(payload);
-
-            console.log("Evento creado:", data);
-
-            if (data?.success && data?.data) {
-                navigate(`/detalles/${data.data}`);
-                return;
-            }
-
-            alert("Evento creado, pero no se pudo navegar automáticamente.");
-
-        } catch (err) {
-            console.error("Error creando evento:", err);
-            alert("Error creando evento. Revisa la consola para más detalles.");
+        } else {
+            delete payload.max_capacity;
         }
-    };
+
+        // =========================
+        // MODO EDICIÓN
+        // =========================
+        if (isEdit && editingId) {
+            const data = await eventService.updateEvent(editingId, payload);
+
+            console.log("Evento actualizado:", data);
+
+            navigate('/mis-eventos');
+            return;
+        }
+
+        // =========================
+        // CREAR EVENTO
+        // =========================
+        const data = await eventService.createEvent(payload);
+
+        console.log("Evento creado:", data);
+
+        if (data?.success && data?.data) {
+            navigate(`/detalles/${data.data}`);
+            return;
+        }
+
+        alert("Evento creado, pero no se pudo navegar automáticamente.");
+
+    } catch (err) {
+        console.error(
+            isEdit
+                ? "Error actualizando evento:"
+                : "Error creando evento:",
+            err
+        );
+
+        alert(
+            isEdit
+                ? "No se pudo actualizar el evento."
+                : "Error creando evento. Revisa la consola para más detalles."
+        );
+    }
+};
 
 
 
@@ -529,7 +575,7 @@ export const CreateEvent = () => {
                     {/* Submit Button */}
                     <div className="create-event-submit">
                         <button type="submit" className="btn-publish">
-                            Publicar evento
+                            {isEdit ? "Actualizar evento" : "Publicar evento"}
                         </button>
                     </div>
                 </form>
