@@ -1,18 +1,67 @@
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
+import { useEffect, useState } from "react";
+import authService from "../../services/auth.service";
 
-const DEFAULT_PROFILE = {
+const FALLBACK = {
 	fileNumber: "000241",
 	joinDate: "15 ABR 2023",
-	displayName: "Archibald_Vance",
-	legalName: "Archibald Vance",
-	phone: "+34 612 345 678",
-	email: "archibald.vance@desvan.es",
-	address: "Calle del Rastro, 12, 3º B",
-	city: "Madrid",
-	postalCode: "28005",
 };
 
 export const Profile = () => {
+	const [data, setData] = useState(null);
+	const [legalName, setLegalName] = useState("");
+	const [phone, setPhone] = useState("");
+	const [email, setEmail] = useState("");
+	const [address, setAddress] = useState("");
+
+	useEffect(() => {
+		const load = async () => {
+			const resp = await authService.getMe();
+			if (resp && resp.data) {
+				const user = resp.data;
+				setData(user);
+				setEmail(user.email || "");
+				setPhone((user.profile && user.profile.phone) || "");
+				setAddress((user.profile && user.profile.address) || "");
+				const firstname = user.profile && user.profile.firstname ? user.profile.firstname : "";
+				const lastname = user.profile && user.profile.lastname ? user.profile.lastname : "";
+				setLegalName(`${firstname} ${lastname}`.trim());
+			}
+		};
+		load();
+	}, []);
+
+	const onSave = async () => {
+		// split legalName into firstname/lastname
+		const parts = legalName.trim().split(" ");
+		const firstname = parts.shift() || "";
+		const lastname = parts.join(" ") || "";
+		const payload = {
+			email,
+			firstname,
+			lastname,
+			phone,
+			address,
+		};
+		const resp = await authService.updateProfile(payload);
+		if (resp && resp.data) {
+			setData(resp.data);
+			alert('Perfil actualizado');
+		} else {
+			alert('Error al actualizar');
+		}
+	};
+
+	const onDiscard = () => {
+		if (!data) return;
+		setEmail(data.email || "");
+		setPhone((data.profile && data.profile.phone) || "");
+		setAddress((data.profile && data.profile.address) || "");
+		const firstname = data.profile && data.profile.firstname ? data.profile.firstname : "";
+		const lastname = data.profile && data.profile.lastname ? data.profile.lastname : "";
+		setLegalName(`${firstname} ${lastname}`.trim());
+	};
+
 	return (
 		<div className="profile-page">
 			<div className="profile-page-header">
@@ -32,28 +81,25 @@ export const Profile = () => {
 						<p className="collector-file-library">BIBLIOTECA DEL DESVÁN</p>
 						<h2 className="collector-file-title">FICHA DE COLECCIONISTA</h2>
 					</div>
-					<span className="collector-file-number">Nº {DEFAULT_PROFILE.fileNumber}</span>
+					<span className="collector-file-number">Nº {FALLBACK.fileNumber}</span>
 				</div>
 
 				<div className="collector-file-body">
 					<div className="collector-photo-block">
-						{/* TODO: Foto principal del coleccionista (retrato B/N estilo polaroid)
-						    <img src={rutaATuFotoPerfil} alt="Archibald Vance" className="collector-photo" />
-						*/}
 						<div className="collector-photo account-img-placeholder" aria-hidden="true" />
 
-						<p className="collector-photo-name">Archibald Vance</p>
+						<p className="collector-photo-name">{data ? data.username : "Usuario"}</p>
 
 						<div className="collector-data-boxes">
 							<div className="collector-data-box">
 								<label>
 									<i className="fa-regular fa-calendar" /> FECHA DE ALTA
 								</label>
-								<span>{DEFAULT_PROFILE.joinDate}</span>
+								<span>{FALLBACK.joinDate}</span>
 							</div>
 							<div className="collector-data-box">
 								<label>NOMBRE EN EL DESVÁN</label>
-								<span>{DEFAULT_PROFILE.displayName}</span>
+								<span>{data ? data.username : "-"}</span>
 							</div>
 						</div>
 					</div>
@@ -66,19 +112,19 @@ export const Profile = () => {
 									<label>
 										<i className="fa-solid fa-user" /> NOMBRE LEGAL
 									</label>
-									<input type="text" defaultValue={DEFAULT_PROFILE.legalName} readOnly />
+									<input type="text" value={legalName} onChange={(e) => setLegalName(e.target.value)} />
 								</div>
 								<div className="collector-field">
 									<label>
 										<i className="fa-solid fa-phone" /> TELÉFONO DE CONTACTO
 									</label>
-									<input type="text" defaultValue={DEFAULT_PROFILE.phone} readOnly />
+									<input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />
 								</div>
 								<div className="collector-field collector-field--full">
 									<label>
 										<i className="fa-solid fa-envelope" /> CORREO ELECTRÓNICO
 									</label>
-									<input type="email" defaultValue={DEFAULT_PROFILE.email} readOnly />
+									<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
 								</div>
 							</div>
 						</section>
@@ -90,19 +136,19 @@ export const Profile = () => {
 									<label>
 										<i className="fa-solid fa-location-dot" /> DIRECCIÓN
 									</label>
-									<input type="text" defaultValue={DEFAULT_PROFILE.address} readOnly />
+									<input type="text" value={address} onChange={(e) => setAddress(e.target.value)} />
 								</div>
 								<div className="collector-field">
 									<label>
 										<i className="fa-solid fa-city" /> CIUDAD / PROVINCIA
 									</label>
-									<input type="text" defaultValue={DEFAULT_PROFILE.city} readOnly />
+									<input type="text" defaultValue="" />
 								</div>
 								<div className="collector-field">
 									<label>
 										<i className="fa-solid fa-mailbox" /> CÓDIGO POSTAL
 									</label>
-									<input type="text" defaultValue={DEFAULT_PROFILE.postalCode} readOnly />
+									<input type="text" defaultValue="" />
 								</div>
 							</div>
 						</section>
@@ -111,18 +157,15 @@ export const Profile = () => {
 			</article>
 
 			<div className="profile-actions">
-				<button type="button" className="profile-btn-discard">
+				<button type="button" className="profile-btn-discard" onClick={onDiscard}>
 					<i className="fa-solid fa-xmark" /> Descartar cambios
 				</button>
-				<button type="button" className="profile-btn-save">
+				<button type="button" className="profile-btn-save" onClick={onSave}>
 					<i className="fa-solid fa-floppy-disk" /> Guardar cambios
 				</button>
 			</div>
 
 			<aside className="profile-banner">
-				{/* TODO: Icono del documento/perfil del banner inferior
-				    <img src={rutaAlIconoDocumento} alt="" className="profile-banner-icon" />
-				*/}
 				<div className="profile-banner-icon account-img-placeholder" aria-hidden="true" />
 
 				<div className="profile-banner-text">
@@ -135,9 +178,6 @@ export const Profile = () => {
 				</div>
 
 				<div className="profile-banner-logo">
-					{/* TODO: Logo de la Biblioteca del Desván (templo / sello)
-					    <img src={rutaAlLogoBiblioteca} alt="Biblioteca del Desván" />
-					*/}
 					<div className="account-img-placeholder" aria-hidden="true" />
 					<span>
 						BIBLIOTECA DEL DESVÁN

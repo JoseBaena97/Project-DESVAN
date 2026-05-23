@@ -48,3 +48,50 @@ def get_profile():
     if not user:
         return jsonify({"msg": "User not found"}), 404
     return jsonify({"data": user.serialize()}), 200
+
+
+@api.route('/profile', methods=['PUT'])
+@jwt_required()
+def update_my_profile():
+    id = get_jwt_identity()
+    body = request.get_json() or {}
+    user = db.session.get(User, id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    # Update basic user fields if provided
+    email = body.get('email')
+    username = body.get('username')
+    if email and email != user.email:
+        # check uniqueness
+        existing = db.session.execute(db.select(User).where(
+            User.email == email)).scalar_one_or_none()
+        if existing and existing.id != user.id:
+            return jsonify({"msg": "Email already in use"}), 409
+        user.email = email
+    if username and username != user.username:
+        existing = db.session.execute(db.select(User).where(
+            User.username == username)).scalar_one_or_none()
+        if existing and existing.id != user.id:
+            return jsonify({"msg": "Username already in use"}), 409
+        user.username = username
+
+    # Update or create profile
+    profile = user.profile
+    if not profile:
+        from api.models import Profile
+        profile = Profile(address=body.get('address', ''), phone=body.get('phone', ''), firstname=body.get(
+            'firstname', ''), lastname=body.get('lastname', ''), user_id=user.id)
+        db.session.add(profile)
+    else:
+        if 'address' in body:
+            profile.address = body.get('address')
+        if 'phone' in body:
+            profile.phone = body.get('phone')
+        if 'firstname' in body:
+            profile.firstname = body.get('firstname')
+        if 'lastname' in body:
+            profile.lastname = body.get('lastname')
+
+    db.session.commit()
+    return jsonify({"data": user.serialize()}), 200
