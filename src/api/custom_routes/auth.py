@@ -34,7 +34,7 @@ def register():
         # Check password
         if not check_password_hash(user.password, body["password"]):
             return jsonify({"msg": "Invalid credentials"}), 401
-        token = create_access_token(identity=user.id)
+        token = create_access_token(identity=str(user.id))
         return jsonify({"data": user.serialize(), "access_token": token}), 200
 
     return jsonify({"msg": "missing data?"}), 418
