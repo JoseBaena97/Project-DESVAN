@@ -31,7 +31,7 @@ const getEventsPublic = async () => {
     if (!resp.ok) throw new Error("Error getting events");
 
     const data = await resp.json();
-    
+
     return data;
   } catch (error) {
     console.log(error);
@@ -50,7 +50,7 @@ const getEvents = async () => {
     if (!resp.ok) throw new Error("Error getting events");
 
     const data = await resp.json();
-    
+
     return data;
   } catch (error) {
     console.log(error);
@@ -94,9 +94,12 @@ const updateEvent = async (eventId, eventData) => {
       body: JSON.stringify(eventData),
     });
 
-    if (!resp.ok) throw new Error("Error updating event");
-
     const data = await resp.json();
+
+    if (!resp.ok) {
+      console.log("Update event response:", resp.status, data);
+      throw new Error(data?.data || data?.msg || "Error updating event");
+    }
 
     return data;
   } catch (error) {

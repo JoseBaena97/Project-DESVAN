@@ -24,11 +24,14 @@ def get_events_private():
 @jwt_required()
 def get_event(event_id):
     event = db.session.get(Event, event_id)
-    transformed = event.serialize()
-    if event:
-        return jsonify({"success": True, "data": transformed}), 200
-    else:
+    if not event:
         return jsonify({"success": False, "msg": "Event not found"}), 404
+
+    try:
+        transformed = event.serialize()
+        return jsonify({"success": True, "data": transformed}), 200
+    except Exception as e:
+        return jsonify({"success": False, "msg": str(e)}), 500
 
 
 @api.route("/event", methods=['POST'])
@@ -38,6 +41,12 @@ def create_event():
     body = request.get_json()
 
     seller_id = get_jwt_identity()
+
+    # Intentar convertir identity a entero si vino como string (tokens antiguos)
+    try:
+        seller_id = int(seller_id)
+    except Exception:
+        pass
 
     required_fields = ['title', 'event_type', 'start_time',
                        'end_time', 'city']
@@ -119,57 +128,94 @@ def update_event(event_id):
     if not event:
         return jsonify({"success": False, "data": "Event not found"}), 404
 
-    body = request.get_json()
-    seller_id = get_jwt_identity()
-    if event.seller_id != seller_id:
-        return jsonify({"success": False, "data": "Unauthorized"}), 400
-    if not body:
-        return jsonify({"success": False, "data": "Missing body"}), 400
-
-    if 'title' in body:
-        event.title = body['title']
-    if 'description' in body:
-        event.description = body['description']
-    if 'image_url' in body:
-        event.image_url = body['image_url']
-    if 'status' in body:
-        event.status = EventStatus(body['status'])
-    if 'event_type' in body:
-        event.event_type = EventType(body['event_type'])
-    if 'start_time' in body:
-        event.start_time = datetime.fromisoformat(
-            body['start_time'].replace('Z', '+00:00'))
-    if 'end_time' in body:
-        event.end_time = datetime.fromisoformat(
-            body['end_time'].replace('Z', '+00:00'))
-    if 'max_capacity' in body:
+    try:
+        body = request.get_json()
+        seller_id = get_jwt_identity()
         try:
-            event.max_capacity = int(
-                body['max_capacity']) if body['max_capacity'] is not None else None
+            seller_id = int(seller_id)
         except Exception:
             pass
-    if 'exact_address' in body:
-        event.exact_address = body['exact_address']
-    if 'place' in body:
-        event.place = body['place']
-    if 'city' in body:
-        event.city = body['city']
-    if 'postal_code' in body:
-        event.postal_code = body['postal_code']
 
-    db.session.commit()
-    return jsonify({"success": True, "data": "All Ok"}), 200
+        # Comparación robusta aceptando string o int
+        if str(event.seller_id) != str(seller_id):
+            return jsonify({"success": False, "data": "Unauthorized"}), 400
+        if not body:
+            return jsonify({"success": False, "data": "Missing body"}), 400
+
+        if 'title' in body:
+            event.title = body['title']
+        if 'description' in body:
+            event.description = body['description']
+        if 'image_url' in body:
+            event.image_url = body['image_url']
+        if 'status' in body:
+            try:
+                event.status = EventStatus(body['status'])
+            except Exception:
+                pass
+        if 'event_type' in body:
+            try:
+                event.event_type = EventType(body['event_type'])
+            except Exception:
+                pass
+        if 'start_time' in body:
+            try:
+                event.start_time = datetime.fromisoformat(
+                    body['start_time'].replace('Z', '+00:00'))
+            except Exception:
+                pass
+        if 'start_date' in body:
+            try:
+                event.start_date = datetime.fromisoformat(body['start_date'])
+            except Exception:
+                pass
+        if 'end_time' in body:
+            try:
+                event.end_time = datetime.fromisoformat(
+                    body['end_time'].replace('Z', '+00:00'))
+            except Exception:
+                pass
+        if 'end_date' in body:
+            try:
+                event.end_date = datetime.fromisoformat(body['end_date'])
+            except Exception:
+                pass
+        if 'max_capacity' in body:
+            try:
+                event.max_capacity = int(
+                    body['max_capacity']) if body['max_capacity'] is not None else None
+            except Exception:
+                pass
+        if 'exact_address' in body:
+            event.exact_address = body['exact_address']
+        if 'place' in body:
+            event.place = body['place']
+        if 'city' in body:
+            event.city = body['city']
+        if 'postal_code' in body:
+            event.postal_code = body['postal_code']
+
+        db.session.commit()
+        return jsonify({"success": True, "data": "All Ok"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "msg": str(e)}), 500
 
 
 @api.route("/event/<int:event_id>", methods=['DELETE'])
 @jwt_required()
 def delete_event(event_id):
     event = db.session.get(Event, event_id)
-    seller_id = get_jwt_identity()
-    if event.seller_id != seller_id:
-        return jsonify({"success": False, "data": "Unauthorized"}), 400
     if not event:
         return jsonify({"success": False, "msg": "Event not found"}), 404
+
+    seller_id = get_jwt_identity()
+    try:
+        seller_id = int(seller_id)
+    except Exception:
+        pass
+
+    if str(event.seller_id) != str(seller_id):
+        return jsonify({"success": False, "data": "Unauthorized"}), 400
     db.session.delete(event)
     db.session.commit()
     return jsonify({"success": True, "data": "Event deleted successfully"}), 200
