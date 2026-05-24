@@ -1,6 +1,8 @@
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import authService from "../../services/auth.service";
+import useGlobalReducer from "../../hooks/useGlobalReducer";
 
 const FALLBACK = {
 	fileNumber: "000241",
@@ -13,6 +15,10 @@ export const Profile = () => {
 	const [phone, setPhone] = useState("");
 	const [email, setEmail] = useState("");
 	const [address, setAddress] = useState("");
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [deleting, setDeleting] = useState(false);
+	const navigate = useNavigate();
+	const { dispatch } = useGlobalReducer();
 
 	useEffect(() => {
 		const load = async () => {
@@ -60,6 +66,21 @@ export const Profile = () => {
 		const firstname = data.profile && data.profile.firstname ? data.profile.firstname : "";
 		const lastname = data.profile && data.profile.lastname ? data.profile.lastname : "";
 		setLegalName(`${firstname} ${lastname}`.trim());
+	};
+
+	const onDeactivateAccount = async () => {
+		setDeleting(true);
+		const resp = await authService.deactivateAccount();
+		setDeleting(false);
+		if (resp) {
+			// Logout: clear token and redirect
+			authService.logout();
+			dispatch({ type: "logout" });
+			navigate("/login");
+		} else {
+			alert("Error al desactivar la cuenta");
+			setShowDeleteModal(false);
+		}
 	};
 
 	return (
@@ -186,6 +207,75 @@ export const Profile = () => {
 					</span>
 				</div>
 			</aside>
+
+			{/* ── Zona de peligro: Desactivar cuenta ── */}
+			<section className="profile-danger-zone">
+				<div className="profile-danger-zone-icon">
+					<i className="fa-solid fa-triangle-exclamation" />
+				</div>
+				<div className="profile-danger-zone-content">
+					<h3>Zona de peligro</h3>
+					<p>
+						Al desactivar tu cuenta, tu perfil dejará de ser visible y no podrás acceder
+						al Desván. Tus datos quedarán archivados de forma segura.
+					</p>
+				</div>
+				<button
+					type="button"
+					className="profile-btn-deactivate"
+					onClick={() => setShowDeleteModal(true)}
+				>
+					<i className="fa-solid fa-skull-crossbones" /> Desactivar cuenta
+				</button>
+			</section>
+
+			{/* ── Modal de confirmación ── */}
+			{showDeleteModal && (
+				<div className="delete-account-backdrop" onClick={() => setShowDeleteModal(false)}>
+					<div className="delete-account-modal" onClick={(e) => e.stopPropagation()}>
+						<div className="delete-account-modal-header">
+							<h3>
+								<i className="fa-solid fa-ghost" /> ¿Desactivar tu cuenta?
+							</h3>
+							<button
+								className="delete-account-modal-close"
+								onClick={() => setShowDeleteModal(false)}
+								aria-label="Cerrar"
+							>
+								<i className="fa-solid fa-xmark" />
+							</button>
+						</div>
+						<p className="delete-account-modal-text">
+							Tu ficha de coleccionista será archivada en las sombras del Desván.
+							Ya no podrás iniciar sesión ni acceder a tus eventos, reservas o favoritos.
+							<br /><br />
+							<strong>Esta acción no se puede deshacer fácilmente.</strong>
+						</p>
+						<div className="delete-account-modal-actions">
+							<button
+								type="button"
+								className="delete-account-modal-btn delete-account-modal-btn--cancel"
+								onClick={() => setShowDeleteModal(false)}
+								disabled={deleting}
+							>
+								Cancelar
+							</button>
+							<button
+								type="button"
+								className="delete-account-modal-btn delete-account-modal-btn--delete"
+								onClick={onDeactivateAccount}
+								disabled={deleting}
+							>
+								{deleting ? (
+									<><i className="fa-solid fa-spinner fa-spin" /> Desactivando…</>
+								) : (
+									<><i className="fa-solid fa-skull-crossbones" /> Sí, desactivar</>
+								)}
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };

@@ -59,4 +59,21 @@ authService.updateProfile = async (payload) => {
   }
 };
 
+authService.deactivateAccount = async () => {
+  try {
+    const resp = await fetch(url + "api/profile", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+    if (!resp.ok) throw new Error("Error deactivating account");
+    const data = await resp.json();
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export default authService;

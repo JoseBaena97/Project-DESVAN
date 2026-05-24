@@ -3,6 +3,7 @@ from api.routes import api
 from api.models import db, User
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timezone
 
 
 @api.route('/auth', methods=['POST'])
@@ -34,6 +35,9 @@ def register():
         # Check password
         if not check_password_hash(user.password, body["password"]):
             return jsonify({"msg": "Invalid credentials"}), 401
+        # Block login for soft-deleted (deactivated) accounts
+        if user.deleted_at:
+            return jsonify({"msg": "Esta cuenta ha sido desactivada"}), 403
         token = create_access_token(identity=str(user.id))
         return jsonify({"data": user.serialize(), "access_token": token}), 200
 
@@ -95,3 +99,16 @@ def update_my_profile():
 
     db.session.commit()
     return jsonify({"data": user.serialize()}), 200
+
+
+@api.route('/profile', methods=['DELETE'])
+@jwt_required()
+def deactivate_my_account():
+    id = get_jwt_identity()
+    user = db.session.get(User, id)
+    if not user or user.deleted_at:
+        return jsonify({"msg": "User not found"}), 404
+
+    user.deleted_at = datetime.now(timezone.utc)
+    db.session.commit()
+    return jsonify({"msg": "Cuenta desactivada correctamente"}), 200

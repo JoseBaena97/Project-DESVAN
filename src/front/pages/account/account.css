@@ -1211,6 +1211,228 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
+   PROFILE — DANGER ZONE (deactivate account)
+   ═══════════════════════════════════════════════════════════ */
+
+.profile-danger-zone {
+	display: flex;
+	align-items: center;
+	gap: 1.25rem;
+	background: linear-gradient(135deg, #fff5f3 0%, #fce8e4 100%);
+	border: 1.5px solid #e8c4bc;
+	border-radius: 12px;
+	padding: 1.25rem 1.5rem;
+	margin-top: 1.75rem;
+}
+
+.profile-danger-zone-icon {
+	flex-shrink: 0;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	background: var(--account-red);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.profile-danger-zone-icon i {
+	color: #fff;
+	font-size: 1.1rem;
+}
+
+.profile-danger-zone-content {
+	flex: 1;
+}
+
+.profile-danger-zone-content h3 {
+	font-family: var(--account-font-sans);
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--account-red);
+	margin: 0 0 0.25rem;
+}
+
+.profile-danger-zone-content p {
+	font-family: var(--account-font-sans);
+	font-size: 0.8rem;
+	color: var(--account-brown-muted);
+	margin: 0;
+	line-height: 1.5;
+}
+
+.profile-btn-deactivate {
+	flex-shrink: 0;
+	padding: 0.65rem 1.35rem;
+	border: 1.5px solid var(--account-red);
+	border-radius: 10px;
+	background: transparent;
+	font-family: var(--account-font-sans);
+	font-size: 0.82rem;
+	font-weight: 600;
+	color: var(--account-red);
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	transition: background 0.25s, color 0.25s, transform 0.15s;
+	white-space: nowrap;
+}
+
+.profile-btn-deactivate:hover {
+	background: var(--account-red);
+	color: #fff;
+	transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PROFILE — DELETE ACCOUNT MODAL
+   ═══════════════════════════════════════════════════════════ */
+
+.delete-account-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(61, 39, 29, 0.72);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+	z-index: 1500;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1.5rem;
+	animation: fadeIn 0.2s ease;
+}
+
+.delete-account-modal {
+	background: #ffffff;
+	border-radius: 24px;
+	box-shadow: 0 24px 60px rgba(61, 39, 29, 0.18);
+	border: 1px solid rgba(229, 205, 186, 0.7);
+	padding: 1.75rem 1.75rem 1.5rem;
+	max-width: 460px;
+	width: 100%;
+	animation: slideUp 0.25s ease;
+}
+
+.delete-account-modal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+
+.delete-account-modal h3 {
+	font-family: var(--account-font-sans);
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: var(--account-red);
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.delete-account-modal-close {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	border: 1px solid var(--account-border);
+	background: #fff;
+	color: var(--account-brown-muted);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.85rem;
+	transition: border-color 0.2s, color 0.2s;
+}
+
+.delete-account-modal-close:hover {
+	border-color: var(--account-red);
+	color: var(--account-red);
+}
+
+.delete-account-modal-text {
+	font-family: var(--account-font-sans);
+	font-size: 0.92rem;
+	color: var(--account-brown-muted);
+	line-height: 1.7;
+	margin: 0 0 1.5rem;
+}
+
+.delete-account-modal-text strong {
+	color: var(--account-brown);
+}
+
+.delete-account-modal-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.75rem;
+}
+
+.delete-account-modal-btn {
+	min-width: 110px;
+	padding: 0.75rem 1.1rem;
+	border-radius: 999px;
+	border: 1px solid transparent;
+	font-family: var(--account-font-sans);
+	font-size: 0.88rem;
+	font-weight: 700;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s;
+}
+
+.delete-account-modal-btn:hover {
+	transform: translateY(-1px);
+}
+
+.delete-account-modal-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+}
+
+.delete-account-modal-btn--cancel {
+	background: #f7f1ec;
+	color: var(--account-brown-muted);
+	border-color: #eaded1;
+}
+
+.delete-account-modal-btn--delete {
+	background: var(--account-red);
+	color: #ffffff;
+	border-color: var(--account-red);
+}
+
+.delete-account-modal-btn--delete:hover:not(:disabled) {
+	background: var(--account-red-hover);
+	box-shadow: 0 4px 16px rgba(123, 36, 22, 0.3);
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes slideUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* ═══════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════ */
 
