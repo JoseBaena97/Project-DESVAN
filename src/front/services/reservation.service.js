@@ -1,5 +1,28 @@
 const url = import.meta.env.VITE_BACKEND_URL;
 
+const getReservationsByUser = async (userId) => {
+  if (!userId) throw new Error("userId is required");
+  try {
+    const resp = await fetch(url + `api/user/${userId}/reservations`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => null);
+      throw new Error(err?.message || "Error fetching reservations");
+    }
+
+    return await resp.json();
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
 const createReservation = async (eventId, userId) => {
   if (!userId) throw new Error("userId is required");
   try {
@@ -46,4 +69,4 @@ const deleteReservation = async (reservationId) => {
   }
 };
 
-export default { createReservation, deleteReservation };
+export default { getReservationsByUser, createReservation, deleteReservation };

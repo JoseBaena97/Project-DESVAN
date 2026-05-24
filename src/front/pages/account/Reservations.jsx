@@ -1,47 +1,82 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
+import reservationService from "../../services/reservation.service";
+import authService from "../../services/auth.service";
+import useGlobalReducer from "../../hooks/useGlobalReducer";
 
 const TABS = ["Próximas", "Completadas", "Canceladas"];
 
-const RESERVATIONS = [
-	{
-		id: 1,
-		tags: [
-			{ text: "Confirmada", variant: "confirmada" },
-			{ text: "Vintage", variant: "vintage" },
-		],
-		title: "Mercado de Motores",
-		location: "Museo del Ferrocarril, Madrid",
-		date: "15 Octubre, 2023",
-		time: "10:00 — 18:00",
-		description:
-			"Una cuidadosa selección de mobiliario vintage, ropa retro y curiosidades en un entorno industrial recuperado del siglo XIX.",
-		tickets: "2 entradas reservadas",
-	},
-	{
-		id: 2,
-		tags: [
-			{ text: "Confirmada", variant: "confirmada" },
-			{ text: "Vintage", variant: "vintage" },
-		],
-		title: "Mercado de Motores",
-		location: "Museo del Ferrocarril, Madrid",
-		date: "15 Octubre, 2023",
-		time: "10:00 — 18:00",
-		description:
-			"Una cuidadosa selección de mobiliario vintage, ropa retro y curiosidades en un entorno industrial recuperado del siglo XIX.",
-		tickets: "2 entradas reservadas",
-	},
-];
-
-const SUMMARY = [
-	{ label: "Reservas activas", value: "2" },
-	{ label: "Próximo evento", value: "En 5 días" },
-	{ label: "Total visitas", value: "14 rastros" },
-];
+const STATUS_BY_TAB = {
+	Próximas: ["confirmed"],
+	Completadas: ["attended"],
+	Canceladas: ["cancelled"],
+};
 
 export const Reservations = () => {
 	const [activeTab, setActiveTab] = useState("Próximas");
+	const [reservations, setReservations] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const { store, dispatch } = useGlobalReducer();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		if (!token) {
+			navigate("/login");
+			return;
+		}
+
+		const loadUserAndReservations = async () => {
+			let user = store.user;
+			if (!user) {
+				try {
+					const profile = await authService.getMe();
+					user = profile?.data;
+					if (user) {
+						dispatch({ type: "auth", payload: { user } });
+					}
+				} catch (error) {
+					navigate("/login");
+					return;
+				}
+			}
+
+			if (!user) {
+				navigate("/login");
+				return;
+			}
+
+			try {
+				const data = await reservationService.getReservationsByUser(user.id);
+				setReservations(data || []);
+			} catch (error) {
+				console.log(error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		loadUserAndReservations();
+	}, [store.user, dispatch, navigate]);
+
+	const handleDelete = async (reservationId) => {
+		const resp = await reservationService.deleteReservation(reservationId);
+		if (resp) {
+			setReservations((prev) => prev.filter((item) => item.id !== reservationId));
+		}
+	};
+
+	const reservationsToShow = reservations.filter((reservation) => {
+		const selectedStatuses = STATUS_BY_TAB[activeTab] || [];
+		return selectedStatuses.length === 0 || selectedStatuses.includes(reservation.status);
+	});
+
+	const summary = [
+		{ label: "Reservas activas", value: `${reservations.filter((r) => r.status === "confirmed").length}` },
+		{ label: "Completadas", value: `${reservations.filter((r) => r.status === "attended").length}` },
+		{ label: "Total reservas", value: `${reservations.length}` },
+	];
 
 	return (
 		<div className="reservations-page">
@@ -68,75 +103,79 @@ export const Reservations = () => {
 			<div className="reservations-layout">
 				<div className="reservations-main">
 					<div className="reservations-list">
-						{RESERVATIONS.map((reservation) => (
-							<article key={reservation.id} className="reservation-card">
-								<div className="reservation-card-image">
-									{/* TODO: Imagen del evento reservado
-									    <img src={rutaImagenEvento} alt={reservation.title} />
-									*/}
-									<div className="account-img-placeholder" aria-hidden="true" />
-								</div>
+						{loading ? (
+							<div className="favorite-empty-state">
+								<p>Cargando tus reservas…</p>
+							</div>
+						) : reservationsToShow.length === 0 ? (
+							<div className="favorite-empty-state">
+								<p>No hay reservas en esta pestaña.</p>
+							</div>
+						) : (
+							reservationsToShow.map((reservation) => (
+								<article key={reservation.id} className="reservation-card">
+									<div className="reservation-card-image">
+										<div className="account-img-placeholder" aria-hidden="true" />
+									</div>
 
-								<div className="reservation-card-body">
-									<div className="reservation-tags">
-										{reservation.tags.map((tag) => (
-											<span
-												key={tag.text}
-												className={`reservation-tag reservation-tag--${tag.variant}`}
-											>
-												{tag.text}
+									<div className="reservation-card-body">
+										<div className="reservation-tags">
+											<span className={`reservation-tag reservation-tag--${reservation.status === "confirmed" ? "confirmada" : "vintage"}`}>
+												{reservation.status === "confirmed" ? "Confirmada" : reservation.status}
 											</span>
-										))}
+										</div>
+
+										<h2 className="reservation-card-title">{reservation.event?.title || "Evento sin nombre"}</h2>
+
+										<div className="reservation-info-row">
+											<span>
+												<i className="fa-solid fa-calendar" /> {reservation.created_at ? new Date(reservation.created_at).toLocaleDateString() : "Fecha no disponible"}
+											</span>
+											<span>
+												<i className="fa-solid fa-clock" /> {reservation.status}
+											</span>
+										</div>
+
+										<p className="reservation-card-desc">Reserva para {reservation.event?.title || "este evento"}.</p>
+
+										<div className="reservation-tickets">
+											<i className="fa-solid fa-ticket" />
+											ID reserva: {reservation.id}
+										</div>
 									</div>
 
-									<h2 className="reservation-card-title">{reservation.title}</h2>
-
-									<div className="reservation-info-row">
-										<span>
-											<i className="fa-solid fa-location-dot" /> {reservation.location}
-										</span>
-										<span>
-											<i className="fa-regular fa-calendar" /> {reservation.date}
-										</span>
-										<span>
-											<i className="fa-regular fa-clock" /> {reservation.time}
-										</span>
+									<div className="reservation-card-actions">
+										<div className="reservation-qr">
+											<div
+												className="account-img-placeholder"
+												style={{ width: 48, height: 48, background: "#555" }}
+												aria-hidden="true"
+											/>
+										</div>
+										<button
+											type="button"
+											className="reservation-btn-primary"
+											onClick={() => reservation.event?.id && navigate(`/detalles/${reservation.event.id}`)}
+										>
+											Ver detalles
+										</button>
+										<button
+											type="button"
+											className="reservation-btn-secondary"
+											onClick={() => handleDelete(reservation.id)}
+										>
+											Cancelar reserva
+										</button>
 									</div>
-
-									<p className="reservation-card-desc">{reservation.description}</p>
-
-									<div className="reservation-tickets">
-										<i className="fa-solid fa-ticket" />
-										{reservation.tickets}
-									</div>
-								</div>
-
-								<div className="reservation-card-actions">
-									<div className="reservation-qr">
-										{/* TODO: Código QR de la entrada
-										    <img src={rutaQR} alt="QR entrada" />
-										*/}
-										<div
-											className="account-img-placeholder"
-											style={{ width: 48, height: 48, background: "#555" }}
-											aria-hidden="true"
-										/>
-									</div>
-									<button type="button" className="reservation-btn-primary">
-										Ver detalles
-									</button>
-									<button type="button" className="reservation-btn-secondary">
-										Añadir al calendario
-									</button>
-								</div>
-							</article>
-						))}
+								</article>
+							))
+						)}
 					</div>
 				</div>
 
 				<aside className="reservations-summary">
 					<h3>Resumen</h3>
-					{SUMMARY.map((row) => (
+					{summary.map((row) => (
 						<div key={row.label} className="reservations-summary-row">
 							<span>{row.label}</span>
 							<span>{row.value}</span>
