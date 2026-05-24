@@ -103,6 +103,14 @@ export const MyEvents = () => {
 		});
 	};
 
+	const getAvailableCapacity = (event) => {
+		if (event.max_capacity == null) return null;
+		const confirmedReservations = (event.reservations || []).filter(
+			(reservation) => reservation.status === "confirmed"
+		).length;
+		return Math.max(event.max_capacity - confirmedReservations, 0);
+	};
+
 	// Editar: navegar a formulario de creación con query param eventId
 	const handleEdit = (event) => {
 		navigate(`/crear-evento?eventId=${event.id}`);
@@ -202,7 +210,9 @@ export const MyEvents = () => {
 										</span>
 									</td>
 									<td>{formatDate(event.start_date)}</td>
-									<td>{event.max_capacity || "—"}</td>
+									<td>
+										{event.max_capacity != null ? `${getAvailableCapacity(event)}/${event.max_capacity}` : "—"}
+									</td>
 									<td>
 										<div className="events-table-actions">
 											<button
