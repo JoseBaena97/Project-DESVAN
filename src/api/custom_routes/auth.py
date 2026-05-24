@@ -1,10 +1,12 @@
+import os
+import secrets
 from flask import request, jsonify
 from api.routes import api
 from api.models import db, User
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, timezone
-
+from datetime import datetime, timezone, timedelta
+from api.services.email_service import send_reset_email
 
 @api.route('/auth', methods=['POST'])
 def register():
@@ -112,3 +114,75 @@ def deactivate_my_account():
     user.deleted_at = datetime.now(timezone.utc)
     db.session.commit()
     return jsonify({"msg": "Cuenta desactivada correctamente"}), 200
+
+
+#Para recuperación de contraseña
+@api.route('/auth/forgot-password', methods=['POST'])
+def forgot_password():
+
+    body = request.get_json()
+
+    email = body.get('email')
+
+    user = db.session.execute(
+        db.select(User).where(User.email == email)
+    ).scalar_one_or_none()
+
+    # seguridad:
+    # no revelar si el email existe o no
+    if not user:
+        return jsonify({
+            "msg": "Si el email existe, recibirás un enlace"
+        }), 200
+
+    token = secrets.token_urlsafe(32)
+
+    user.reset_token = token
+
+    user.reset_token_expires = (
+        datetime.now(timezone.utc)
+        + timedelta(hours=1)
+    )
+
+    db.session.commit()
+
+    send_reset_email(user.email, token)
+
+    return jsonify({
+        "msg": "Si el email existe, recibirás un enlace"
+    }), 200
+
+
+@api.route('/auth/reset-password', methods=['POST'])
+def reset_password():
+
+    body = request.get_json()
+
+    token = body.get('token')
+
+    new_password = body.get('password')
+
+    user = db.session.execute(
+        db.select(User).where(User.reset_token == token)
+    ).scalar_one_or_none()
+
+    if (
+        not user
+        or not user.reset_token_expires
+        or user.reset_token_expires < datetime.now(timezone.utc)
+    ):
+        return jsonify({
+            "msg": "Token inválido o expirado"
+        }), 400
+
+    user.password = generate_password_hash(new_password)
+
+    # invalidar token
+    user.reset_token = None
+    user.reset_token_expires = None
+
+    db.session.commit()
+
+    return jsonify({
+        "msg": "Contraseña actualizada correctamente"
+    }), 200
