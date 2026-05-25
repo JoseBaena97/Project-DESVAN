@@ -10,6 +10,7 @@ from api.models import db
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
+from api.extensions import mail
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
 # from models import Person
@@ -29,10 +30,23 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["JWT_SECRET_KEY"] = "supercalifragilistiespialidoso"
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+app.config["MAIL_PORT"] = int(os.getenv("MAIL_PORT", 587))
+app.config["MAIL_USE_TLS"] = os.getenv(
+    "MAIL_USE_TLS", "true").lower() in ("true", "1", "yes")
+app.config["MAIL_USE_SSL"] = os.getenv(
+    "MAIL_USE_SSL", "false").lower() in ("true", "1", "yes")
+app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+app.config["MAIL_DEFAULT_SENDER"] = os.getenv(
+    "MAIL_DEFAULT_SENDER", "no-reply@el-desvan.com")
+app.config["MAIL_SUPPRESS_SEND"] = os.getenv(
+    "FLASK_MAIL_SUPPRESS_SEND", "false").lower() in ("true", "1", "yes")
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
-app.config["JWT_SECRET_KEY"] = "supercalifragilistiespialidoso" 
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+mail.init_app(app)
 jwt = JWTManager(app)
 # add the admin
 setup_admin(app)
@@ -60,6 +74,8 @@ def sitemap():
     return send_from_directory(static_file_dir, 'index.html')
 
 # any other endpoint will try to serve it like a static file
+
+
 @app.route('/<path:path>', methods=['GET'])
 def serve_any_other_file(path):
     if not os.path.isfile(os.path.join(static_file_dir, path)):

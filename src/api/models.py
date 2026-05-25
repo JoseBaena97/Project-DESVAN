@@ -331,6 +331,14 @@ class User(db.Model):
     deleted_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     user_rating: Mapped[float] = mapped_column(Float, nullable=True)
 
+
+    reset_token: Mapped[str] = mapped_column(String(255), nullable=True)
+
+    reset_token_expires: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=True
+    )
+
     # 1-1
     profile: Mapped["Profile"] = relationship(
         back_populates="user", cascade="all, delete-orphan")
