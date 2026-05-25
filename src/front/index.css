@@ -1745,7 +1745,7 @@ h6 {
     width: 100%;
     flex: none;
   }
-  
+
   .nearby-content {
     grid-template-columns: 1fr;
   }
@@ -1755,34 +1755,34 @@ h6 {
   .events-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .nearby-controls {
     flex-direction: column;
   }
-  
+
   .location-form {
     min-width: auto;
     width: 100%;
   }
-  
+
   .nearby-content {
     grid-template-columns: 1fr;
   }
-  
+
   .nearby-list-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .distance-selector {
     width: 100%;
     justify-content: flex-start;
   }
-  
+
   .nearby-map-wrapper .map-container {
     height: 250px;
   }
-  
+
   .nearby-items {
     max-height: 300px;
   }

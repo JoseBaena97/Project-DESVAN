@@ -48,7 +48,8 @@ def create_event():
     except Exception:
         pass
 
-    required_fields = ['title', 'event_type', 'start_time', 'end_time', 'exact_address']
+    required_fields = ['title', 'event_type',
+                       'start_time', 'end_time', 'exact_address']
     for field in required_fields:
         if not body.get(field):
             return jsonify({"success": False, "data": f"Missing field: {field}"}), 403
@@ -236,22 +237,23 @@ def get_nearby_events():
         # Función para calcular distancia Haversine
         def haversine_distance(lat1, lon1, lat2, lon2):
             from math import radians, cos, sin, asin, sqrt
-            
+
             lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-            
+
             dlon = lon2 - lon1
             dlat = lat2 - lat1
             a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
             c = 2 * asin(sqrt(a))
             r = 6371  # Radio de la tierra en km
-            
+
             return c * r
 
         # Filtrar eventos cercanos
         nearby_events = []
         for event in all_events:
             if event.latitude and event.longitude:
-                dist = haversine_distance(latitude, longitude, event.latitude, event.longitude)
+                dist = haversine_distance(
+                    latitude, longitude, event.latitude, event.longitude)
                 if dist <= distance:
                     nearby_events.append({
                         "event": event.serialize(),
