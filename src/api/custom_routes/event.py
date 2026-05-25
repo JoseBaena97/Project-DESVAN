@@ -207,3 +207,65 @@ def delete_event(event_id):
     db.session.delete(event)
     db.session.commit()
     return jsonify({"success": True, "data": "Event deleted successfully"}), 200
+
+
+@api.route("/event/nearby", methods=['GET'])
+@jwt_required()
+def get_nearby_events():
+    """
+    Obtiene eventos cercanos a una ubicación específica.
+    Parámetros query:
+    - latitude: latitud (requerido)
+    - longitude: longitud (requerido)
+    - distance: distancia en km (opcional, default 10)
+    """
+    try:
+        latitude = request.args.get('latitude', type=float)
+        longitude = request.args.get('longitude', type=float)
+        distance = request.args.get('distance', default=10, type=float)
+
+        if latitude is None or longitude is None:
+            return jsonify({
+                "success": False,
+                "msg": "latitude and longitude are required"
+            }), 400
+
+        # Obtener todos los eventos
+        all_events = db.session.execute(db.select(Event)).scalars().all()
+
+        # Función para calcular distancia Haversine
+        def haversine_distance(lat1, lon1, lat2, lon2):
+            from math import radians, cos, sin, asin, sqrt
+            
+            lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+            
+            dlon = lon2 - lon1
+            dlat = lat2 - lat1
+            a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+            c = 2 * asin(sqrt(a))
+            r = 6371  # Radio de la tierra en km
+            
+            return c * r
+
+        # Filtrar eventos cercanos
+        nearby_events = []
+        for event in all_events:
+            if event.latitude and event.longitude:
+                dist = haversine_distance(latitude, longitude, event.latitude, event.longitude)
+                if dist <= distance:
+                    nearby_events.append({
+                        "event": event.serialize(),
+                        "distance_km": round(dist, 2)
+                    })
+
+        # Ordenar por distancia
+        nearby_events.sort(key=lambda x: x['distance_km'])
+
+        return jsonify({
+            "success": True,
+            "data": nearby_events,
+            "count": len(nearby_events)
+        }), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "msg": str(e)}), 500

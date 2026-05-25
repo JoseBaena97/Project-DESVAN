@@ -129,6 +129,33 @@ const deleteEvent = async (eventId) => {
   }
 };
 
+// obtener eventos cercanos a una ubicación
+const getNearbyEvents = async (latitude, longitude, distance = 10) => {
+  try {
+    const params = new URLSearchParams({
+      latitude,
+      longitude,
+      distance,
+    });
+
+    const resp = await fetch(url + "api/event/nearby?" + params.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+
+    if (!resp.ok) throw new Error("Error getting nearby events");
+
+    const data = await resp.json();
+
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export default {
   createEvent,
   getEvents,
@@ -136,4 +163,5 @@ export default {
   getEvent,
   updateEvent,
   deleteEvent,
+  getNearbyEvents,
 };

@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import caja05 from "../assets/img/caja05.png";
 import eventService from "../services/event.service";
 import favoriteService from "../services/favorite.service";
 import authService from "../services/auth.service";
 import useGlobalReducer from "../hooks/useGlobalReducer";
+import { Map } from "../components/Map";
 
 const CATEGORIES = ["Todos los rastros", "Muebles", "Ropa", "Joyería", "Libros", "Decoración", "Vintage"];
 
@@ -44,6 +45,15 @@ export const Explore = () => {
 
     const [favoriteMap, setFavoriteMap] = useState({});
 
+    // Estados para el mapa de eventos cercanos
+    const [latitude, setLatitude] = useState(null);
+    const [longitude, setLongitude] = useState(null);
+    const [nearbyEvents, setNearbyEvents] = useState([]);
+    const [loadingNearby, setLoadingNearby] = useState(false);
+    const [locationInput, setLocationInput] = useState("");
+    const locationInputRef = useRef(null);
+    const autocompleteRef = useRef(null);
+
     const { store, dispatch } = useGlobalReducer();
     const navigate = useNavigate();
 
@@ -56,6 +66,119 @@ export const Explore = () => {
             return map;
         }, {});
     };
+
+    // ── OBTENER EVENTOS CERCANOS ──
+    const fetchNearbyEvents = async (lat, lon) => {
+        if (!store.user) {
+            navigate("/login");
+            return;
+        }
+
+        setLoadingNearby(true);
+        try {
+            const distanceKm = parseInt(distance) || 10;
+            const res = await eventService.getNearbyEvents(lat, lon, distanceKm);
+            if (res?.data) {
+                setNearbyEvents(res.data);
+            }
+        } catch (err) {
+            console.log("Error fetching nearby events:", err);
+        } finally {
+            setLoadingNearby(false);
+        }
+    };
+
+    // ── OBTENER GEOLOCALIZACIÓN ──
+    const getUserLocation = () => {
+        if (!store.user) {
+            navigate("/login");
+            return;
+        }
+
+        if ("geolocation" in navigator) {
+            setLoadingNearby(true);
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    setLatitude(lat);
+                    setLongitude(lon);
+                    setLocationInput("Ubicación actual");
+                    fetchNearbyEvents(lat, lon);
+                },
+                (error) => {
+                    console.log("Error getting location:", error);
+                    alert("No se pudo obtener tu ubicación. Por favor, verifica los permisos.");
+                    setLoadingNearby(false);
+                }
+            );
+        } else {
+            alert("Tu navegador no soporta geolocalización.");
+        }
+    };
+
+    // ── GEOCODIFICAR DIRECCIÓN CON PLACE AUTOCOMPLETE ──
+    const initPlaceAutocomplete = () => {
+        // Cargar Google Maps con Place Autocomplete
+        if (!window.google) {
+            console.warn("Google Maps API no está cargada");
+            return;
+        }
+
+        if (locationInputRef.current && !autocompleteRef.current) {
+            const autocomplete = new window.google.maps.places.Autocomplete(
+                locationInputRef.current,
+                {
+                    types: ["geocode"],
+                    fields: ["formatted_address", "geometry", "name"]
+                }
+            );
+
+            autocomplete.addListener("place_changed", () => {
+                const place = autocomplete.getPlace();
+
+                if (!place.geometry) {
+                    alert("Por favor selecciona una ubicación de la lista");
+                    return;
+                }
+
+                const lat = place.geometry.location.lat();
+                const lng = place.geometry.location.lng();
+
+                setLatitude(lat);
+                setLongitude(lng);
+                setLocationInput(place.formatted_address || place.name || "");
+                fetchNearbyEvents(lat, lng);
+            });
+
+            autocompleteRef.current = autocomplete;
+        }
+    };
+
+    // Cargar Google Maps API y Place Autocomplete
+    useEffect(() => {
+        const loadGoogleMapsAPI = () => {
+            if (window.google && window.google.maps && window.google.maps.places) {
+                initPlaceAutocomplete();
+            } else if (!document.getElementById("google-maps-script")) {
+                const script = document.createElement("script");
+                script.id = "google-maps-script";
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places`;
+                script.async = true;
+                script.onload = () => {
+                    setTimeout(initPlaceAutocomplete, 100);
+                };
+                script.onerror = () => {
+                    console.error("Error al cargar Google Maps API");
+                };
+                document.head.appendChild(script);
+            }
+        };
+
+        if (store.user) {
+            loadGoogleMapsAPI();
+        }
+    }, [store.user]);
 
 
 
@@ -95,6 +218,13 @@ export const Explore = () => {
             setFavoriteMap(buildFavoriteMap(events, store.user.id));
         }
     }, [store.user, events]);
+
+    // ── RE-BUSCAR EVENTOS CERCANOS CUANDO CAMBIA LA DISTANCIA ──
+    useEffect(() => {
+        if (latitude && longitude && store.user) {
+            fetchNearbyEvents(latitude, longitude);
+        }
+    }, [distance, store.user]);
 
 
 
@@ -168,57 +298,6 @@ export const Explore = () => {
                             </ul>
                         </div>
 
-                        {/* Precio */}
-                        <div className="filter-block">
-                            <h4 className="filter-block-title">
-                                <span className="filter-icon"><i className="fa-solid fa-coins"></i></span>
-                                Precio
-                            </h4>
-                            <div className="price-inputs">
-                                <input type="number" placeholder="Min €" className="price-input" />
-                                <span className="price-dash">-</span>
-                                <input type="number" placeholder="Max €" className="price-input" />
-                            </div>
-                        </div>
-
-                        {/* Distancia */}
-                        <div className="filter-block">
-                            <h4 className="filter-block-title">
-                                <span className="filter-icon"><i className="fa-solid fa-location-dot"></i></span>
-                                Distancia
-                            </h4>
-                            <div className="radio-group">
-                                {["5km", "10km", "50km"].map(d => (
-                                    <label key={d} className="radio-label">
-                                        <input
-                                            type="radio"
-                                            name="distance"
-                                            value={d}
-                                            checked={distance === d}
-                                            onChange={() => setDistance(d)}
-                                        />
-                                        <span>Menos de {d}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Estado */}
-                        <div className="filter-block">
-                            <h4 className="filter-block-title">
-                                <span className="filter-icon"><i className="fa-solid fa-tag"></i></span>
-                                Estado
-                            </h4>
-                            <div className="checkbox-group">
-                                {["Como nuevo", "Buen estado", "Usado"].map(estado => (
-                                    <label key={estado} className="checkbox-label">
-                                        <input type="checkbox" />
-                                        <span>{estado}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
                         {/* Fecha */}
                         <div className="filter-block">
                             <h4 className="filter-block-title">
@@ -254,6 +333,97 @@ export const Explore = () => {
                             </span>
                         </div>
                     </div>
+
+                    {/* ── MAPA DE EVENTOS CERCANOS (solo usuarios logueados) ── */}
+                    {store.user && (
+                        <section className="nearby-events-section">
+                            <div className="nearby-header">
+                                <h2 className="nearby-title">
+                                    <i className="fa-solid fa-map"></i> Rastros cercanos a tu ubicación
+                                </h2>
+                            </div>
+
+                            <div className="nearby-controls">
+                                <div className="location-form">
+                                    <input
+                                        ref={locationInputRef}
+                                        type="text"
+                                        placeholder="Ingresa una dirección o ciudad..."
+                                        className="location-input"
+                                        autoComplete="off"
+                                    />
+                                </div>
+
+                                <button
+                                    className="btn-current-location"
+                                    onClick={getUserLocation}
+                                    disabled={loadingNearby}
+                                >
+                                    <i className="fa-solid fa-location-crosshairs"></i>
+                                    {loadingNearby ? "Buscando..." : "Mi ubicación"}
+                                </button>
+                            </div>
+
+                            {latitude && longitude && (
+                                <div className="nearby-content">
+                                    <div className="nearby-map-wrapper">
+                                        <Map
+                                            latitude={latitude}
+                                            longitude={longitude}
+                                            zoom={13}
+                                        />
+                                    </div>
+
+                                    <div className="nearby-list">
+                                        <div className="nearby-list-header">
+                                            <h3 className="nearby-count">
+                                                {nearbyEvents.length} rastros a {distance} de distancia
+                                            </h3>
+                                            <div className="distance-selector">
+                                                {["5km", "10km", "50km"].map(d => (
+                                                    <button
+                                                        key={d}
+                                                        className={`distance-btn ${distance === d ? "active" : ""}`}
+                                                        onClick={() => setDistance(d)}
+                                                    >
+                                                        {d}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {nearbyEvents.length > 0 ? (
+                                            <div className="nearby-items">
+                                                {nearbyEvents.map((item) => (
+                                                    <div key={item.event.id} className="nearby-item">
+                                                        <div className="nearby-item-header">
+                                                            <h4>{item.event.title}</h4>
+                                                            <span className="nearby-distance">
+                                                                {item.distance_km} km
+                                                            </span>
+                                                        </div>
+                                                        <p className="nearby-item-address">
+                                                            <i className="fa-solid fa-location-dot"></i>
+                                                            {item.event.exact_address}
+                                                        </p>
+                                                        <Link to={`/detalles/${item.event.id}`}>
+                                                            <button className="btn-view-event">
+                                                                Ver rastro
+                                                            </button>
+                                                        </Link>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="nearby-empty">
+                                                <p>No hay rastros cercanos en esta zona</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </section>
+                    )}
 
                     <div className="events-grid">
                         {events?.map(event => {
