@@ -95,6 +95,7 @@ def create_event():
         title=body['title'],
         event_type=event_type,
         description=body.get('description'),
+        image_url=body.get('image_url'),
         start_time=start_time,
         end_time=end_time,
         start_date=start_date,

@@ -82,6 +82,8 @@ def update_my_profile():
         if existing and existing.id != user.id:
             return jsonify({"msg": "Username already in use"}), 409
         user.username = username
+    if "profile_picture_url" in body:
+        user.profile_picture_url = body.get("profile_picture_url")
 
     # Update or create profile
     profile = user.profile

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, Navigate, useNavigate, useLocation } from "react-router-dom";
 import mascotOpen from "../assets/img/caja04.png";
 import eventService from "../services/event.service";
+import uploadService from "../services/upload.service";
 
 
 const CATEGORIES = [
@@ -44,7 +45,9 @@ export const CreateEvent = () => {
     });
 
     const [images, setImages] = useState([]);
+    const [galleryFiles, setGalleryFiles] = useState([]);
     const [mainImage, setMainImage] = useState(null);
+    const [mainImageFile, setMainImageFile] = useState(null);
     const [isEdit, setIsEdit] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const location = useLocation();
@@ -101,6 +104,12 @@ export const CreateEvent = () => {
                 const evt = res && res.data ? res.data : res;
                 if (evt) {
                     setEventData((prev) => ({ ...prev, ...evt }));
+                    if (evt.image_url?.cover) {
+                        setMainImage(evt.image_url.cover);
+                    }
+                    if (evt.image_url?.gallery) {
+                        setImages(evt.image_url.gallery.slice(0, 5));
+                    }
                     setIsEdit(true);
                     setEditingId(eventId);
                 }
@@ -122,17 +131,19 @@ export const CreateEvent = () => {
         const file = e.target.files[0];
         if (file) {
             setMainImage(URL.createObjectURL(file));
+            setMainImageFile(file);
         }
     };
 
     const handleAddImages = (e) => {
-        const files = Array.from(e.target.files);
-        const newImages = files.map((f) => URL.createObjectURL(f));
-        setImages((prev) => [...prev, ...newImages].slice(0, 5));
+        const files = Array.from(e.target.files).slice(0, 5);
+        const newPreviews = files.map((f) => URL.createObjectURL(f));
+        setImages((prev) => [...prev, ...newPreviews].slice(0, 5));
+        setGalleryFiles((prev) => [...prev, ...files].slice(0, 5));
     };
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
     try {
         if (!eventData.exact_address) {
@@ -152,7 +163,6 @@ export const CreateEvent = () => {
                 alert("Debes especificar un aforo máximo válido para eventos privados.");
                 return;
             }
-        }
 
         const payload = {
             ...eventData,
@@ -160,58 +170,94 @@ export const CreateEvent = () => {
             end_time: `${eventData.end_date}T${eventData.end_time}`,
         };
 
-        // Asegurar tipo numérico y eliminar si no aplica
-        if (payload.max_capacity) {
-            payload.max_capacity = Number(payload.max_capacity);
+                if (!eventData.max_capacity || isNaN(cap) || cap <= 0) {
+                    alert("Debes especificar un aforo máximo válido para eventos privados.");
+                    return;
+                }
+            }
 
-            if (isNaN(payload.max_capacity) || payload.max_capacity <= 0) {
+            const addressToUse =
+                eventData.exact_address?.trim() ||
+                `${eventData.place.trim()}, ${eventData.city.trim()}`;
+
+            const payload = {
+                ...eventData,
+                start_time: `${eventData.start_date}T${eventData.start_time}`,
+                end_time: `${eventData.end_date}T${eventData.end_time}`,
+                exact_address: addressToUse,
+            };
+
+            if (mainImageFile || galleryFiles.length > 0) {
+                const imageUrlPayload = eventData.image_url ? { ...eventData.image_url } : {};
+                if (mainImageFile) {
+                    const uploadResult = await uploadService.uploadImage(mainImageFile, "events");
+                    imageUrlPayload.cover = uploadResult.url;
+                }
+                if (galleryFiles.length > 0) {
+                    imageUrlPayload.gallery = imageUrlPayload.gallery ? [...imageUrlPayload.gallery] : [];
+                    for (const file of galleryFiles) {
+                        const uploadResult = await uploadService.uploadImage(file, "events/gallery");
+                        imageUrlPayload.gallery.push(uploadResult.url);
+                    }
+                    imageUrlPayload.gallery = imageUrlPayload.gallery.slice(0, 5);
+                }
+                payload.image_url = imageUrlPayload;
+            } else if (eventData.image_url) {
+                payload.image_url = eventData.image_url;
+            }
+
+            // Asegurar tipo numérico y eliminar si no aplica
+            if (payload.max_capacity) {
+                payload.max_capacity = Number(payload.max_capacity);
+
+                if (isNaN(payload.max_capacity) || payload.max_capacity <= 0) {
+                    delete payload.max_capacity;
+                }
+            } else {
                 delete payload.max_capacity;
             }
-        } else {
-            delete payload.max_capacity;
+
+            // =========================
+            // MODO EDICIÓN
+            // =========================
+            if (isEdit && editingId) {
+                const data = await eventService.updateEvent(editingId, payload);
+
+                console.log("Evento actualizado:", data);
+
+                navigate('/mis-eventos');
+                return;
+            }
+
+            // =========================
+            // CREAR EVENTO
+            // =========================
+            const data = await eventService.createEvent(payload);
+
+            console.log("Evento creado:", data);
+
+            if (data?.success && data?.data) {
+                navigate(`/detalles/${data.data}`);
+                return;
+            }
+
+            alert("Evento creado, pero no se pudo navegar automáticamente.");
+
+        } catch (err) {
+            console.error(
+                isEdit
+                    ? "Error actualizando evento:"
+                    : "Error creando evento:",
+                err
+            );
+
+            alert(
+                isEdit
+                    ? "No se pudo actualizar el evento."
+                    : "Error creando evento. Revisa la consola para más detalles."
+            );
         }
-
-        // =========================
-        // MODO EDICIÓN
-        // =========================
-        if (isEdit && editingId) {
-            const data = await eventService.updateEvent(editingId, payload);
-
-            console.log("Evento actualizado:", data);
-
-            navigate('/mis-eventos');
-            return;
-        }
-
-        // =========================
-        // CREAR EVENTO
-        // =========================
-        const data = await eventService.createEvent(payload);
-
-        console.log("Evento creado:", data);
-
-        if (data?.success && data?.data) {
-            navigate(`/detalles/${data.data}`);
-            return;
-        }
-
-        alert("Evento creado, pero no se pudo navegar automáticamente.");
-
-    } catch (err) {
-        console.error(
-            isEdit
-                ? "Error actualizando evento:"
-                : "Error creando evento:",
-            err
-        );
-
-        alert(
-            isEdit
-                ? "No se pudo actualizar el evento."
-                : "Error creando evento. Revisa la consola para más detalles."
-        );
-    }
-};
+    };
 
 
 

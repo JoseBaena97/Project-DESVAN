@@ -2,6 +2,7 @@ import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../../services/auth.service";
+import uploadService from "../../services/upload.service";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 
 const FALLBACK = {
@@ -15,6 +16,8 @@ export const Profile = () => {
 	const [phone, setPhone] = useState("");
 	const [email, setEmail] = useState("");
 	const [address, setAddress] = useState("");
+	const [profilePictureFile, setProfilePictureFile] = useState(null);
+	const [profilePicturePreview, setProfilePicturePreview] = useState("");
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [deleting, setDeleting] = useState(false);
 	const navigate = useNavigate();
@@ -32,6 +35,9 @@ export const Profile = () => {
 				const firstname = user.profile && user.profile.firstname ? user.profile.firstname : "";
 				const lastname = user.profile && user.profile.lastname ? user.profile.lastname : "";
 				setLegalName(`${firstname} ${lastname}`.trim());
+				if (user.profile_picture_url) {
+					setProfilePicturePreview(user.profile_picture_url);
+				}
 			}
 		};
 		load();
@@ -42,12 +48,27 @@ export const Profile = () => {
 		const parts = legalName.trim().split(" ");
 		const firstname = parts.shift() || "";
 		const lastname = parts.join(" ") || "";
+		let profile_picture_url = null;
+
+		if (profilePictureFile) {
+			try {
+				const uploadResp = await uploadService.uploadImage(profilePictureFile, "profiles");
+				if (uploadResp && uploadResp.url) {
+					profile_picture_url = uploadResp.url;
+				}
+			} catch (error) {
+				alert("Error al subir la imagen de perfil.");
+				return;
+			}
+		}
+
 		const payload = {
 			email,
 			firstname,
 			lastname,
 			phone,
 			address,
+			...(profile_picture_url ? { profile_picture_url } : {}),
 		};
 		const resp = await authService.updateProfile(payload);
 		if (resp && resp.data) {
@@ -66,6 +87,13 @@ export const Profile = () => {
 		const firstname = data.profile && data.profile.firstname ? data.profile.firstname : "";
 		const lastname = data.profile && data.profile.lastname ? data.profile.lastname : "";
 		setLegalName(`${firstname} ${lastname}`.trim());
+	};
+
+	const handleProfilePictureChange = (event) => {
+		const file = event.target.files && event.target.files[0];
+		if (!file) return;
+		setProfilePictureFile(file);
+		setProfilePicturePreview(URL.createObjectURL(file));
 	};
 
 	const onDeactivateAccount = async () => {
@@ -107,7 +135,15 @@ export const Profile = () => {
 
 				<div className="collector-file-body">
 					<div className="collector-photo-block">
-						<div className="collector-photo account-img-placeholder" aria-hidden="true" />
+						<div className="collector-photo account-img-placeholder">
+							{profilePicturePreview ? (
+								<img src={profilePicturePreview} alt="Foto de perfil" className="account-photo-preview" />
+							) : null}
+						</div>
+						<label className="collector-photo-upload">
+							<span className="collector-photo-upload-label">Cambiar foto</span>
+							<input type="file" accept="image/*" onChange={handleProfilePictureChange} />
+						</label>
 
 						<p className="collector-photo-name">{data ? data.username : "Usuario"}</p>
 
