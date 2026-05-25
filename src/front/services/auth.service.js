@@ -20,6 +20,43 @@ authService.auth = async (FormData) => {
   }
 };
 
+authService.forgotPassword = async (email) => {
+  try {
+    const resp = await fetch(url + "api/auth/forgot-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+    if (!resp.ok) throw new Error("Error al enviar enlace de recuperación");
+    return await resp.json();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+authService.resetPassword = async (token, password) => {
+  try {
+    const resp = await fetch(url + "api/auth/reset-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token, password }),
+    });
+    if (!resp.ok) {
+      const data = await resp.json().catch(() => null);
+      throw new Error(data?.msg || "Error al actualizar contraseña");
+    }
+    return await resp.json();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
 authService.getMe = async () => {
   try {
     const resp = await fetch(url + "api/profile", {

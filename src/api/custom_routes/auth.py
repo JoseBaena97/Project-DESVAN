@@ -6,7 +6,8 @@ from api.models import db, User
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timezone, timedelta
-from api.services.email_service import send_reset_email
+from api.custom_routes.email_service import send_reset_email
+
 
 @api.route('/auth', methods=['POST'])
 def register():
@@ -116,7 +117,7 @@ def deactivate_my_account():
     return jsonify({"msg": "Cuenta desactivada correctamente"}), 200
 
 
-#Para recuperación de contraseña
+# Para recuperación de contraseña
 @api.route('/auth/forgot-password', methods=['POST'])
 def forgot_password():
 
@@ -166,13 +167,23 @@ def reset_password():
         db.select(User).where(User.reset_token == token)
     ).scalar_one_or_none()
 
-    if (
-        not user
-        or not user.reset_token_expires
-        or user.reset_token_expires < datetime.now(timezone.utc)
-    ):
+    if not user:
         return jsonify({
             "msg": "Token inválido o expirado"
+        }), 400
+
+    expires = user.reset_token_expires
+    if expires is not None and expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+
+    if not expires or expires < datetime.now(timezone.utc):
+        return jsonify({
+            "msg": "Token inválido o expirado"
+        }), 400
+
+    if check_password_hash(user.password, new_password):
+        return jsonify({
+            "msg": "No puedes usar la misma contraseña anterior"
         }), 400
 
     user.password = generate_password_hash(new_password)

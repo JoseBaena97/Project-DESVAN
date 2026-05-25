@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import authService from "../services/auth.service";
 import "./Login.css";
@@ -48,7 +48,7 @@ export const Login = () => {
       return data;
     })
       .then(data => {
-        
+
         dispatch({
           type: 'auth',
           payload: {
@@ -221,7 +221,7 @@ export const Login = () => {
               <div className="label-row">
                 <label className="form-label" htmlFor="password">CONTRASEÑA</label>
                 {!isRegister && (
-                  <span className="forgot-password-link">¿Olvidaste tu contraseña?</span>
+                  <Link to="/forgot-password" className="forgot-password-link">¿Olvidaste tu contraseña?</Link>
                 )}
               </div>
               <div className="input-wrapper">
