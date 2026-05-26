@@ -1185,6 +1185,89 @@
   line-height: 1.55;
 }
 
+.review-card-comment-button {
+  all: unset;
+  display: block;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  font-family: var(--account-font-sans);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  cursor: pointer;
+}
+
+.review-card-comment-button:hover {
+  text-decoration: underline;
+}
+
+.review-card-comment-more {
+  display: inline-block;
+  margin-left: 0.35rem;
+  color: var(--account-red);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.modal-content-custom {
+  width: min(540px, 100%);
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.14);
+}
+
+.review-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.review-modal-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--account-brown);
+}
+
+.modal-close-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #f4e6dd;
+  color: var(--account-brown);
+  cursor: pointer;
+}
+
+.review-modal-fullcomment {
+  margin: 0;
+  color: var(--account-brown-muted);
+  font-family: var(--account-font-sans);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .review-card-footer {
   display: flex;
   align-items: center;

@@ -151,6 +151,11 @@ export const Details = () => {
       return;
     }
 
+    if (store.user.id === event.seller?.id) {
+      setReviewFeedback("No puedes escribir una valoración sobre ti mismo.");
+      return;
+    }
+
     if (!reviewRating) {
       setReviewFeedback("Selecciona una valoración antes de enviar.");
       return;
@@ -352,9 +357,15 @@ export const Details = () => {
                 </div>
               </div>
             </div>
-            <button className="btn-evaluate" onClick={() => setShowReviewModal(true)}>
-              Evaluar
-            </button>
+            {event.seller?.id === store.user?.id ? (
+              <button className="btn-evaluate btn-evaluate--disabled" disabled>
+                No puedes evaluarte a ti mismo
+              </button>
+            ) : (
+              <button className="btn-evaluate" onClick={() => setShowReviewModal(true)}>
+                Evaluar
+              </button>
+            )}
           </div>
 
           <div className="card-sidebar-white">

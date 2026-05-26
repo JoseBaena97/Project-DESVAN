@@ -11,6 +11,7 @@ export const Reviews = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(TABS[0]);
+  const [selectedReview, setSelectedReview] = useState(null);
   const { store, dispatch } = useGlobalReducer();
   const navigate = useNavigate();
 
@@ -53,6 +54,11 @@ export const Reviews = () => {
 
   const reviewsToShow = activeTab === "Recibidas" ? receivedReviews : writtenReviews;
 
+  const truncateText = (text, maxLength = 60) => {
+    if (!text) return "";
+    return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+  };
+
   const renderRatingStars = (rating) => {
     const rounded = Math.round(Number(rating) || 0);
     return Array.from({ length: 5 }).map((_, index) => (
@@ -65,31 +71,48 @@ export const Reviews = () => {
     ));
   };
 
-  const renderReviewCard = (review, type) => (
-    <article key={review.id} className="review-card">
-      <div className="review-card-top">
-        <div>
-          <span className="review-card-badge">{type === "received" ? "Recibida" : "Escrita"}</span>
-          <p className="review-card-meta">
-            {type === "received" ? `De ${review.reviewer?.email ?? "usuario"}` : `Sobre ${review.reviewed?.email ?? "usuario"}`}
-          </p>
-        </div>
-        <div className="review-card-rating">
-          {renderRatingStars(review.rating)}
-          <span>{review.rating?.toFixed ? review.rating.toFixed(1) : review.rating}</span>
-        </div>
-      </div>
+  const renderReviewCard = (review, type) => {
+    const hasComment = Boolean(review.comment);
+    const isLongComment = hasComment && review.comment.length > 60;
+    const commentText = hasComment ? truncateText(review.comment) : "Sin comentario";
 
-      <p className="review-card-comment">{review.comment || "Sin comentario"}</p>
+    return (
+      <article key={review.id} className="review-card">
+        <div className="review-card-top">
+          <div>
+            <span className="review-card-badge">{type === "received" ? "Recibida" : "Escrita"}</span>
+            <p className="review-card-meta">
+              {type === "received" ? `De ${review.reviewer?.email ?? "usuario"}` : `Sobre ${review.reviewed?.email ?? "usuario"}`}
+            </p>
+          </div>
+          <div className="review-card-rating">
+            {renderRatingStars(review.rating)}
+            <span>{review.rating?.toFixed ? review.rating.toFixed(1) : review.rating}</span>
+          </div>
+        </div>
 
-      <div className="review-card-footer">
-        <span className="review-card-event">{review.event?.title || "Evento no disponible"}</span>
-        <span className="review-card-date">
-          {review.created_at ? new Date(review.created_at).toLocaleDateString("es-ES") : "Fecha desconocida"}
-        </span>
-      </div>
-    </article>
-  );
+        {hasComment ? (
+          <button
+            type="button"
+            className="review-card-comment-button"
+            onClick={() => setSelectedReview(review)}
+          >
+            <span>{commentText}</span>
+            {isLongComment && <span className="review-card-comment-more">Ver más</span>}
+          </button>
+        ) : (
+          <p className="review-card-comment">{commentText}</p>
+        )}
+
+        <div className="review-card-footer">
+          <span className="review-card-event">{review.event?.title || "Evento no disponible"}</span>
+          <span className="review-card-date">
+            {review.created_at ? new Date(review.created_at).toLocaleDateString("es-ES") : "Fecha desconocida"}
+          </span>
+        </div>
+      </article>
+    );
+  };
 
   return (
     <div className="reviews-page">
@@ -141,6 +164,25 @@ export const Reviews = () => {
               </div>
             )}
           </section>
+
+          {selectedReview && (
+            <div className="modal-backdrop" onClick={() => setSelectedReview(null)}>
+              <div className="modal-content-custom" onClick={(e) => e.stopPropagation()}>
+                <div className="review-modal-header">
+                  <h3>Comentario completo</h3>
+                  <button
+                    type="button"
+                    className="modal-close-btn"
+                    onClick={() => setSelectedReview(null)}
+                    aria-label="Cerrar comentario completo"
+                  >
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+                <p className="review-modal-fullcomment">{selectedReview.comment}</p>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
