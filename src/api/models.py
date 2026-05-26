@@ -116,19 +116,23 @@ class Favorite (db.Model):
 class Event (db.Model):  # ESTA TABLA DEBE IR ARRIBA?
     __tablename__ = "events"
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(255), nullable= False)
-    description: Mapped[str] = mapped_column(Text, nullable= True)
-    image_url: Mapped[dict] = mapped_column(JSON, nullable= True)
-    status: Mapped[EventStatus] = mapped_column(Enum(EventStatus), default="active", nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    
-    event_type: Mapped[EventType] = mapped_column(Enum(EventType), nullable=False) 
-    start_time: Mapped[datetime]  = mapped_column(DateTime(timezone=True))
-    end_time: Mapped[datetime]  = mapped_column(DateTime(timezone=True))
-    start_date: Mapped[datetime]  = mapped_column(DateTime(timezone=True)) #añadido 
-    end_date: Mapped[datetime]  = mapped_column(DateTime(timezone=True)) #añadido
-    max_capacity: Mapped[int] = mapped_column(Integer, nullable= True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=True)
+    image_url: Mapped[dict] = mapped_column(JSON, nullable=True)
+    status: Mapped[EventStatus] = mapped_column(
+        Enum(EventStatus), default="active", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc))
 
+    event_type: Mapped[EventType] = mapped_column(
+        Enum(EventType), nullable=False)
+    start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    end_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    start_date: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True))  # añadido
+    end_date: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True))  # añadido
+    max_capacity: Mapped[int] = mapped_column(Integer, nullable=True)
 
     # ubicación
     exact_address: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -136,7 +140,8 @@ class Event (db.Model):  # ESTA TABLA DEBE IR ARRIBA?
     longitude: Mapped[float] = mapped_column(Float, nullable=True)
 
     # clave foránea
-    seller_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    seller_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), nullable=False)
 
     # 1-M
     seller: Mapped["User"] = relationship(back_populates="events")
@@ -182,7 +187,7 @@ class Event (db.Model):  # ESTA TABLA DEBE IR ARRIBA?
             "id": self.id,
             "title": self.title,
             "description": self.description,
-            "event_type": self.event_type.value, 
+            "event_type": self.event_type.value,
             "exact_address": self.exact_address,
             "latitude": self.latitude,
             "longitude": self.longitude,
@@ -197,7 +202,11 @@ class Event (db.Model):  # ESTA TABLA DEBE IR ARRIBA?
             "event_rating": self.event_rating,
             "seller": {
                 "id": self.seller_id,
-                "email": self.seller.email
+                "username": self.seller.username,
+                "email": self.seller.email,
+                "profile_picture_url": self.seller.profile_picture_url,
+                "user_rating": self.seller.user_rating,
+                "full_name": f"{self.seller.profile.firstname} {self.seller.profile.lastname}" if self.seller and self.seller.profile else self.seller.username,
             } if self.seller else None,
             "favorites": [favorite.serialize()for favorite in self.favorites],
             "reservations": [reservation.serialize()for reservation in self.reservations],
@@ -304,7 +313,6 @@ class User(db.Model):
         DateTime, default=lambda: datetime.now(timezone.utc))
     deleted_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     user_rating: Mapped[float] = mapped_column(Float, nullable=True)
-
 
     reset_token: Mapped[str] = mapped_column(String(255), nullable=True)
 
