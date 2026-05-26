@@ -1,4 +1,5 @@
 import { NavLink, Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import authService from "../../services/auth.service";
 
@@ -13,6 +14,30 @@ export const AccountSidebar = () => {
 	const { dispatch } = useGlobalReducer();
 	const navigate = useNavigate();
 
+	const [user, setUser] = useState(null);
+
+	useEffect(() => {
+		const load = async () => {
+			const resp = await authService.getMe();
+			const u = resp?.data ?? resp;
+			if (u) setUser(u);
+		};
+		load();
+	}, []);
+
+	const getJoinText = () => {
+		if (!user || !user.created_at) return "";
+		try {
+			const d = new Date(user.created_at);
+			const day = String(d.getDate()).padStart(2, '0');
+			const month = String(d.getMonth() + 1).padStart(2, '0');
+			const year = d.getFullYear();
+			return `${day}/${month}/${year}`;
+		} catch (e) {
+			return "";
+		}
+	};
+
 	const handleLogout = () => {
 		authService.logout();
 		dispatch({ type: "logout" });
@@ -26,13 +51,23 @@ export const AccountSidebar = () => {
 				{/* TODO: Sustituye por tu foto de perfil del sidebar
 				    <img src={rutaATuImagen} alt="Archibald Vance" className="account-sidebar-avatar" />
 				*/}
-				<div className="account-sidebar-avatar account-img-placeholder" aria-hidden="true" />
+				{user && (user.profile_picture_url || user.profile_picture) ? (
+					<img
+						src={user.profile_picture_url || user.profile_picture}
+						alt={user.username || "avatar"}
+						className="account-sidebar-avatar"
+					/>
+				) : (
+					<div className="account-sidebar-avatar account-img-placeholder" aria-hidden="true" />
+				)}
 
-				<div className="account-sidebar-user">
-					<strong>Archibald Vance</strong>
-					<span>En regla</span>
-					<span className="account-sidebar-since">desde Junio 2023</span>
-				</div>
+					<div className="account-sidebar-user">
+						<strong>{user ? `${(user.profile && user.profile.firstname) || user.username} ${
+							(user.profile && user.profile.lastname) || ""
+						}`.trim() : "Usuario"}</strong>
+						<span>{user ? `@${user.username}` : "@usuario"}</span>
+						<span className="account-sidebar-since">{getJoinText()}</span>
+					</div>
 			</div>
 
 			<nav className="account-sidebar-nav">

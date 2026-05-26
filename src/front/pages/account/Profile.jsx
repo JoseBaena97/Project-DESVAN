@@ -7,12 +7,12 @@ import useGlobalReducer from "../../hooks/useGlobalReducer";
 
 const FALLBACK = {
 	fileNumber: "000241",
-	joinDate: "15 ABR 2023",
 };
 
 export const Profile = () => {
 	const [data, setData] = useState(null);
-	const [legalName, setLegalName] = useState("");
+	const [firstname, setFirstname] = useState("");
+	const [lastname, setLastname] = useState("");
 	const [phone, setPhone] = useState("");
 	const [email, setEmail] = useState("");
 	const [address, setAddress] = useState("");
@@ -20,6 +20,7 @@ export const Profile = () => {
 	const [profilePicturePreview, setProfilePicturePreview] = useState("");
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [deleting, setDeleting] = useState(false);
+	const [isEditing, setIsEditing] = useState(false);
 	const navigate = useNavigate();
 	const { dispatch } = useGlobalReducer();
 
@@ -32,9 +33,8 @@ export const Profile = () => {
 				setEmail(user.email || "");
 				setPhone((user.profile && user.profile.phone) || "");
 				setAddress((user.profile && user.profile.address) || "");
-				const firstname = user.profile && user.profile.firstname ? user.profile.firstname : "";
-				const lastname = user.profile && user.profile.lastname ? user.profile.lastname : "";
-				setLegalName(`${firstname} ${lastname}`.trim());
+				setFirstname((user.profile && user.profile.firstname) || "");
+				setLastname((user.profile && user.profile.lastname) || "");
 				if (user.profile_picture_url) {
 					setProfilePicturePreview(user.profile_picture_url);
 				}
@@ -44,10 +44,6 @@ export const Profile = () => {
 	}, []);
 
 	const onSave = async () => {
-		// split legalName into firstname/lastname
-		const parts = legalName.trim().split(" ");
-		const firstname = parts.shift() || "";
-		const lastname = parts.join(" ") || "";
 		let profile_picture_url = null;
 
 		if (profilePictureFile) {
@@ -78,6 +74,7 @@ export const Profile = () => {
 				setProfilePicturePreview(updatedUser.profile_picture_url);
 			}
 			alert('Perfil actualizado');
+			setIsEditing(false);
 		} else {
 			alert('Error al actualizar');
 		}
@@ -88,9 +85,11 @@ export const Profile = () => {
 		setEmail(data.email || "");
 		setPhone((data.profile && data.profile.phone) || "");
 		setAddress((data.profile && data.profile.address) || "");
-		const firstname = data.profile && data.profile.firstname ? data.profile.firstname : "";
-		const lastname = data.profile && data.profile.lastname ? data.profile.lastname : "";
-		setLegalName(`${firstname} ${lastname}`.trim());
+		setFirstname((data.profile && data.profile.firstname) || "");
+		setLastname((data.profile && data.profile.lastname) || "");
+		setProfilePictureFile(null);
+		setProfilePicturePreview(data.profile_picture_url || "");
+		setIsEditing(false);
 	};
 
 	const handleProfilePictureChange = (event) => {
@@ -98,6 +97,20 @@ export const Profile = () => {
 		if (!file) return;
 		setProfilePictureFile(file);
 		setProfilePicturePreview(URL.createObjectURL(file));
+	};
+
+	const getJoinText = () => {
+		const createdAt = data?.created_at;
+		if (!createdAt) return "";
+		try {
+			const d = new Date(createdAt);
+			const day = String(d.getDate()).padStart(2, '0');
+			const month = String(d.getMonth() + 1).padStart(2, '0');
+			const year = d.getFullYear();
+			return `${day}/${month}/${year}`;
+		} catch (error) {
+			return "";
+		}
 	};
 
 	const onDeactivateAccount = async () => {
@@ -149,10 +162,12 @@ export const Profile = () => {
 							) : (
 								<span className="collector-photo-placeholder-text">Sube tu foto</span>
 							)}
-							<label className="collector-photo-upload">
-								<span className="collector-photo-upload-label">Cambiar foto</span>
-								<input type="file" accept="image/*" onChange={handleProfilePictureChange} />
-							</label>
+							{isEditing && (
+								<label className="collector-photo-upload">
+									<span className="collector-photo-upload-label">Cambiar foto</span>
+									<input type="file" accept="image/*" onChange={handleProfilePictureChange} />
+								</label>
+							)}
 						</div>
 
 						<p className="collector-photo-name">{data ? data.username : "Usuario"}</p>
@@ -162,7 +177,7 @@ export const Profile = () => {
 								<label>
 									<i className="fa-regular fa-calendar" /> FECHA DE ALTA
 								</label>
-								<span>{FALLBACK.joinDate}</span>
+								<span>{getJoinText()}</span>
 							</div>
 							<div className="collector-data-box">
 								<label>NOMBRE EN EL DESVÁN</label>
@@ -177,21 +192,27 @@ export const Profile = () => {
 							<div className="collector-fields">
 								<div className="collector-field">
 									<label>
-										<i className="fa-solid fa-user" /> NOMBRE LEGAL
+										<i className="fa-solid fa-user" /> NOMBRE
 									</label>
-									<input type="text" value={legalName} onChange={(e) => setLegalName(e.target.value)} />
+									<input type="text" value={firstname} onChange={(e) => setFirstname(e.target.value)} disabled={!isEditing} />
+								</div>
+								<div className="collector-field">
+									<label>
+										<i className="fa-solid fa-user" /> APELLIDOS
+									</label>
+									<input type="text" value={lastname} onChange={(e) => setLastname(e.target.value)} disabled={!isEditing} />
 								</div>
 								<div className="collector-field">
 									<label>
 										<i className="fa-solid fa-phone" /> TELÉFONO DE CONTACTO
 									</label>
-									<input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />
+									<input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={!isEditing} />
 								</div>
 								<div className="collector-field collector-field--full">
 									<label>
 										<i className="fa-solid fa-envelope" /> CORREO ELECTRÓNICO
 									</label>
-									<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+									<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={!isEditing} />
 								</div>
 							</div>
 						</section>
@@ -203,19 +224,19 @@ export const Profile = () => {
 									<label>
 										<i className="fa-solid fa-location-dot" /> DIRECCIÓN
 									</label>
-									<input type="text" value={address} onChange={(e) => setAddress(e.target.value)} />
+									<input type="text" value={address} onChange={(e) => setAddress(e.target.value)} disabled={!isEditing} />
 								</div>
 								<div className="collector-field">
 									<label>
 										<i className="fa-solid fa-city" /> CIUDAD / PROVINCIA
 									</label>
-									<input type="text" defaultValue="" />
+									<input type="text" defaultValue="" disabled={!isEditing} />
 								</div>
 								<div className="collector-field">
 									<label>
 										<i className="fa-solid fa-mailbox" /> CÓDIGO POSTAL
 									</label>
-									<input type="text" defaultValue="" />
+									<input type="text" defaultValue="" disabled={!isEditing} />
 								</div>
 							</div>
 						</section>
@@ -224,12 +245,20 @@ export const Profile = () => {
 			</article>
 
 			<div className="profile-actions">
-				<button type="button" className="profile-btn-discard" onClick={onDiscard}>
-					<i className="fa-solid fa-xmark" /> Descartar cambios
-				</button>
-				<button type="button" className="profile-btn-save" onClick={onSave}>
-					<i className="fa-solid fa-floppy-disk" /> Guardar cambios
-				</button>
+				{!isEditing ? (
+					<button type="button" className="profile-btn-save" onClick={() => setIsEditing(true)}>
+						<i className="fa-solid fa-pen-to-square" /> Editar perfil
+					</button>
+				) : (
+					<>
+						<button type="button" className="profile-btn-discard" onClick={onDiscard}>
+							<i className="fa-solid fa-xmark" /> Descartar cambios
+						</button>
+						<button type="button" className="profile-btn-save" onClick={onSave}>
+							<i className="fa-solid fa-floppy-disk" /> Guardar cambios
+						</button>
+					</>
+				)}
 			</div>
 
 			<aside className="profile-banner">
