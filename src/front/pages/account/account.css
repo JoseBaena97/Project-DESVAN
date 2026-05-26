@@ -1299,8 +1299,7 @@
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
-  transition:
-    background 0.2s ease;
+  transition: background 0.2s ease;
 }
 
 .review-action-button:hover {

@@ -282,11 +282,13 @@ class Review (db.Model):
             "created_at": self.created_at,
             "reviewer": {
                 "id": self.reviewer_id,
-                "email": self.reviewer.email
+                "email": self.reviewer.email,
+                "username": self.reviewer.username
             } if self.reviewer else None,
             "reviewed": {
                 "id": self.reviewed_id,
-                "email": self.reviewed.email
+                "email": self.reviewed.email,
+                "username": self.reviewed.username
             } if self.reviewed else None,
             "event": {
                 "id": self.event_id,
