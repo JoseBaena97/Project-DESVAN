@@ -24,6 +24,48 @@ const createReview = async (reviewData) => {
   }
 };
 
+const getWrittenReviewsByUser = async (userId) => {
+  try {
+    const resp = await fetch(url + `api/user/${userId}/written_reviews`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      throw new Error(data?.msg || "Error fetching written reviews");
+    }
+    return data?.data ?? data?.msg ?? [];
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
+const getReceivedReviewsByUser = async (userId) => {
+  try {
+    const resp = await fetch(url + `api/user/${userId}/recieved_reviews`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      throw new Error(data?.msg || "Error fetching received reviews");
+    }
+    return data?.data ?? data?.msg ?? [];
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
 export default {
   createReview,
+  getWrittenReviewsByUser,
+  getReceivedReviewsByUser,
 };

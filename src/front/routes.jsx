@@ -19,6 +19,7 @@ import { Profile } from "./pages/account/Profile";
 import { Favorites } from "./pages/account/Favorites";
 import { Reservations } from "./pages/account/Reservations";
 import { MyEvents } from "./pages/account/MyEvents";
+import { Reviews } from "./pages/account/Reviews";
 import { Details } from "./pages/Details"
 
 export const router = createBrowserRouter(
@@ -42,6 +43,7 @@ export const router = createBrowserRouter(
         <Route path="/favoritos" element={<Favorites />} />
         <Route path="/mis-reservas" element={<Reservations />} />
         <Route path="/mis-eventos" element={<MyEvents />} />
+        <Route path="/mis-valoraciones" element={<Reviews />} />
       </Route>
 
       {/* Login / Registration Page separado sin navbar ni footer */}

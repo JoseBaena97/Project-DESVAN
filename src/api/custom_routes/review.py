@@ -24,8 +24,8 @@ def get_written_reviews_by_user(user_id):
     user = db.session.get(User, user_id)
     if user:
         reviews = db.session.execute(db.select(Review).where(Review.reviewer_id == user_id)).scalars().all()
-        transformed = [review.serialize for review in reviews]
-        return jsonify({"success":True, "msg": transformed}), 200
+        transformed = [review.serialize() for review in reviews]
+        return jsonify({"success": True, "data": transformed}), 200
     else:
         return jsonify({"success": False, "msg": "User not found"}), 404
 
@@ -36,8 +36,8 @@ def get_recieved_reviews_by_user(user_id):
     user = db.session.get(User, user_id)
     if user:
         reviews = db.session.execute(db.select(Review).where(Review.reviewed_id == user_id)).scalars().all()
-        transformed = [review.serialize for review in reviews]
-        return jsonify({"success":True, "msg": transformed}), 200
+        transformed = [review.serialize() for review in reviews]
+        return jsonify({"success": True, "data": transformed}), 200
     else:
         return jsonify({"success": False, "msg": "User not found"}), 404
 
@@ -45,11 +45,11 @@ def get_recieved_reviews_by_user(user_id):
 #Get reviews de un evento
 @api.route("/event/<int:event_id>/reviews", methods=['GET'])
 def get_reviews_by_event(event_id):
-    user = db.session.get(Event, event_id)
-    if user:
+    event = db.session.get(Event, event_id)
+    if event:
         reviews = db.session.execute(db.select(Review).where(Review.event_id == event_id)).scalars().all()
-        transformed = [review.serialize for review in reviews]
-        return jsonify({"success":True, "msg": transformed}), 200
+        transformed = [review.serialize() for review in reviews]
+        return jsonify({"success": True, "data": transformed}), 200
     else:
         return jsonify({"success": False, "msg": "Event not found"}), 404
 
