@@ -2,16 +2,24 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import authService from "../../services/auth.service";
+import reviewService from "../../services/review.service";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 
 const TABS = ["Recibidas", "Escritas"];
 
 export const Reviews = () => {
   const [user, setUser] = useState(null);
+  const [writtenReviews, setWrittenReviews] = useState([]);
+  const [receivedReviews, setReceivedReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [selectedReview, setSelectedReview] = useState(null);
+  const [editingReview, setEditingReview] = useState(null);
+  const [editRating, setEditRating] = useState(0);
+  const [editComment, setEditComment] = useState("");
+  const [actionError, setActionError] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const { store, dispatch } = useGlobalReducer();
   const navigate = useNavigate();
 
@@ -43,20 +51,120 @@ export const Reviews = () => {
       }
 
       setUser(currentUser);
-      setLoading(false);
+
+      try {
+        const [written, received] = await Promise.all([
+          reviewService.getWrittenReviewsByUser(currentUser.id),
+          reviewService.getReceivedReviewsByUser(currentUser.id),
+        ]);
+        setWrittenReviews(written || []);
+        setReceivedReviews(received || []);
+      } catch (err) {
+        console.log(err);
+        setError("Error al cargar valoraciones");
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadUser();
   }, [store.user, dispatch, navigate]);
 
-  const writtenReviews = user?.my_written_reviews || [];
-  const receivedReviews = user?.my_received_reviews || [];
+  const handleCloseEditReview = () => {
+    setEditingReview(null);
+    setEditRating(0);
+    setEditComment("");
+    setActionError(null);
+  };
 
-  const reviewsToShow = activeTab === "Recibidas" ? receivedReviews : writtenReviews;
+  const handleOpenEditReview = (review) => {
+    setEditingReview(review);
+    setEditRating(Number(review.rating) || 0);
+    setEditComment(review.comment || "");
+    setActionError(null);
+  };
 
-  const truncateText = (text, maxLength = 60) => {
-    if (!text) return "";
-    return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+  const handleSaveReview = async () => {
+    if (!editingReview) return;
+    setIsSaving(true);
+    setActionError(null);
+
+    const reviewId = Number(editingReview?.id ?? editingReview?.review_id);
+    if (!reviewId) {
+      setActionError("ID de la valoración inválido");
+      setIsSaving(false);
+      return;
+    }
+
+    try {
+      const payload = {
+        rating: editRating,
+        comment: editComment,
+      };
+      const resp = await reviewService.updateReview(reviewId, payload);
+      if (!resp) {
+        throw new Error("No se pudo actualizar la valoración");
+      }
+
+      const updatedReview = {
+        ...editingReview,
+        id: reviewId,
+        rating: editRating,
+        comment: editComment,
+      };
+
+      setWrittenReviews((prevWritten) =>
+        prevWritten.map((review) => (review.id === reviewId ? updatedReview : review))
+      );
+
+      setUser((prevUser) => {
+        if (!prevUser) return prevUser;
+        const my_written_reviews = prevUser.my_written_reviews?.map((review) =>
+          review.id === reviewId ? updatedReview : review
+        );
+        const updatedUser = { ...prevUser, my_written_reviews };
+        dispatch({ type: "auth", payload: { user: updatedUser } });
+        return updatedUser;
+      });
+      handleCloseEditReview();
+    } catch (err) {
+      console.log(err);
+      setActionError(err?.message || "Error actualizando valoracion");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    const confirmDelete = window.confirm("¿Eliminar esta valoración?");
+    if (!confirmDelete) return;
+
+    setIsSaving(true);
+    setActionError(null);
+
+    try {
+      const resp = await reviewService.deleteReview(reviewId);
+      if (!resp) {
+        throw new Error("No se pudo eliminar la valoración");
+      }
+
+      setWrittenReviews((prevWritten) => prevWritten.filter((review) => review.id !== reviewId));
+      setUser((prevUser) => {
+        if (!prevUser) return prevUser;
+        const my_written_reviews = prevUser.my_written_reviews?.filter((review) => review.id !== reviewId);
+        const updatedUser = { ...prevUser, my_written_reviews };
+        dispatch({ type: "auth", payload: { user: updatedUser } });
+        return updatedUser;
+      });
+      if (selectedReview?.id === reviewId) {
+        setSelectedReview(null);
+      }
+    } catch (err) {
+      console.log(err);
+      setActionError(err?.message || "Error eliminando valoracion");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const renderRatingStars = (rating) => {
@@ -70,6 +178,13 @@ export const Reviews = () => {
       />
     ));
   };
+
+  const truncateText = (text, maxLength = 60) => {
+    if (!text) return "";
+    return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+  };
+
+  const reviewsToShow = activeTab === "Recibidas" ? receivedReviews : writtenReviews;
 
   const renderReviewCard = (review, type) => {
     const hasComment = Boolean(review.comment);
@@ -102,6 +217,17 @@ export const Reviews = () => {
           </button>
         ) : (
           <p className="review-card-comment">{commentText}</p>
+        )}
+
+        {type === "written" && (
+          <div className="review-card-actions">
+            <button type="button" className="review-action-button review-action-button--edit" onClick={() => handleOpenEditReview(review)}>
+              Editar
+            </button>
+            <button type="button" className="review-action-button review-action-button--delete" onClick={() => handleDeleteReview(review.id)}>
+              Eliminar
+            </button>
+          </div>
         )}
 
         <div className="review-card-footer">
@@ -180,6 +306,60 @@ export const Reviews = () => {
                   </button>
                 </div>
                 <p className="review-modal-fullcomment">{selectedReview.comment}</p>
+              </div>
+            </div>
+          )}
+
+          {editingReview && (
+            <div className="modal-backdrop" onClick={handleCloseEditReview}>
+              <div className="modal-content-custom" onClick={(e) => e.stopPropagation()}>
+                <div className="review-modal-header">
+                  <h3>Editar valoración</h3>
+                  <button
+                    type="button"
+                    className="modal-close-btn"
+                    onClick={handleCloseEditReview}
+                    aria-label="Cerrar edición de valoración"
+                  >
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+                <div className="review-edit-form">
+                  <label>Calificación</label>
+                  <div className="review-stars review-stars--edit">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        type="button"
+                        key={star}
+                        className={`review-star ${star <= editRating ? "active" : ""}`}
+                        onClick={() => setEditRating(star)}
+                      >
+                        <i className={star <= editRating ? "fa-solid fa-star" : "fa-regular fa-star"}></i>
+                      </button>
+                    ))}
+                  </div>
+                  <label>
+                    Comentario
+                    <textarea
+                      value={editComment}
+                      onChange={(e) => setEditComment(e.target.value)}
+                    />
+                  </label>
+                  {actionError && <p className="form-error">{actionError}</p>}
+                  <div className="review-modal-actions">
+                    <button type="button" className="review-btn-cancel" onClick={handleCloseEditReview}>
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      className="review-btn-submit"
+                      onClick={handleSaveReview}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? "Guardando..." : "Guardar"}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}

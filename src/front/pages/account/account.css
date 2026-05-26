@@ -1283,6 +1283,147 @@
   color: var(--account-brown);
 }
 
+.review-card-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.review-action-button {
+  border: 1.5px solid var(--account-red);
+  background: #fff;
+  color: var(--account-red);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+  font-family: var(--account-font-sans);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.review-action-button:hover {
+  background: var(--account-red);
+  color: #fff;
+}
+
+.review-action-button--delete {
+  border-color: #d23a2e;
+  color: #d23a2e;
+}
+
+.review-action-button--delete:hover {
+  background: #d23a2e;
+}
+
+.review-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.review-edit-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  color: var(--account-brown);
+  font-family: var(--account-font-sans);
+  font-size: 0.95rem;
+}
+
+.review-stars {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.review-star {
+  all: unset;
+  display: inline-flex;
+  width: 2.2rem;
+  height: 2.2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid #e6d4c4;
+  background: #fff;
+  color: #d7c1ae;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.review-star.active,
+.review-star:hover {
+  background: var(--account-red);
+  border-color: var(--account-red);
+  color: #fff;
+}
+
+.review-star i {
+  font-size: 1rem;
+}
+
+.review-edit-form textarea {
+  width: 100%;
+  border: 1px solid #ebdfd1;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--account-brown);
+  font-family: var(--account-font-sans);
+  font-size: 0.95rem;
+  padding: 0.9rem 1rem;
+}
+
+.review-edit-form textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.review-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.review-btn-cancel,
+.review-btn-submit {
+  border-radius: 14px;
+  border: none;
+  padding: 0.85rem 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.review-btn-cancel {
+  background: #f7f2ec;
+  color: var(--account-brown);
+}
+
+.review-btn-cancel:hover {
+  background: #ede1d3;
+}
+
+.review-btn-submit {
+  background: var(--account-red);
+  color: #ffffff;
+}
+
+.review-btn-submit:hover {
+  background: #7f1f12;
+}
+
+.form-error {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
 .review-card-date {
   white-space: nowrap;
 }

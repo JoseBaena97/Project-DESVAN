@@ -1,6 +1,7 @@
 from flask import request, jsonify
 from api.routes import api
 from api.models import db, Review, User, Event
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 @api.route("/review", methods=['GET'])
@@ -87,10 +88,20 @@ def create_review():
 
 
 @api.route("/review/<int:review_id>", methods=['PUT'])
+@jwt_required()
 def update_review(review_id):
     review = db.session.get(Review, review_id)
     if not review:
         return jsonify({"success": False, "msg": "Review not found"}), 404
+
+    reviewer_id = get_jwt_identity()
+    try:
+        reviewer_id = int(reviewer_id)
+    except Exception:
+        pass
+
+    if str(review.reviewer_id) != str(reviewer_id):
+        return jsonify({"success": False, "msg": "Unauthorized"}), 401
 
     body = request.get_json()
     if not body:
@@ -106,10 +117,20 @@ def update_review(review_id):
 
 
 @api.route("/review/<int:review_id>", methods=['DELETE'])
+@jwt_required()
 def delete_review(review_id):
     review = db.session.get(Review, review_id)
     if not review:
         return jsonify({"success": False, "msg": "Review not found"}), 404
+
+    reviewer_id = get_jwt_identity()
+    try:
+        reviewer_id = int(reviewer_id)
+    except Exception:
+        pass
+
+    if str(review.reviewer_id) != str(reviewer_id):
+        return jsonify({"success": False, "msg": "Unauthorized"}), 401
 
     db.session.delete(review)
     db.session.commit()

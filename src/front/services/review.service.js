@@ -44,6 +44,53 @@ const getWrittenReviewsByUser = async (userId) => {
   }
 };
 
+const updateReview = async (reviewId, reviewData) => {
+  try {
+    const resp = await fetch(url + `api/review/${reviewId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify(reviewData),
+    });
+
+    const data = await resp.json();
+    if (!resp.ok) {
+      console.log("Error updating review", data);
+      throw new Error(data?.msg || "Error updating review");
+    }
+
+    return data;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+const deleteReview = async (reviewId) => {
+  try {
+    const resp = await fetch(url + `api/review/${reviewId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+
+    const data = await resp.json();
+    if (!resp.ok) {
+      console.log("Error deleting review", data);
+      throw new Error(data?.msg || "Error deleting review");
+    }
+
+    return data;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
 const getReceivedReviewsByUser = async (userId) => {
   try {
     const resp = await fetch(url + `api/user/${userId}/recieved_reviews`, {
@@ -68,4 +115,6 @@ export default {
   createReview,
   getWrittenReviewsByUser,
   getReceivedReviewsByUser,
+  updateReview,
+  deleteReview,
 };
