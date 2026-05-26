@@ -26,8 +26,8 @@ export const Profile = () => {
 	useEffect(() => {
 		const load = async () => {
 			const resp = await authService.getMe();
-			if (resp && resp.data) {
-				const user = resp.data;
+			const user = resp?.data ?? resp;
+			if (user) {
 				setData(user);
 				setEmail(user.email || "");
 				setPhone((user.profile && user.profile.phone) || "");
@@ -71,8 +71,12 @@ export const Profile = () => {
 			...(profile_picture_url ? { profile_picture_url } : {}),
 		};
 		const resp = await authService.updateProfile(payload);
-		if (resp && resp.data) {
-			setData(resp.data);
+		if (resp) {
+			const updatedUser = resp?.data ?? resp;
+			setData(updatedUser);
+			if (updatedUser.profile_picture_url) {
+				setProfilePicturePreview(updatedUser.profile_picture_url);
+			}
 			alert('Perfil actualizado');
 		} else {
 			alert('Error al actualizar');
@@ -136,14 +140,20 @@ export const Profile = () => {
 				<div className="collector-file-body">
 					<div className="collector-photo-block">
 						<div className="collector-photo account-img-placeholder">
-							{profilePicturePreview ? (
-								<img src={profilePicturePreview} alt="Foto de perfil" className="account-photo-preview" />
-							) : null}
+							{(profilePicturePreview || data?.profile_picture_url) ? (
+								<img
+									src={profilePicturePreview || data.profile_picture_url}
+									alt="Foto de perfil"
+									className="account-photo-preview"
+								/>
+							) : (
+								<span className="collector-photo-placeholder-text">Sube tu foto</span>
+							)}
+							<label className="collector-photo-upload">
+								<span className="collector-photo-upload-label">Cambiar foto</span>
+								<input type="file" accept="image/*" onChange={handleProfilePictureChange} />
+							</label>
 						</div>
-						<label className="collector-photo-upload">
-							<span className="collector-photo-upload-label">Cambiar foto</span>
-							<input type="file" accept="image/*" onChange={handleProfilePictureChange} />
-						</label>
 
 						<p className="collector-photo-name">{data ? data.username : "Usuario"}</p>
 
