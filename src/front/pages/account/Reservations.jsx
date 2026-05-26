@@ -7,6 +7,7 @@ import useGlobalReducer from "../../hooks/useGlobalReducer";
 
 const TABS = ["Próximas", "Completadas", "Canceladas"];
 
+
 const STATUS_BY_TAB = {
 	Próximas: ["confirmed"],
 	Completadas: ["attended"],

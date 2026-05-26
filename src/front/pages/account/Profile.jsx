@@ -41,6 +41,7 @@ export const Profile = () => {
 			}
 		};
 		load();
+		console.log("acaba de cargar el perfil");
 	}, []);
 
 	const onSave = async () => {

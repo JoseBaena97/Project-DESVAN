@@ -118,6 +118,11 @@ export const Details = () => {
 
   const handleReserve = async () => {
 
+    // no dejar que el mismo usuario se reserve a sí mismo
+    if (store.user.id === event.seller?.id) {
+      setReviewFeedback("No puedes reservar tu propio evento.");
+      return;
+    }
 
     // si ya hay reserva, eliminarla
     if (reservationRecord) {
@@ -143,6 +148,8 @@ export const Details = () => {
         reservations: [...(prevEvent.reservations || []), resp.reservation],
       }));
     }
+
+    
   };
 
   const handleSubmitReview = async () => {
@@ -307,6 +314,11 @@ export const Details = () => {
               {event.max_capacity != null && (
                 <p style={{ margin: "6px 0 10px" }}>{remainingSeats > 0 ? `${remainingSeats} plazas disponibles` : "Agotado"}</p>
               )}
+              {event.seller?.id === store.user?.id ? (
+                <button className="btn-evaluate btn-evaluate--disabled" disabled>
+                No puedes reservar tu propio evento
+              </button>
+              ): (
               <button
                 className="btn-reserve-ticket"
                 onClick={handleReserve}
@@ -315,6 +327,8 @@ export const Details = () => {
                 <i className={isReserved ? "fa-solid fa-circle-check" : "fa-solid fa-ticket"}></i>
                 <span>{isReserved ? "¡Plaza reservada!" : (remainingSeats === 0 ? "Sin plazas" : "Reservar plaza")}</span>
               </button>
+
+              )}
             </div>
           )}
 
@@ -482,22 +496,6 @@ export const Details = () => {
               </div>
             </div>
 
-            <div className="review-type-selector">
-              <button
-                type="button"
-                className={`review-type-btn ${reviewTarget === "evento" ? "active" : ""}`}
-                onClick={() => setReviewTarget("evento")}
-              >
-                Evento
-              </button>
-              <button
-                type="button"
-                className={`review-type-btn ${reviewTarget === "vendedor" ? "active" : ""}`}
-                onClick={() => setReviewTarget("vendedor")}
-              >
-                Vendedor
-              </button>
-            </div>
 
             <div className="review-stars">
               {[1, 2, 3, 4, 5].map((star) => (

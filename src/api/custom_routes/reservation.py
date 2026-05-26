@@ -58,6 +58,12 @@ def create_reservation():
     if not event:
         return jsonify({"message": "Event not found"}), 404
     
+    # Impedir reservar tu propio evento
+    if event.seller_id == user_id:
+        return jsonify({
+            "message": "You cannot reserve your own event"
+        }), 403
+    
     # Verificar que no exista ya una reserva activa del usuario en ese evento
     existing_reservation = db.session.execute(
         db.select(Reservation).where(
