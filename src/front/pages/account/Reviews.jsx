@@ -208,7 +208,7 @@ export const Reviews = () => {
           <div>
             <span className="review-card-badge">{type === "received" ? "Recibida" : "Escrita"}</span>
             <p className="review-card-meta">
-              {type === "received" ? `De @${review.reviewer?.username ?? "usuario"}` : `Sobre ${review.reviewed?.email ?? "usuario"}`}
+              {type === "received" ? `De @${review.reviewer?.username ?? "usuario"}` : `Sobre @${review.reviewed?.username ?? "usuario"}`}
             </p>
           </div>
           <div className="review-card-rating">
