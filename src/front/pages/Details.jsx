@@ -5,6 +5,7 @@ import caja04 from "../assets/img/caja04.png";
 import eventService from "../services/event.service";
 import favoriteService from "../services/favorite.service";
 import reservationService from "../services/reservation.service";
+import reviewService from "../services/review.service";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { Map } from "../components/Map";
 
@@ -16,6 +17,11 @@ export const Details = () => {
   const [isReserved, setIsReserved] = useState(false);
   const [shareFeedback, setShareFeedback] = useState("");
   const [showAllModal, setShowAllModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewTarget, setReviewTarget] = useState("vendedor");
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewFeedback, setReviewFeedback] = useState("");
   const [event, setEvent] = useState(null);
   const [favoriteRecord, setFavoriteRecord] = useState(null);
   const [reservationRecord, setReservationRecord] = useState(null);
@@ -136,6 +142,49 @@ export const Details = () => {
         ...prevEvent,
         reservations: [...(prevEvent.reservations || []), resp.reservation],
       }));
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!store.user) {
+      navigate("/login");
+      return;
+    }
+
+    if (!reviewRating) {
+      setReviewFeedback("Selecciona una valoración antes de enviar.");
+      return;
+    }
+
+    const payload = {
+      rating: reviewRating,
+      comment: reviewComment,
+      reviewer_id: store.user.id,
+      reviewed_id: event.seller?.id,
+      event_id: event.id,
+    };
+
+    const resp = await reviewService.createReview(payload);
+    if (resp?.success) {
+      setReviewFeedback("");
+      setShowReviewModal(false);
+      setReviewRating(0);
+      setReviewComment("");
+      setReviewTarget("vendedor");
+      setEvent((prevEvent) => ({
+        ...prevEvent,
+        reviews: [...(prevEvent.reviews || []), {
+          id: Date.now(),
+          rating: reviewRating,
+          comment: reviewComment,
+          reviewer: {
+            id: store.user.id,
+            email: store.user.email,
+          },
+        }],
+      }));
+    } else {
+      setReviewFeedback("No se ha podido enviar la valoración. Intenta de nuevo.");
     }
   };
 
@@ -264,6 +313,50 @@ export const Details = () => {
             </div>
           )}
 
+          <div className="card-seller-box">
+            <div className="seller-card-header">Vendedor</div>
+            <div className="seller-card-inner">
+              <div className="seller-avatar">
+                {event.seller?.profile_picture_url ? (
+                  <img
+                    src={event.seller.profile_picture_url}
+                    alt={event.seller.username || "Vendedor"}
+                  />
+                ) : (
+                  <div className="seller-avatar-fallback">
+                    {event.seller?.username?.[0]?.toUpperCase() || "V"}
+                  </div>
+                )}
+              </div>
+              <div className="seller-card-info">
+                <span className="seller-handle">
+                  @{event.seller?.username || event.seller?.email?.split("@")[0] || "vendedor"}
+                </span>
+                <p className="seller-name">
+                  {event.seller?.full_name || event.seller?.username || "Vendedor"}
+                </p>
+                <div className="seller-rating">
+                  {event.seller?.user_rating || event.event_rating ? (
+                    <>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <i
+                          key={star}
+                          className={`${star <= Math.round(event.seller?.user_rating ?? event.event_rating ?? 0) ? "fa-solid" : "fa-regular"} fa-star`}
+                        ></i>
+                      ))}
+                      <span>{(event.seller?.user_rating ?? event.event_rating)?.toFixed(1)} / 5</span>
+                    </>
+                  ) : (
+                    <span>Sin valoración</span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <button className="btn-evaluate" onClick={() => setShowReviewModal(true)}>
+              Evaluar
+            </button>
+          </div>
+
           <div className="card-sidebar-white">
             <h3 className="sidebar-title">Información</h3>
 
@@ -338,6 +431,93 @@ export const Details = () => {
               <img src={event.image_url?.cover} />
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {showReviewModal && (
+        <div className="modal-backdrop" onClick={() => setShowReviewModal(false)}>
+          <div className="modal-content-custom" onClick={(e) => e.stopPropagation()}>
+            <div className="review-modal-header">
+              <h3>Evaluar {reviewTarget === "evento" ? "evento" : "vendedor"}</h3>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setShowReviewModal(false)}
+                aria-label="Cerrar modal"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div className="review-modal-seller">
+              <div className="seller-avatar">
+                {event.seller?.profile_picture_url ? (
+                  <img
+                    src={event.seller.profile_picture_url}
+                    alt={event.seller.username || "Vendedor"}
+                  />
+                ) : (
+                  <div className="seller-avatar-fallback">
+                    {event.seller?.username?.[0]?.toUpperCase() || "V"}
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="seller-name-modal">{event.seller?.full_name || event.seller?.username || "Vendedor"}</p>
+                <p className="seller-handle-modal">
+                  @{event.seller?.username || event.seller?.email?.split("@")[0] || "vendedor"}
+                </p>
+              </div>
+            </div>
+
+            <div className="review-type-selector">
+              <button
+                type="button"
+                className={`review-type-btn ${reviewTarget === "evento" ? "active" : ""}`}
+                onClick={() => setReviewTarget("evento")}
+              >
+                Evento
+              </button>
+              <button
+                type="button"
+                className={`review-type-btn ${reviewTarget === "vendedor" ? "active" : ""}`}
+                onClick={() => setReviewTarget("vendedor")}
+              >
+                Vendedor
+              </button>
+            </div>
+
+            <div className="review-stars">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  type="button"
+                  key={star}
+                  className={`review-star ${star <= reviewRating ? "active" : ""}`}
+                  onClick={() => setReviewRating(star)}
+                >
+                  <i className={star <= reviewRating ? "fa-solid fa-star" : "fa-regular fa-star"}></i>
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              className="review-comment-textarea"
+              placeholder="Escribe tu comentario aquí..."
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+            />
+
+            {reviewFeedback && <p className="review-feedback">{reviewFeedback}</p>}
+
+            <div className="review-modal-actions">
+              <button type="button" className="btn-cancel" onClick={() => setShowReviewModal(false)}>
+                Cancelar
+              </button>
+              <button type="button" className="btn-submit" onClick={handleSubmitReview}>
+                Enviar valoración
+              </button>
+            </div>
           </div>
         </div>
       )}
