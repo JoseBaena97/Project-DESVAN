@@ -5,8 +5,8 @@ from api.extensions import mail
 
 def send_reset_email(email, token):
     frontend_url = os.getenv(
-        "FRONTEND_URL", "https://refactored-enigma-x5pvp4rgv64r399v9-3000.app.github.dev")
-    reset_link = f"{frontend_url}/reset-password?token={token}"
+        "FRONTEND_URL",)
+    reset_link = f"{frontend_url}reset-password?token={token}"
 
     html = f"""
         <h2>Recuperación de contraseña</h2>
