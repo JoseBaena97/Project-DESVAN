@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import authService from "../services/auth.service";
 import "./Login.css";
-import { useEffect } from "react";
+
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -24,6 +24,17 @@ export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const alertTimeoutRef = useRef(null);
+
+  const showErrorAlert = (msg) => {
+    setError(msg);
+    if (alertTimeoutRef.current) {
+      clearTimeout(alertTimeoutRef.current);
+    }
+    alertTimeoutRef.current = setTimeout(() => {
+      setError(null);
+    }, 8000);
+  };
 
   // Handle changes in input fields
   const handleChange = (e) => {
@@ -36,14 +47,29 @@ export const Login = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.email.trim()) {
+      showErrorAlert("Por favor, ingresa un correo electrónico.");
+      return;
+    }
 
+    if (!formData.password.trim()) {
+      showErrorAlert("Por favor, ingresa una contraseña.");
+      return;
+    }
+
+    if (formData.type === "register" && !formData.username.trim()) {
+      showErrorAlert("Por favor, ingresa un nombre de usuario.");
+      return;
+    }
     setError(null);
     setLoading(true);
 
-    authService.auth(formData).then((data) => {
+    const payload = { ...formData, username: formData.username.trim() };
+
+    authService.auth(payload).then((data) => {
       //Para register y autologin
-      if (formData.type === 'register') {
-        return authService.auth({ ...formData, type: 'login' })
+      if (payload.type === 'register') {
+        return authService.auth({ ...payload, type: 'login' })
       }
       return data;
     })
@@ -65,21 +91,33 @@ export const Login = () => {
         if (err.response) {
           const status = err.response.status;
           const data = err.response.data;
-          if (status === 409||(data && data.msg === "Username already exists")) {
-            setError(" Este nombre de usuario ya existe. Por favor, elige otro.");
-            return;
-          }
+          if (formData.type === "register") {
+            if (status === 409 || (data && (data.msg === "Username already exists" || data.msg === "Username already taken"))) {
+              showErrorAlert("Este nombre de usuario ya existe. Por favor, elige otro.");
+              return;
+            }
           if (status === 400 || (data && data.msg === "Missing username in request")) {
-            setError(" Por favor, ingresa un nombre de usuario.");
-            return;
-          }
-          if (status === 403 || (data && data.msg === "Invalid credentials" || data.msg === "Email already exists")) {
-            setError(" El correo ya está registrado o las credenciales son incorrectas.");
-            return;
+            showErrorAlert("Por favor, ingresa un nombre de usuario.");
+              return;
+            }
+          if (status === 403 || (data && data.msg === "User already exists")) {
+              showErrorAlert("Este correo electrónico ya está registrado.");
+              return;
+            }
+        }else {
+            if (status === 404 || status === 401 || (data && (data.msg === "User not found" || data.msg === "Invalid credentials"))) {
+              showErrorAlert("El correo o las credenciales son inválidas.");
+              return;
+            }
+            if (status === 403 && data && data.msg === "Esta cuenta ha sido desactivada") {
+              showErrorAlert("Esta cuenta ha sido desactivada.");
+              return;
+            }
           }
         }
 
-        setError(err.message || "Error inesperado.")
+        showErrorAlert(err.message || "Error inesperado.");
+
 
       })
       .finally(() => {
@@ -108,6 +146,9 @@ export const Login = () => {
   const handleToggleMode = () => {
     setIsRegister(!isRegister);
     setError(null);
+    if (alertTimeoutRef.current) {
+      clearTimeout(alertTimeoutRef.current);
+    }
     setFormData({
       username: "",
       email: "",
@@ -210,7 +251,7 @@ export const Login = () => {
                     type="text"
                     id="username"
                     name="username"
-                    required
+                    
                     placeholder="Tu nombre de usuario"
                     value={formData.username}
                     onChange={handleChange}
@@ -227,7 +268,7 @@ export const Login = () => {
                   type="email"
                   id="email"
                   name="email"
-                  required
+                  
                   placeholder="correo@ejemplo.com"
                   value={formData.email}
                   onChange={handleChange}
@@ -248,7 +289,7 @@ export const Login = () => {
                   type={showPassword ? "text" : "password"}
                   id="password"
                   name="password"
-                  required
+                  
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
