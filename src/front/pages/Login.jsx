@@ -61,6 +61,24 @@ export const Login = () => {
       .catch((err) => {
         console.log(err);
 
+        //Manejar errores específicos del backend
+        if (err.response) {
+          const status = err.response.status;
+          const data = err.response.data;
+          if (status === 409||(data && data.msg === "Username already exists")) {
+            setError(" Este nombre de usuario ya existe. Por favor, elige otro.");
+            return;
+          }
+          if (status === 400 || (data && data.msg === "Missing username in request")) {
+            setError(" Por favor, ingresa un nombre de usuario.");
+            return;
+          }
+          if (status === 403 || (data && data.msg === "Invalid credentials" || data.msg === "Email already exists")) {
+            setError(" El correo ya está registrado o las credenciales son incorrectas.");
+            return;
+          }
+        }
+
         setError(err.message || "Error inesperado.")
 
       })

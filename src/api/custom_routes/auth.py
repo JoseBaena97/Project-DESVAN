@@ -18,10 +18,17 @@ def register():
     # Check if user already exists
     user = db.session.execute(db.select(User).where(
         User.email == body["email"])).scalar_one_or_none()
+    
     if body["type"] == "register":
         if user:
             return jsonify({"msg": "User already exists"}), 403
 
+        #validar que haya enviado el username en el registro
+        if not body.get("username"):
+            return jsonify({"msg": "Missing username in request"}), 400
+        user_by_username = db.session.execute(db.select(User).where(User.username==body["username"])).scalar_one_or_none()
+        if user_by_username:
+            return jsonify({"msg":"Username already taken"}), 409
         # Hash the password
         hashed_password = generate_password_hash(body["password"])
 
