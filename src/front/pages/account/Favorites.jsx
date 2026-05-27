@@ -4,6 +4,7 @@ import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import favoriteService from "../../services/favorite.service";
 import authService from "../../services/auth.service";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
+import mascotafav from "../../assets/img/caja03.png";
 
 
 export const Favorites = () => {
@@ -58,11 +59,11 @@ export const Favorites = () => {
 
 	return (
 		<div className="favorites-page">
+			<img src={mascotafav} alt="" className="account-mascot-float" aria-hidden="true" />
 			<AccountPageHeader
 				title="Mis favoritos"
 				titleAccent="Mis"
 				subtitle="Cosas que te guiñaron el ojo."
-				mascotComment="Mascota de la página de favoritos"
 			/>
 
 			<div className="favorites-grid">

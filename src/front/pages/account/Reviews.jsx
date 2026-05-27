@@ -4,6 +4,7 @@ import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import authService from "../../services/auth.service";
 import reviewService from "../../services/review.service";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
+import mascotareview from "../../assets/img/caja_dineros_ico.png";
 
 const TABS = ["Recibidas", "Escritas"];
 
@@ -253,7 +254,12 @@ export const Reviews = () => {
 
   return (
     <div className="reviews-page">
-      <AccountPageHeader title="Mis valoraciones" titleAccent="Mis" subtitle="Tus reviews recibidas y escritas en un solo lugar." />
+			<img src={mascotareview} alt="" className="account-mascot-float" aria-hidden="true" />
+      <AccountPageHeader
+        title="Mis valoraciones"
+        titleAccent="Mis"
+        subtitle="Tus reviews recibidas y escritas en un solo lugar."
+      />
 
       {loading ? (
         <div className="favorite-empty-state">

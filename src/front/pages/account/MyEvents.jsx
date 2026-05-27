@@ -4,6 +4,7 @@ import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import eventService from "../../services/event.service";
 import authService from "../../services/auth.service";
+import mascotamyev from "../../assets/img/caja02.png";
 
 const TABS = ["TODOS", "ACTIVOS", "FINALIZADOS"];
 
@@ -134,11 +135,11 @@ export const MyEvents = () => {
 
 	return (
 		<div className="my-events-page">
+			<img src={mascotamyev} alt="" className="account-mascot-float" aria-hidden="true" />
 			<AccountPageHeader
 				title="Mis eventos creados"
 				titleAccent="Mis"
 				subtitle="Donde tus ideas cobran vida"
-				mascotComment="Mascota de la página de mis eventos"
 			/>
 
 			<div className="account-tabs">

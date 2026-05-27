@@ -4,6 +4,7 @@ import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import reservationService from "../../services/reservation.service";
 import authService from "../../services/auth.service";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
+import mascotareservas from "../../assets/img/caja01.png";
 
 const TABS = ["Próximas", "Completadas", "Canceladas"];
 
@@ -81,11 +82,11 @@ export const Reservations = () => {
 
 	return (
 		<div className="reservations-page">
+			<img src={mascotareservas} alt="" className="account-mascot-float" aria-hidden="true" />
 			<AccountPageHeader
 				title="Mis reservas"
 				titleAccent="Mis"
 				subtitle="Tus próximos planes confirmados."
-				mascotComment="Mascota de la página de reservas"
 			/>
 
 			<div className="account-tabs">

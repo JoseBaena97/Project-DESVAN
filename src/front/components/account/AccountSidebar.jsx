@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import authService from "../../services/auth.service";
 
@@ -38,7 +37,6 @@ export const AccountSidebar = () => {
 		loadUser();
 	}, [store.user, dispatch]);
 
-	const [user, setUser] = useState(null);
 
 	useEffect(() => {
 		const load = async () => {
