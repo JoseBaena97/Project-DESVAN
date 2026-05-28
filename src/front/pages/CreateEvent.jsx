@@ -54,6 +54,19 @@ export const CreateEvent = () => {
     const addressInputRef = useRef(null);
     const autocompleteRef = useRef(null);
 
+    const [error, setError] = useState(null);
+    const alertTimeoutRef = useRef(null);
+
+    const showErrorAlert = (msg) => {
+        setError(msg);
+        if (alertTimeoutRef.current) {
+            clearTimeout(alertTimeoutRef.current);
+        }
+        alertTimeoutRef.current = setTimeout(() => {
+            setError(null);
+        }, 8000);
+    };
+
     useEffect(() => {
         const setupAutocomplete = () => {
             if (!addressInputRef.current || !window.google || autocompleteRef.current) return;
@@ -145,40 +158,37 @@ export const CreateEvent = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-    try {
-        if (!eventData.exact_address) {
-            alert("Debes seleccionar una dirección del autocompletador.");
-            return;
-        }
-
-        if (!eventData.start_date || !eventData.end_date || !eventData.start_time || !eventData.end_time) {
-            alert("Debes completar fecha y hora de inicio y fin.");
-            return;
-        }
-
+        const missingFields = [];
+        if (!eventData.title.trim()) missingFields.push("Nombre del evento");
+        if (!eventData.event_type) missingFields.push("Tipo de evento");
+        if (!eventData.description.trim()) missingFields.push("Descripción");
         if (eventData.event_type === "privado") {
             const cap = Number(eventData.max_capacity);
 
             if (!eventData.max_capacity || isNaN(cap) || cap <= 0) {
-                alert("Debes especificar un aforo máximo válido para eventos privados.");
-                return;
+                missingFields.push("Aforo máximo válido");
             }
+        }
+        if (!eventData.exact_address) missingFields.push("Dirección");
+        if (!eventData.start_date) missingFields.push("Fecha de inicio");
+        if (!eventData.end_date) missingFields.push("Fecha de fin");
+        if (!eventData.start_time) missingFields.push("Hora de inicio");
+        if (!eventData.end_time) missingFields.push("Hora de fin");
+        if (!eventData.category) missingFields.push("Categoría principal");
 
-        const payload = {
-            ...eventData,
-            start_time: `${eventData.start_date}T${eventData.start_time}`,
-            end_time: `${eventData.end_date}T${eventData.end_time}`,
-        };
+        if (missingFields.length > 0) {
+            const msg = missingFields.length === 1
+                ? `Falta el campo obligatorio: ${missingFields[0]}`
+                : `Faltan los siguientes campos obligatorios: ${missingFields.join(", ")}`;
+            showErrorAlert(msg);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
 
-                if (!eventData.max_capacity || isNaN(cap) || cap <= 0) {
-                    alert("Debes especificar un aforo máximo válido para eventos privados.");
-                    return;
-                }
-            }
+        }
 
-            const addressToUse =
-                eventData.exact_address?.trim() ||
-                `${eventData.place.trim()}, ${eventData.city.trim()}`;
+        try {
+            const addressToUse = eventData.exact_address?.trim();
+
 
             const payload = {
                 ...eventData,
@@ -187,6 +197,16 @@ export const CreateEvent = () => {
                 exact_address: addressToUse,
             };
 
+            if (payload.max_capacity) {
+                payload.max_capacity = Number(payload.max_capacity);
+                if (isNaN(payload.max_capacity) || payload.max_capacity <= 0) {
+                    delete payload.max_capacity;
+                }
+            } else {
+                delete payload.max_capacity;
+            }
+
+            // Asegurar tipo numérico y eliminar si no aplica
             if (mainImageFile || galleryFiles.length > 0) {
                 const imageUrlPayload = eventData.image_url ? { ...eventData.image_url } : {};
                 if (mainImageFile) {
@@ -206,16 +226,7 @@ export const CreateEvent = () => {
                 payload.image_url = eventData.image_url;
             }
 
-            // Asegurar tipo numérico y eliminar si no aplica
-            if (payload.max_capacity) {
-                payload.max_capacity = Number(payload.max_capacity);
 
-                if (isNaN(payload.max_capacity) || payload.max_capacity <= 0) {
-                    delete payload.max_capacity;
-                }
-            } else {
-                delete payload.max_capacity;
-            }
 
             // =========================
             // MODO EDICIÓN
@@ -241,7 +252,7 @@ export const CreateEvent = () => {
                 return;
             }
 
-            alert("Evento creado, pero no se pudo navegar automáticamente.");
+            showErrorAlert("Evento creado, pero no se pudo navegar automáticamente.");
 
         } catch (err) {
             console.error(
@@ -251,11 +262,24 @@ export const CreateEvent = () => {
                 err
             );
 
-            alert(
+            // Manejar errores devueltos por el backend
+            if (err.response && err.response.data) {
+                const data = err.response.data;
+                const backendMessage = data.msg || data.error || data.message;
+
+                if (backendMessage) {
+                    showErrorAlert(`Error del servidor: ${backendMessage}`);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+            }
+
+            showErrorAlert(
                 isEdit
                     ? "No se pudo actualizar el evento."
                     : "Error creando evento. Revisa la consola para más detalles."
             );
+        window.scrollTo({ top: 0, behavior: 'smooth' });   
         }
     };
 
@@ -275,6 +299,24 @@ export const CreateEvent = () => {
                         Comparte tu rastro, feria o mercado con la comunidad de Desván.
                     </p>
                 </div>
+
+                {/* Feedback Messages */}
+                {error && (
+                    <div className="create-event-alert" style={{
+                        padding: "1rem", 
+                        borderRadius: "10px", 
+                        backgroundColor: "#fdf2f0", 
+                        border: "1px solid #f6d1cc", 
+                        color: "#7b2416", 
+                        marginBottom: "1.5rem", 
+                        display: "flex", 
+                        alignItems: "center", 
+                        gap: "0.75rem"
+                    }}>
+                        <i className="fa-solid fa-circle-exclamation"></i>
+                        <span>{error}</span>
+                    </div>
+                )}
 
                 {/* Main Layout */}
                 <form className="create-event-layout" onSubmit={handleSubmit}>
@@ -431,7 +473,7 @@ export const CreateEvent = () => {
 
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label>Hora de inicio</label>
+                                    <label>Hora de inicio <span className="required">*</span></label>
                                     <input
                                         type="time"
                                         name="start_time"
@@ -440,7 +482,7 @@ export const CreateEvent = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>Hora de fin</label>
+                                    <label>Hora de fin <span className="required">*</span></label>
                                     <input
                                         type="time"
                                         name="end_time"
