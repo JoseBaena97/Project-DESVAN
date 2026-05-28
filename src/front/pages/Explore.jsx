@@ -9,32 +9,6 @@ import { Map } from "../components/Map";
 
 const CATEGORIES = ["Todos los rastros", "Muebles", "Ropa", "Joyería", "Libros", "Decoración", "Vintage"];
 
-// const EVENTS = [
-//     {
-//         id: 1,
-//         title: "Mercado de Motores",
-//         description: "Una cuidadosa selección de mobiliario vintage, ropa retro y curiosidades en un entorno industrial...",
-//         badge: { text: "Destacado", icon: "fa-star", type: "destacado" },
-//         image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=380&fit=crop",
-//     },
-//     {
-//         id: 2,
-//         title: "Feria de Almoneda",
-//         description: "Antigüedades clásicas, joyería de época y piezas únicas de coleccionista. Ideal para los más...",
-//         badge: null,
-//         image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&h=380&fit=crop",
-//     },
-//     {
-//         id: 3,
-//         title: "Mercado Vintage",
-//         description: "Exclusiva selección de prendas de los años 70 y 80, accesorios retro y moda circular de calidad.",
-//         badge: { text: "Especial Moda", icon: null, type: "moda" },
-//         image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&h=380&fit=crop",
-//     },
-// ];
-
-
-
 export const Explore = () => {
 
     const [events, setEvents] = useState([]);
@@ -56,6 +30,86 @@ export const Explore = () => {
 
     const { store, dispatch } = useGlobalReducer();
     const navigate = useNavigate();
+
+    const formatTime = (isoString) => {
+        if (!isoString) return "";
+        const date = new Date(isoString);
+        return date.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", hour12: false });
+    };
+
+    const formatDate = (isoString) => {
+        if (!isoString) return "";
+        const date = new Date(isoString);
+        return date.toLocaleDateString("es-ES", { day: "numeric", month: "short" });
+    };
+
+    const getEventBadge = (event) => {
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const tomorrowStart = new Date(todayStart);
+        tomorrowStart.setDate(todayStart.getDate() + 1);
+
+        const toDateOnly = (iso) => {
+            if (!iso) return null;
+            const d = new Date(iso);
+            return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        };
+
+        // Si start_date no está relleno, usamos la fecha que viene en start_time
+        const startDateOnly = toDateOnly(event.start_date || event.start_time);
+        // Para la fecha de fin: end_date → start_date → start_time (evento de un solo día)
+        const endDateOnly = toDateOnly(event.end_date || event.start_date || event.start_time);
+
+        // 1. Finalizado
+        if (endDateOnly && endDateOnly < todayStart) {
+            return { text: "Finalizado", type: "finalizado" };
+        }
+
+        // 2. Activo ahora: hoy está dentro del rango de fechas Y la hora actual está dentro del horario
+        if (
+            startDateOnly &&
+            endDateOnly &&
+            startDateOnly <= todayStart &&
+            endDateOnly >= todayStart &&
+            event.start_time &&
+            event.end_time
+        ) {
+            const st = new Date(event.start_time);
+            const et = new Date(event.end_time);
+            const nowMins = now.getHours() * 60 + now.getMinutes();
+            const openMins = st.getHours() * 60 + st.getMinutes();
+            const closeMins = et.getHours() * 60 + et.getMinutes();
+            // Si closeMins < openMins el evento cruza medianoche (ej. 22:30–02:30)
+            const isActive =
+                closeMins < openMins
+                    ? nowMins >= openMins || nowMins <= closeMins
+                    : nowMins >= openMins && nowMins <= closeMins;
+            if (isActive) {
+                return { text: "Activo ahora", type: "activo" };
+            }
+        }
+
+        // 3. Hot: evento privado con >= 35 % de su cupo reservado
+        if (
+            event.event_type === "privado" &&
+            event.max_capacity > 0 &&
+            (event.reservations?.length || 0) / event.max_capacity >= 0.35
+        ) {
+            return { text: "Hot", type: "hot", icon: "fa-fire" };
+        }
+
+        // 4. Hoy
+        if (startDateOnly && startDateOnly.toDateString() === todayStart.toDateString()) {
+            return { text: "Hoy", type: "hoy" };
+        }
+
+        // 5. Mañana
+        if (startDateOnly && startDateOnly.toDateString() === tomorrowStart.toDateString()) {
+            return { text: "Mañana", type: "manana" };
+        }
+
+        return null;
+    };
 
     const buildFavoriteMap = (loadedEvents, userId) => {
         return loadedEvents.reduce((map, event) => {
@@ -427,18 +481,11 @@ export const Explore = () => {
 
                     <div className="events-grid">
                         {events?.map(event => {
-
+                            const badge = store.user ? getEventBadge(event) : null;
                             return (
                                 <div key={event.id} className="event-card">
                                     <div className="event-img-wrapper">
                                         <img src={event.image_url?.cover || event.image} alt={event.title} className="event-img" />
-
-                                        {event.badge && (
-                                            <span className={`event-badge event-badge--${event.badge.type}`}>
-                                                {event.badge.icon && <i className={`fa-solid ${event.badge.icon}`}></i>}
-                                                {event.badge.text}
-                                            </span>
-                                        )}
 
                                         <button
                                             className={`event-fav-btn${favoriteMap[event.id] ? " active" : ""}`}
@@ -450,14 +497,33 @@ export const Explore = () => {
                                     </div>
 
                                     <div className="event-card-body">
-                                        <h3 className="event-card-title">{event.title}</h3>
+                                        <div className="event-card-title-row">
+                                            <h3 className="event-card-title">{event.title}</h3>
+                                            {badge && (
+                                                <span className={`event-card-date-badge event-card-date-badge--${badge.type}`}>
+                                                    {badge.icon && <i className={`fa-solid ${badge.icon}`}></i>}
+                                                    {badge.text}
+                                                </span>
+                                            )}
+                                        </div>
                                         <p className="event-card-desc">{event.description}</p>
+
+                                        {store.user && (
+                                            <div className="event-card-meta">
+                                                <span className="event-card-meta-item">
+                                                    <i className="fa-solid fa-location-dot"></i>
+                                                    {event.exact_address}
+                                                </span>
+                                                <span className="event-card-meta-item">
+                                                    <i className="fa-regular fa-calendar"></i>
+                                                    {formatDate(event.start_date || event.start_time)} · {formatTime(event.start_time)} - {formatTime(event.end_time)}
+                                                </span>
+                                            </div>
+                                        )}
 
                                         <Link to={`/detalles/${event.id}`}>
                                             <button className="btn-ver-rastro">Ver rastro</button>
                                         </Link>
-
-                                        <p className="event-card-desc">{event.exact_address}</p>
                                     </div>
                                 </div>
                             );
