@@ -506,6 +506,7 @@ export const Details = () => {
                   onClick={() => setReviewRating(star)}
                 >
                   <i className={star <= reviewRating ? "fa-solid fa-star" : "fa-regular fa-star"}></i>
+                  
                 </button>
               ))}
             </div>

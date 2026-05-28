@@ -599,7 +599,8 @@
   transition: all 0.2s ease;
 }
 
-.review-star.active {
+.review-star.active,
+.review-star:hover {
   background: #fbe3c9;
   border-color: #f4b96f;
   color: #b35f14;
@@ -692,7 +693,7 @@
   color: var(--text-dark);
 }
 
-.review-stars {
+.review-stars{
   display: flex;
   gap: 0.55rem;
   margin-bottom: 1.25rem;
@@ -712,7 +713,8 @@
   transition: all 0.2s ease;
 }
 
-.review-star.active {
+.review-star.active,
+.review-star:hover {
   background: #f9debc;
   border-color: #f4b96f;
   color: #b35f14;
