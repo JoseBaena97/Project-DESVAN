@@ -102,6 +102,10 @@ def update_my_profile():
         if 'lastname' in body:
             profile.lastname = body.get('lastname')
 
+    profile_phone = profile.phone or ''
+    profile_address = profile.address or ''
+    user.is_verified = bool(profile_phone.strip() and profile_address.strip())
+
     db.session.commit()
     return jsonify({"data": user.serialize()}), 200
 

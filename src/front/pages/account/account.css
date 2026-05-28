@@ -346,6 +346,19 @@
   line-height: 1.35;
 }
 
+.profile-stamp--pending {
+  border-color: #c9a84c;
+  opacity: 1;
+}
+
+.profile-stamp--pending i {
+  color: #c9a84c;
+}
+
+.profile-stamp--pending span {
+  color: #c9a84c;
+}
+
 /* Collector file card */
 .collector-file {
   background: var(--account-card);

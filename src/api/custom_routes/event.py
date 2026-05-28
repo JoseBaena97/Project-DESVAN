@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from api.routes import api
-from api.models import db, Event, EventType, EventStatus
+from api.models import db, Event, EventType, EventStatus, User
 from datetime import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -47,6 +47,15 @@ def create_event():
         seller_id = int(seller_id)
     except Exception:
         pass
+
+    user = db.session.get(User, seller_id)
+    if (not user or not user.profile
+            or not (user.profile.phone and user.profile.phone.strip())
+            or not (user.profile.address and user.profile.address.strip())):
+        return jsonify({
+            "success": False,
+            "msg": "Debes completar tu perfil con teléfono y dirección antes de crear un evento."
+        }), 403
 
     required_fields = ['title', 'event_type',
                        'start_time', 'end_time', 'exact_address']

@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useLocation } from "react-router-dom";
 import mascotOpen from "../assets/img/caja04.png";
 import eventService from "../services/event.service";
 import uploadService from "../services/upload.service";
+import authService from "../services/auth.service";
 
 
 const CATEGORIES = [
@@ -50,9 +51,17 @@ export const CreateEvent = () => {
     const [mainImageFile, setMainImageFile] = useState(null);
     const [isEdit, setIsEdit] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const [isVerified, setIsVerified] = useState(null);
     const location = useLocation();
     const addressInputRef = useRef(null);
     const autocompleteRef = useRef(null);
+
+    useEffect(() => {
+        authService.getMe().then((resp) => {
+            const user = resp?.data ?? resp;
+            setIsVerified(user?.is_verified ?? false);
+        }).catch(() => setIsVerified(false));
+    }, []);
 
     useEffect(() => {
         const setupAutocomplete = () => {
@@ -261,7 +270,10 @@ export const CreateEvent = () => {
 
 
 
+
+
     return (
+        <>
         <div className="create-event-page">
             <div className="create-event-container">
                 {/* Header */}
@@ -636,5 +648,41 @@ export const CreateEvent = () => {
                 </form>
             </div>
         </div>
+
+        {isVerified === false && (
+            <div className="unverified-modal-backdrop" onClick={() => navigate("/explorar")}>
+                <div className="unverified-modal" onClick={(e) => e.stopPropagation()}>
+                    <button
+                        className="unverified-modal-close"
+                        onClick={() => navigate("/explorar")}
+                        aria-label="Cerrar"
+                    >
+                        <i className="fa-solid fa-xmark" />
+                    </button>
+                    <div className="unverified-modal-icon">
+                        <i className="fa-solid fa-id-card" />
+                    </div>
+                    <h3 className="unverified-modal-title">Perfil incompleto</h3>
+                    <p className="unverified-modal-text">
+                        Para publicar eventos en el Desván necesitas tener tu{" "}
+                        <strong>teléfono de contacto</strong> y tu <strong>dirección</strong>{" "}
+                        registrados en tu perfil. Una vez completados, tu identidad quedará
+                        verificada y podrás crear eventos.
+                    </p>
+                    <div className="unverified-modal-actions">
+                        <button
+                            className="unverified-modal-btn unverified-modal-btn--cancel"
+                            onClick={() => navigate("/explorar")}
+                        >
+                            <i className="fa-solid fa-arrow-left" /> Volver
+                        </button>
+                        <Link to="/perfil" className="unverified-modal-btn unverified-modal-btn--profile">
+                            <i className="fa-solid fa-pen-to-square" /> Completar mi perfil
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     );
 };

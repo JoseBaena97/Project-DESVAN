@@ -150,7 +150,7 @@ export const Profile = () => {
 			email,
 			firstname,
 			lastname,
-			phone: `${phonePrefix}${phoneNumber}`,
+			phone: phoneNumber.trim() ? `${phonePrefix}${phoneNumber}` : "",
 			address,
 			...(profile_picture_url ? { profile_picture_url } : {}),
 		};
@@ -259,10 +259,17 @@ export const Profile = () => {
 								</label>
 							)}
 						</div>
-						<div className="profile-stamp">
-							<i className="fa-solid fa-eye" />
-							<span>IDENTIDAD VERIFICADA</span>
-						</div>
+						{data?.is_verified ? (
+							<div className="profile-stamp">
+								<i className="fa-solid fa-eye" />
+								<span>IDENTIDAD VERIFICADA</span>
+							</div>
+						) : (
+							<div className="profile-stamp profile-stamp--pending">
+								<i className="fa-solid fa-clock" />
+								<span>PENDIENTE DE VERIFICAR</span>
+							</div>
+						)}
 					</div>
 
 					<div className="collector-sections">
