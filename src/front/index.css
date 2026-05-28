@@ -1164,12 +1164,84 @@ h6 {
   flex: 1;
 }
 
+.event-card-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
 .event-card-title {
   font-family: var(--font-sans);
   font-size: 1rem;
   font-weight: 700;
   color: var(--text-dark);
-  margin: 0 0 0.4rem;
+  margin: 0;
+  flex: 1;
+}
+
+.event-card-date-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fce8e8;
+  color: #b03030;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.event-card-date-badge--finalizado {
+  background: #ede8e4;
+  color: #6c5a52;
+}
+
+.event-card-date-badge--activo {
+  background: #d8f0e2;
+  color: #1a7a3a;
+}
+
+.event-card-date-badge--hot {
+  background: #fff0e0;
+  color: #c05a00;
+}
+
+.event-card-date-badge--hot i {
+  color: #e07020;
+}
+
+.event-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.event-card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: #6c5a52;
+  min-width: 0;
+}
+
+.event-card-meta-item i {
+  font-size: 0.75rem;
+  color: #a0887e;
+  flex-shrink: 0;
+}
+
+.event-card-meta-item:first-child {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .event-card-desc {
