@@ -101,6 +101,25 @@ h6 {
   padding-right: 3rem;
 }
 
+.nav-actions a {
+  text-decoration: none;
+}
+
+.btn-hamburger {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-right: 1rem;
+  align-items: center;
+}
+
+.offcanvas a {
+  text-decoration: none;
+}
+
 .nav-icon {
   font-size: 1.2rem;
   color: var(--text-dark);
@@ -143,9 +162,7 @@ h6 {
   height: 35px;
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.user_ico:hover {
-  transform: translateY(-4px) scale(1.1);
-}
+
 
 .btn-primary-custom:hover {
   background-color: #631c11;
@@ -1992,5 +2009,24 @@ h6 {
   }
   .footer-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+.custom-offcanvas-navbar {
+  width: max-content !important;
+}
+
+@media (max-width: 768px) {
+  .nav-brand-img {
+    padding-left: 0;
+  }
+  .nav-search {
+    margin: 0 0.5rem;
+  }
+  .btn-hamburger {
+    margin-right: 0;
+  }
+  .custom-navbar .container-fluid {
+    padding: 0 0.5rem;
   }
 }

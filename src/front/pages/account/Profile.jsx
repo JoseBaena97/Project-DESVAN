@@ -394,7 +394,7 @@ export const Profile = () => {
 					<span>
 						BIBLIOTECA DEL DESVÁN
 						<br />
-						EST. 2023
+						EST. 2026
 					</span>
 				</div>
 			</aside>
