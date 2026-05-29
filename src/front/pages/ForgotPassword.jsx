@@ -1,28 +1,18 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import authService from "../services/auth.service";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 import "./Login.css";
 
 export const ForgotPassword = () => {
+  const { store, dispatch, showErrorAlert } = useGlobalReducer();
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const alertTimeoutRef = useRef(null);
-
-  const showErrorAlert = (msg) => {
-    setError(msg);
-    if (alertTimeoutRef.current) {
-      clearTimeout(alertTimeoutRef.current);
-    }
-    alertTimeoutRef.current = setTimeout(() => {
-      setError("");
-    }, 8000);
-  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    showErrorAlert(null);
     setMessage("");
 
     if (!email.trim()) {
@@ -30,7 +20,7 @@ export const ForgotPassword = () => {
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: 'setLoading', payload: true });
 
     try {
       const data = await authService.forgotPassword(email);
@@ -38,7 +28,7 @@ export const ForgotPassword = () => {
     } catch (err) {
       showErrorAlert(err.message || "Error enviando el correo de recuperación.");
     } finally {
-      setLoading(false);
+      dispatch({ type: 'setLoading', payload: false });
     }
   };
 
@@ -55,7 +45,7 @@ export const ForgotPassword = () => {
           </div>
 
           {message && <div className="auth-alert alert-success"><i className="fa-solid fa-circle-check"></i><span>{message}</span></div>}
-          {error && <div className="auth-alert alert-danger"><i className="fa-solid fa-circle-exclamation"></i><span>{error}</span></div>}
+          {store.error && <div className="auth-alert alert-danger"><i className="fa-solid fa-circle-exclamation"></i><span>{store.error}</span></div>}
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="form-group">
@@ -73,8 +63,8 @@ export const ForgotPassword = () => {
               </div>
             </div>
 
-            <button type="submit" className="auth-submit-btn" disabled={loading}>
-              {loading ? "Enviando..." : "Enviar enlace"}
+            <button type="submit" className="auth-submit-btn" disabled={store.loading}>
+              {store.loading ? "Enviando..." : "Enviar enlace"}
             </button>
           </form>
 

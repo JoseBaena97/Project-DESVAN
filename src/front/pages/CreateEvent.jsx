@@ -4,6 +4,7 @@ import mascotOpen from "../assets/img/caja04.png";
 import eventService from "../services/event.service";
 import uploadService from "../services/upload.service";
 import authService from "../services/auth.service";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 
 const CATEGORIES = [
@@ -22,6 +23,7 @@ const EVENT_TYPES = [
 ];
 
 export const CreateEvent = () => {
+    const { store, dispatch, showErrorAlert } = useGlobalReducer();
     const navigate = useNavigate();
 
     if (!localStorage.getItem('token')) {
@@ -56,18 +58,7 @@ export const CreateEvent = () => {
     const addressInputRef = useRef(null);
     const autocompleteRef = useRef(null);
 
-    const [error, setError] = useState(null);
-    const alertTimeoutRef = useRef(null);
-
-    const showErrorAlert = (msg) => {
-        setError(msg);
-        if (alertTimeoutRef.current) {
-            clearTimeout(alertTimeoutRef.current);
-        }
-        alertTimeoutRef.current = setTimeout(() => {
-            setError(null);
-        }, 8000);
-    };
+    
 
     useEffect(() => {
         authService.getMe().then((resp) => {
@@ -313,7 +304,7 @@ export const CreateEvent = () => {
                 </div>
 
                 {/* Feedback Messages */}
-                {error && (
+                {store.error && (
                     <div className="create-event-alert" style={{
                         padding: "1rem", 
                         borderRadius: "10px", 
@@ -326,7 +317,7 @@ export const CreateEvent = () => {
                         gap: "0.75rem"
                     }}>
                         <i className="fa-solid fa-circle-exclamation"></i>
-                        <span>{error}</span>
+                        <span>{store.error}</span>
                     </div>
                 )}
 
@@ -504,15 +495,6 @@ export const CreateEvent = () => {
                                 </div>
                             </div>
 
-                            {/*<label className="checkbox-inline">
-                                <input
-                                    type="checkbox"
-                                    name="multiDay"
-                                    checked={eventData.multiDay}          QUITAR NO TENEMOS OPCIÓN MULTIDAY
-                                    onChange={handleChange}
-                                />
-                                <span>Evento de varios días</span>
-                            </label>*/}
                         </div>
 
                         {/* Categoría y etiquetas */}

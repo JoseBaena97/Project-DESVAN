@@ -1,19 +1,10 @@
 export const initialStore=()=>{
   return{
-    message: null,
     auth: localStorage.getItem('token') ? true : false,
-    todos: [
-      {
-        id: 1,
-        title: "Make the bed",
-        background: null,
-      },
-      {
-        id: 2,
-        title: "Do my homework",
-        background: null,
-      }
-    ]
+    user: null,
+    name: null,
+    error: null,
+    loading: false,
   }
 }
 
@@ -23,29 +14,32 @@ export default function storeReducer(store, action = {}) {
       return {
         ...store, 
         auth:true, 
-        user:action.payload.user
+        user:action.payload.user,
+        name:action.payload.user?.username || action.payload.user?.name || null
       }
 
     case 'logout':
       return{
         ...store,
-        auth:false, //no se si está bien y debería poner un case login? o no porque hace ya login en el auth?
-        user:null
+        auth:false, 
+        user:null,
+        name:null,
+        token:null
       }
-    case 'set_hello':
-      return {
+    
+    case 'setError':
+      return{
         ...store,
-        message: action.payload
-      };
-      
-    case 'add_task':
+        error:action.payload
+      }
 
-      const { id,  color } = action.payload
-
-      return {
+    case 'setLoading':
+      return{
         ...store,
-        todos: store.todos.map((todo) => (todo.id === id ? { ...todo, background: color } : todo))
-      };
+        loading:action.payload
+      } 
+     
+   
     default:
       throw Error('Unknown action.');
   }    

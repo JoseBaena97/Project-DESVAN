@@ -17,8 +17,23 @@ export function StoreProvider({ children }) {
     </StoreContext.Provider>
 }
 
+let alertTimeout = null;
+
 // Custom hook to access the global state and dispatch function.
 export default function useGlobalReducer() {
     const { dispatch, store } = useContext(StoreContext)
-    return { dispatch, store };
+    
+    const showErrorAlert = (msg) => {
+        dispatch({ type: 'setError', payload: msg });
+        if (alertTimeout) {
+            clearTimeout(alertTimeout);
+        }
+        if (msg) {
+            alertTimeout = setTimeout(() => {
+                dispatch({ type: 'setError', payload: null });
+            }, 8000);
+        }
+    };
+
+    return { store, dispatch, showErrorAlert }
 }

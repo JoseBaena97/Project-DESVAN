@@ -1,30 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import authService from "../services/auth.service";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 import "./Login.css";
 
 export const ResetPassword = () => {
+  const { store, dispatch, showErrorAlert } = useGlobalReducer();
   const navigate = useNavigate();
   const location = useLocation();
   const [token, setToken] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const alertTimeoutRef = useRef(null);
-
-  const showErrorAlert = (msg) => {
-    setError(msg);
-    if (alertTimeoutRef.current) {
-      clearTimeout(alertTimeoutRef.current);
-    }
-    alertTimeoutRef.current = setTimeout(() => {
-      setError("");
-    }, 8000);
-  };
+  
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -34,7 +24,7 @@ export const ResetPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    showErrorAlert(null);
     setMessage("");
 
     if (!token) {
@@ -58,7 +48,7 @@ export const ResetPassword = () => {
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: 'setLoading', payload: true });
     try {
       const data = await authService.resetPassword(token, password);
       setMessage(data?.msg || "Contraseña actualizada correctamente.");
@@ -66,7 +56,7 @@ export const ResetPassword = () => {
     } catch (err) {
       showErrorAlert(err.message || "Error actualizando contraseña.");
     } finally {
-      setLoading(false);
+      dispatch({ type: 'setLoading', payload: false });
     }
   };
 
@@ -83,7 +73,7 @@ export const ResetPassword = () => {
           </div>
 
           {message && <div className="auth-alert alert-success"><i className="fa-solid fa-circle-check"></i><span>{message}</span></div>}
-          {error && <div className="auth-alert alert-danger"><i className="fa-solid fa-circle-exclamation"></i><span>{error}</span></div>}
+          {store.error && <div className="auth-alert alert-danger"><i className="fa-solid fa-circle-exclamation"></i><span>{store.error}</span></div>}
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="form-group">
@@ -132,8 +122,8 @@ export const ResetPassword = () => {
               </div>
             </div>
 
-            <button type="submit" className="auth-submit-btn" disabled={loading}>
-              {loading ? "Actualizando..." : "Actualizar contraseña"}
+            <button type="submit" className="auth-submit-btn" disabled={store.loading}>
+              {store.loading ? "Actualizando..." : "Actualizar contraseña"}
             </button>
           </form>
 

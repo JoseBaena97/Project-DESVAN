@@ -7,7 +7,7 @@ import "./Login.css";
 
 export const Login = () => {
   const navigate = useNavigate();
-  const { store, dispatch } = useGlobalReducer();
+  const { store, dispatch, showErrorAlert } = useGlobalReducer();
 
   // State to toggle between login and registration panels
   const [isRegister, setIsRegister] = useState(false);
@@ -22,19 +22,7 @@ export const Login = () => {
 
   // UI States
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const alertTimeoutRef = useRef(null);
-
-  const showErrorAlert = (msg) => {
-    setError(msg);
-    if (alertTimeoutRef.current) {
-      clearTimeout(alertTimeoutRef.current);
-    }
-    alertTimeoutRef.current = setTimeout(() => {
-      setError(null);
-    }, 8000);
-  };
+  
 
   // Handle changes in input fields
   const handleChange = (e) => {
@@ -61,8 +49,9 @@ export const Login = () => {
       showErrorAlert("Por favor, ingresa un nombre de usuario.");
       return;
     }
-    setError(null);
-    setLoading(true);
+    
+    showErrorAlert(null);
+    dispatch({ type: 'setLoading', payload: true });
 
     const payload = { ...formData, username: formData.username.trim() };
 
@@ -121,7 +110,7 @@ export const Login = () => {
 
       })
       .finally(() => {
-        setLoading(false);
+        dispatch({ type: 'setLoading', payload: false });
       });
 
   };
@@ -145,10 +134,8 @@ export const Login = () => {
   // Toggle state between Login and Register
   const handleToggleMode = () => {
     setIsRegister(!isRegister);
-    setError(null);
-    if (alertTimeoutRef.current) {
-      clearTimeout(alertTimeoutRef.current);
-    }
+    showErrorAlert(null);
+    
     setFormData({
       username: "",
       email: "",
@@ -233,10 +220,10 @@ export const Login = () => {
           </div>
 
           {/* Feedback Messages */}
-          {error && (
-            <div className={`auth-alert ${error.includes("¡Registro completado!") ? "alert-success" : "alert-danger"}`}>
-              <i className={error.includes("¡Registro completado!") ? "fa-solid fa-circle-check" : "fa-solid fa-circle-exclamation"}></i>
-              <span>{error}</span>
+          {store.error && (
+            <div className={`auth-alert ${store.error.includes("¡Registro completado!") ? "alert-success" : "alert-danger"}`}>
+              <i className={store.error.includes("¡Registro completado!") ? "fa-solid fa-circle-check" : "fa-solid fa-circle-exclamation"}></i>
+              <span>{store.error}</span>
             </div>
           )}
 
@@ -305,8 +292,8 @@ export const Login = () => {
               </div>
             </div>
 
-            <button type="submit" className="auth-submit-btn" disabled={loading}>
-              {loading ? (
+            <button type="submit" className="auth-submit-btn" disabled={store.loading}>
+              {store.loading ? (
                 <>
                   <span className="spinner"></span> Procesando...
                 </>
