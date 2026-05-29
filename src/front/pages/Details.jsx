@@ -17,6 +17,7 @@ export const Details = () => {
   const [isReserved, setIsReserved] = useState(false);
   const [shareFeedback, setShareFeedback] = useState("");
   const [showAllModal, setShowAllModal] = useState(false);
+  const [galleryActiveIdx, setGalleryActiveIdx] = useState(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewTarget, setReviewTarget] = useState("vendedor");
   const [reviewRating, setReviewRating] = useState(0);
@@ -220,6 +221,7 @@ export const Details = () => {
 
           {/* TITLE */}
           <h1 className="event-title">{event.title}</h1>
+          <div class="create-event-title-line"></div>
 
           {/* META */}
           <div className="event-meta-row">
@@ -248,10 +250,13 @@ export const Details = () => {
             </div>
 
             <div className="gallery-thumbs-wrapper">
-              <img src={event.image_url?.cover} className="gallery-thumb-img" />
-              <img src={event.image_url?.cover} className="gallery-thumb-img" />
-              <img src={event.image_url?.cover} className="gallery-thumb-img" />
-              <img src={event.image_url?.cover} className="gallery-thumb-img" />
+              {(event.image_url?.gallery || []).slice(0, 4).map((src, idx) => (
+                <img key={idx} src={src} alt={`${event.title} foto ${idx + 2}`} className="gallery-thumb-img" />
+              ))}
+              {/* Rellena con la portada si hay menos de 4 imágenes en la galería */}
+              {Array.from({ length: Math.max(0, 4 - (event.image_url?.gallery?.length || 0)) }).map((_, idx) => (
+                <img key={`fallback-${idx}`} src={event.image_url?.cover} alt={event.title} className="gallery-thumb-img" />
+              ))}
             </div>
 
             <div className="gallery-actions-overlay">
@@ -393,6 +398,7 @@ export const Details = () => {
                   <strong>
                     {event.start_time ? new Date(event.start_time).toLocaleDateString() : ""}
                   </strong>
+                  {event.end_time && event.start_time && " - "}
                   <span>
                     {event.end_time ? new Date(event.end_time).toLocaleDateString() : ""}
                   </span>
@@ -403,10 +409,11 @@ export const Details = () => {
                 <i className="fa-regular fa-clock"></i>
                 <div>
                   <strong>
-                    {event.start_time ? new Date(event.start_time).toLocaleTimeString() : ""}
+                    {event.start_time ? new Date(event.start_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ""}
                   </strong>
+                  {event.end_time && event.start_time && " - "}
                   <span>
-                    {event.end_time ? new Date(event.end_time).toLocaleTimeString() : ""}
+                    {event.end_time ? new Date(event.end_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ""}
                   </span>
                 </div>
               </div>
@@ -442,23 +449,107 @@ export const Details = () => {
         </aside>
       </div>
 
-      {/* MODAL */}
-      {showAllModal && (
-        <div className="modal-backdrop" onClick={() => setShowAllModal(false)}>
-          <div className="modal-content-custom" onClick={e => e.stopPropagation()}>
+      {/* MODAL — GALERÍA COMPLETA */}
+      {showAllModal && (() => {
+        const galleryImages = [
+          event.image_url?.cover,
+          ...(event.image_url?.gallery || []),
+        ].filter(Boolean);
 
-            <h3>Galería</h3>
+        return (
+          <div className="gallery-modal-backdrop" onClick={() => { setShowAllModal(false); setGalleryActiveIdx(null); }}>
+            <div className="gallery-modal-panel" onClick={e => e.stopPropagation()}>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <img src={event.image_url?.cover} />
-              <img src={event.image_url?.cover} />
-              <img src={event.image_url?.cover} />
-              <img src={event.image_url?.cover} />
+              {/* Header */}
+              <div className="gallery-modal-header">
+                <div className="gallery-modal-header-left">
+                  <i className="fa-solid fa-images gallery-modal-icon"></i>
+                  <div>
+                    <h2 className="gallery-modal-title">Galería de fotos</h2>
+                    <p className="gallery-modal-subtitle">{event.title}</p>
+                  </div>
+                </div>
+                <button
+                  className="gallery-modal-close"
+                  onClick={() => { setShowAllModal(false); setGalleryActiveIdx(null); }}
+                  aria-label="Cerrar galería"
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+
+              {/* Lightbox — imagen destacada */}
+              {galleryActiveIdx !== null ? (
+                <div className="gallery-lightbox">
+                  <button
+                    className="gallery-nav-btn gallery-nav-prev"
+                    onClick={() => setGalleryActiveIdx(i => (i - 1 + galleryImages.length) % galleryImages.length)}
+                    aria-label="Anterior"
+                  >
+                    <i className="fa-solid fa-chevron-left"></i>
+                  </button>
+
+                  <div className="gallery-lightbox-img-wrap">
+                    <img
+                      src={galleryImages[galleryActiveIdx]}
+                      alt={`Foto ${galleryActiveIdx + 1}`}
+                      className="gallery-lightbox-img"
+                    />
+                    <span className="gallery-lightbox-counter">
+                      {galleryActiveIdx + 1} / {galleryImages.length}
+                    </span>
+                  </div>
+
+                  <button
+                    className="gallery-nav-btn gallery-nav-next"
+                    onClick={() => setGalleryActiveIdx(i => (i + 1) % galleryImages.length)}
+                    aria-label="Siguiente"
+                  >
+                    <i className="fa-solid fa-chevron-right"></i>
+                  </button>
+
+                  <button
+                    className="gallery-lightbox-back"
+                    onClick={() => setGalleryActiveIdx(null)}
+                  >
+                    <i className="fa-solid fa-grip"></i>
+                    Ver todas
+                  </button>
+                </div>
+              ) : (
+                /* Grid masonry */
+                <div className="gallery-modal-grid">
+                  {galleryImages.map((src, idx) => (
+                    <div
+                      key={idx}
+                      className={`gallery-modal-item ${idx === 0 ? "gallery-modal-item--featured" : ""}`}
+                      onClick={() => setGalleryActiveIdx(idx)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={e => e.key === "Enter" && setGalleryActiveIdx(idx)}
+                    >
+                      <img src={src} alt={`Foto ${idx + 1}`} className="gallery-modal-img" />
+                      <div className="gallery-modal-overlay">
+                        <i className="fa-solid fa-magnifying-glass-plus"></i>
+                      </div>
+                      {idx === 0 && (
+                        <span className="gallery-modal-featured-badge">Portada</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Footer */}
+              <div className="gallery-modal-footer">
+                <i className="fa-solid fa-circle-info"></i>
+                <span>Haz clic en cualquier imagen para verla a pantalla completa</span>
+              </div>
+
             </div>
-
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {showReviewModal && (
         <div className="modal-backdrop" onClick={() => setShowReviewModal(false)}>

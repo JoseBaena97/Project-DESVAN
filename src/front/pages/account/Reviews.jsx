@@ -228,7 +228,6 @@ export const Reviews = () => {
 			<img src={mascotareview} alt="" className="account-mascot-float" aria-hidden="true" />
       <AccountPageHeader
         title="Mis valoraciones"
-        titleAccent="Mis"
         subtitle="Tus reviews recibidas y escritas en un solo lugar."
       />
 

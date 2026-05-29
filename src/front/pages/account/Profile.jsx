@@ -219,7 +219,6 @@ export const Profile = () => {
 			<div className="profile-page-header">
 				<AccountPageHeader
 					title="Mi perfil"
-					titleAccent="Mi"
 					subtitle="Gestiona tu identidad. Exclusivo para quienes saben mirar entre lo olvidado."
 					mascot={<i className="fa-solid fa-id-card account-mascot-icon" aria-hidden="true" />}
 				/>

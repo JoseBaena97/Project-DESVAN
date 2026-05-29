@@ -72,7 +72,6 @@ export const Reservations = () => {
 			<img src={mascotareservas} alt="" className="account-mascot-float" aria-hidden="true" />
 			<AccountPageHeader
 				title="Mis reservas"
-				titleAccent="Mis"
 				subtitle="Tus próximos planes confirmados."
 			/>
 

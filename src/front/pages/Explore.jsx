@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import caja05 from "../assets/img/caja05.png";
 import eventService from "../services/event.service";
 import favoriteService from "../services/favorite.service";
@@ -30,6 +30,11 @@ export const Explore = () => {
 
     const { store, dispatch } = useGlobalReducer();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Query de busqueda del navbar
+    const searchParams = new URLSearchParams(location.search);
+    const textQuery = searchParams.get("q") || "";
 
     const formatTime = (isoString) => {
         if (!isoString) return "";
@@ -363,6 +368,7 @@ export const Explore = () => {
                     <div className="explore-header">
                         <div className="explore-header-left">
                             <h1 className="explore-title">Rastros para ti</h1>
+                            <div class="create-event-title-line"></div>
                             <p className="explore-subtitle">Descubre tesoros ocultos.</p>
                         </div>
                         <div className="sort-control">
@@ -465,7 +471,15 @@ export const Explore = () => {
                     )}
 
                     <div className="events-grid">
-                        {events?.map(event => {
+                        {events?.filter(event => {
+                            if (!textQuery) return true;
+                            const q = textQuery.toLowerCase();
+                            const inTitle = event.title?.toLowerCase().includes(q);
+                            const inDesc = event.description?.toLowerCase().includes(q);
+                            const inTags = event.tags?.toLowerCase().includes(q);
+                            const inAddress = event.exact_address?.toLowerCase().includes(q);
+                            return inTitle || inDesc || inTags || inAddress;
+                        }).map(event => {
                             const badge = store.user ? getEventBadge(event) : null;
                             return (
                                 <div key={event.id} className="event-card">

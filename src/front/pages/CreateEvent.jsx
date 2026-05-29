@@ -111,7 +111,19 @@ export const CreateEvent = () => {
             eventService.getEvent(eventId).then((res) => {
                 const evt = res && res.data ? res.data : res;
                 if (evt) {
-                    setEventData((prev) => ({ ...prev, ...evt }));
+                    const formattedData = { ...evt };
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    if (evt.start_time) {
+                        const d = new Date(evt.start_time);
+                        formattedData.start_date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+                        formattedData.start_time = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                    }
+                    if (evt.end_time) {
+                        const d = new Date(evt.end_time);
+                        formattedData.end_date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+                        formattedData.end_time = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                    }
+                    setEventData((prev) => ({ ...prev, ...formattedData }));
                     if (evt.image_url?.cover) {
                         setMainImage(evt.image_url.cover);
                     }
@@ -185,10 +197,14 @@ export const CreateEvent = () => {
             const addressToUse = eventData.exact_address?.trim();
 
 
+            // Convert local selected date/time to UTC string for the backend
+            const startDateTime = new Date(`${eventData.start_date}T${eventData.start_time}`);
+            const endDateTime = new Date(`${eventData.end_date}T${eventData.end_time}`);
+
             const payload = {
                 ...eventData,
-                start_time: `${eventData.start_date}T${eventData.start_time}`,
-                end_time: `${eventData.end_date}T${eventData.end_time}`,
+                start_time: startDateTime.toISOString(),
+                end_time: endDateTime.toISOString(),
                 exact_address: addressToUse,
             };
 

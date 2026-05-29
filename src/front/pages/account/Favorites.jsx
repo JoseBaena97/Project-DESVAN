@@ -34,7 +34,6 @@ export const Favorites = () => {
 			<img src={mascotafav} alt="" className="account-mascot-float" aria-hidden="true" />
 			<AccountPageHeader
 				title="Mis favoritos"
-				titleAccent="Mis"
 				subtitle="Cosas que te guiñaron el ojo."
 			/>
 
