@@ -79,12 +79,26 @@ export const MyEvents = () => {
 		fetchUserEvents();
 	}, [store.user]);
 
+	const getEventStatusKey = (event) => {
+		const now = new Date();
+		if (event.end_time) {
+			if (new Date(event.end_time) < now) return "finished";
+		} else if (event.end_date) {
+			const endDate = new Date(event.end_date);
+			endDate.setHours(23, 59, 59, 999);
+			if (endDate < now) return "finished";
+		}
+		if (event.status === "finished") return "finished";
+		return "active";
+	};
+
 	// Función para filtrar eventos por tab
 	const getFilteredEvents = () => {
 		if (activeTab === "TODOS") return userEvents;
 
 		return userEvents.filter((event) => {
-			const eventStatus = STATUS_MAP[event.status];
+			const statusKey = getEventStatusKey(event);
+			const eventStatus = STATUS_MAP[statusKey];
 			if (activeTab === "ACTIVOS") return eventStatus === "ACTIVO";
 			if (activeTab === "FINALIZADOS") return eventStatus === "FINALIZADO";
 			return false;
@@ -138,7 +152,6 @@ export const MyEvents = () => {
 			<img src={mascotamyev} alt="" className="account-mascot-float" aria-hidden="true" />
 			<AccountPageHeader
 				title="Mis eventos creados"
-				titleAccent="Mis"
 				subtitle="Donde tus ideas cobran vida"
 			/>
 
@@ -177,13 +190,13 @@ export const MyEvents = () => {
 								<tr key={event.id}>
 									<td>
 										<div className="events-table-event">
-											{event.image_url ? (
-												<img
-													src={event.image_url}
-													alt={event.title}
-													className="events-table-thumb"
-												/>
-											) : (
+									{(event.image_url?.cover || event.image_url?.gallery?.[0]) ? (
+										<img
+											src={event.image_url?.cover || event.image_url?.gallery?.[0]}
+											alt={event.title}
+											className="events-table-thumb"
+										/>
+									) : (
 												<div
 													className="events-table-thumb account-img-placeholder"
 													aria-hidden="true"
@@ -205,9 +218,9 @@ export const MyEvents = () => {
 									</td>
 									<td>
 										<span
-											className={`event-status-badge event-status-badge--${STATUS_VARIANT_MAP[event.status]}`}
+											className={`event-status-badge event-status-badge--${STATUS_VARIANT_MAP[getEventStatusKey(event)] || "activo"}`}
 										>
-											{STATUS_MAP[event.status]}
+											{STATUS_MAP[getEventStatusKey(event)] || "ACTIVO"}
 										</span>
 									</td>
 									<td>{formatDate(event.start_date)}</td>

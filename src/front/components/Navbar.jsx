@@ -4,7 +4,7 @@ import create_ico from "../assets/img/create_ico.png";
 import favorites_ico from "../assets/img/favorites_ico1.png";
 import user_ico from "../assets/img/profile_ico+.png";
 import authService from "../services/auth.service";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
 
@@ -13,6 +13,7 @@ export const Navbar = () => {
 	const navigate = useNavigate();
 
     const { store, dispatch } = useGlobalReducer();
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         if (localStorage.getItem('token') && !store.user) {
@@ -38,11 +39,21 @@ export const Navbar = () => {
 					</div>
 					<div className="nav-search">
 						<i className="fa-solid fa-magnifying-glass"></i>
-						<input type="text" placeholder="Buscar rastros, ferias, antigüedades..." />
+						<input 
+							type="text" 
+							placeholder="Buscar rastros, ferias, antigüedades..." 
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter') {
+									navigate(`/explorar?q=${encodeURIComponent(searchQuery.trim())}`);
+								}
+							}}
+						/>
 					</div>
 					<div className="nav-actions d-none d-md-flex">
 						<Link to={store.user ? "/perfil" : "/login"}>
-							<button className="btn-primary-custom">
+							<button className="btn-secondary-custom">
 								<img src={user_ico} alt="user" className="user_ico"/> Mi Perfil
 							</button>
 						</Link>
@@ -77,7 +88,7 @@ export const Navbar = () => {
 				<div className="offcanvas-body">
 					<div className="d-flex flex-column gap-3">
 						<button 
-							className="btn-primary-custom" 
+							className="btn-secondary-custom" 
 							data-bs-dismiss="offcanvas"
 							onClick={() => navigate(store.user ? "/perfil" : "/login")}
 						>

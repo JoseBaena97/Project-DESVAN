@@ -146,6 +146,31 @@ h6 {
     transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.btn-primary-custom:hover {
+  background-color: #631c11;
+  transform: translateY(-2px);
+}
+
+.btn-secondary-custom {
+  background-color: var(--bg-top);
+  color: var(--text-dark);
+  border: 1px solid #d4c5ab;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition:
+    background-color 0.3s,
+    transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-secondary-custom:hover {
+  background-color: #e0cca9;
+  transform: translateY(-2px);
+}
+
 .ico_create {
   height: 35px;
 }
@@ -755,7 +780,6 @@ h6 {
   color: var(--text-dark);
   margin: 0 0 0.1rem;
   padding-bottom: 0.35rem;
-  border-bottom: 2.5px solid var(--text-dark);
   display: inline-block;
 }
 
