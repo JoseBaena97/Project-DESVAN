@@ -66,6 +66,7 @@ class EventCategory(db.Model):
             "id": self.id,
             "event_title": self.event.title,
             "category": {
+                "id": self.category.id,
                 "name": self.category.name
             } if self.category else None
 
