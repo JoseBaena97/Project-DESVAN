@@ -368,7 +368,7 @@ export const Explore = () => {
                     <div className="explore-header">
                         <div className="explore-header-left">
                             <h1 className="explore-title">Rastros para ti</h1>
-                            <div class="create-event-title-line"></div>
+                            <div className="create-event-title-line"></div>
                             <p className="explore-subtitle">Descubre tesoros ocultos.</p>
                         </div>
                         <div className="sort-control">

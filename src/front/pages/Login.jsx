@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate,useLocation, Link } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import authService from "../services/auth.service";
 import "./Login.css";
@@ -7,7 +7,9 @@ import "./Login.css";
 
 export const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { store, dispatch, showErrorAlert } = useGlobalReducer();
+  const returnPath = location.state?.from || "/explorar";
 
   // State to toggle between login and registration panels
   const [isRegister, setIsRegister] = useState(false);
@@ -71,7 +73,7 @@ export const Login = () => {
           }
         });
 
-        navigate('/explorar');
+        navigate(returnPath, { replace: true });
       })
       .catch((err) => {
         console.log(err);
@@ -119,9 +121,9 @@ export const Login = () => {
 
   useEffect(() => {
     if (localStorage.getItem('token') && store.user) {
-      navigate('/explorar');
+      navigate(returnPath, { replace: true });
     }
-  }, [store.user, navigate]);
+  }, [store.user, navigate, returnPath]);
 
   // Toggle state between Login and Register
   const handleToggleMode = () => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import "./Details.css";
 import caja04 from "../assets/img/caja04.png";
 import eventService from "../services/event.service";
@@ -11,6 +11,7 @@ import { Map } from "../components/Map";
 
 export const Details = () => {
   const { eventId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
 
   const [isSaved, setIsSaved] = useState(false);
@@ -36,7 +37,10 @@ export const Details = () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      navigate("/login");
+      navigate("/login", {
+        replace: true,
+        state: { from: location.state?.from ||"/explorar" },
+      });
       return;
     }
 
@@ -221,7 +225,7 @@ export const Details = () => {
 
           {/* TITLE */}
           <h1 className="event-title">{event.title}</h1>
-          <div class="create-event-title-line"></div>
+          <div className="create-event-title-line"></div>
 
           {/* META */}
           <div className="event-meta-row">
