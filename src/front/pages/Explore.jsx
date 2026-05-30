@@ -7,13 +7,15 @@ import authService from "../services/auth.service";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { Map } from "../components/Map";
 
-const CATEGORIES = ["Todos los rastros", "Muebles", "Ropa", "Joyería", "Libros", "Decoración", "Vintage"];
-
 export const Explore = () => {
 
     const [events, setEvents] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [availableTags, setAvailableTags] = useState([]);
 
-    const [selectedCategory, setSelectedCategory] = useState("Todos los rastros");
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedTags, setSelectedTags] = useState([]);
+    const [selectedDate, setSelectedDate] = useState("cualquier");
 
     const [distance, setDistance] = useState("10km");
 
@@ -241,6 +243,15 @@ export const Explore = () => {
 
 
 
+    useEffect(() => {
+        eventService.getCategories().then(res => {
+            if (res?.data) setCategories(res.data);
+        });
+        eventService.getTags().then(res => {
+            if (Array.isArray(res)) setAvailableTags(res);
+        });
+    }, []);
+
     //Para que carguen los eventos
     useEffect(() => {
         const loader = localStorage.getItem("token") ? eventService.getEvents() : eventService.getEventsPublic();
@@ -322,24 +333,58 @@ export const Explore = () => {
                         <p className="filters-sub">Refina tu búsqueda</p>
                         <hr className="filters-hr" />
 
-                        {/* Categorías */}
+                        {/* Tipo de evento */}
                         <div className="filter-block">
                             <h4 className="filter-block-title">
-                                <span className="filter-icon"><i className="fa-solid fa-user-group"></i></span>
-                                Categorías
+                                <span className="filter-icon"><i className="fa-solid fa-store"></i></span>
+                                Tipo de evento
                             </h4>
                             <ul className="categories-list">
-                                {CATEGORIES.map(cat => (
+                                <li
+                                    className={`category-item${selectedCategory === "" ? " active" : ""}`}
+                                    onClick={() => setSelectedCategory("")}
+                                >
+                                    Todos
+                                    {selectedCategory === "" && <span className="cat-arrow">›</span>}
+                                </li>
+                                {categories.map(cat => (
                                     <li
-                                        key={cat}
-                                        className={`category-item${selectedCategory === cat ? " active" : ""}`}
-                                        onClick={() => setSelectedCategory(cat)}
+                                        key={cat.id}
+                                        className={`category-item${selectedCategory === cat.name ? " active" : ""}`}
+                                        onClick={() => setSelectedCategory(cat.name)}
                                     >
-                                        {cat}
-                                        {selectedCategory === cat && <span className="cat-arrow">›</span>}
+                                        {cat.name}
+                                        {selectedCategory === cat.name && <span className="cat-arrow">›</span>}
                                     </li>
                                 ))}
                             </ul>
+                        </div>
+
+                        {/* Qué hay */}
+                        <div className="filter-block">
+                            <h4 className="filter-block-title">
+                                <span className="filter-icon"><i className="fa-solid fa-tags"></i></span>
+                                Qué hay
+                            </h4>
+                            <div className="tags-chips-grid">
+                                {availableTags.map(tag => {
+                                    const active = selectedTags.includes(tag.name);
+                                    return (
+                                        <button
+                                            key={tag.id}
+                                            className={`tag-chip${active ? " tag-chip--selected" : ""}`}
+                                            onClick={() =>
+                                                setSelectedTags(prev =>
+                                                    active ? prev.filter(t => t !== tag.name) : [...prev, tag.name]
+                                                )
+                                            }
+                                        >
+                                            {active && <i className="fa-solid fa-check"></i>}
+                                            {tag.name}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
 
                         {/* Fecha */}
@@ -349,17 +394,33 @@ export const Explore = () => {
                                 Fecha
                             </h4>
                             <div className="select-wrapper">
-                                <select className="date-select">
-                                    <option>Este fin de semana</option>
-                                    <option>Esta semana</option>
-                                    <option>Este mes</option>
-                                    <option>Cualquier fecha</option>
+                                <select
+                                    className="date-select"
+                                    value={selectedDate}
+                                    onChange={e => setSelectedDate(e.target.value)}
+                                >
+                                    <option value="cualquier">Cualquier fecha</option>
+                                    <option value="hoy">Hoy</option>
+                                    <option value="finde">Este fin de semana</option>
+                                    <option value="semana">Esta semana</option>
+                                    <option value="mes">Este mes</option>
                                 </select>
                                 <i className="fa-solid fa-chevron-down select-arrow"></i>
                             </div>
                         </div>
 
-                        <button className="btn-apply-filters">Aplicar Filtros</button>
+                        {(selectedCategory || selectedTags.length > 0 || selectedDate !== "cualquier") && (
+                            <button
+                                className="btn-apply-filters"
+                                onClick={() => {
+                                    setSelectedCategory("");
+                                    setSelectedTags([]);
+                                    setSelectedDate("cualquier");
+                                }}
+                            >
+                                <i className="fa-solid fa-xmark"></i> Limpiar filtros
+                            </button>
+                        )}
                     </div>
                 </aside>
 
@@ -472,13 +533,54 @@ export const Explore = () => {
 
                     <div className="events-grid">
                         {events?.filter(event => {
-                            if (!textQuery) return true;
-                            const q = textQuery.toLowerCase();
-                            const inTitle = event.title?.toLowerCase().includes(q);
-                            const inDesc = event.description?.toLowerCase().includes(q);
-                            const inTags = event.tags?.toLowerCase().includes(q);
-                            const inAddress = event.exact_address?.toLowerCase().includes(q);
-                            return inTitle || inDesc || inTags || inAddress;
+                            // Texto del navbar
+                            if (textQuery) {
+                                const q = textQuery.toLowerCase();
+                                const inTitle = event.title?.toLowerCase().includes(q);
+                                const inDesc = event.description?.toLowerCase().includes(q);
+                                const inAddress = event.exact_address?.toLowerCase().includes(q);
+                                const inCat = event.event_categories?.some(ec => ec.category?.name?.toLowerCase().includes(q));
+                                const inEventTags = event.event_tags?.some(et => et.tag?.name?.toLowerCase().includes(q));
+                                if (!inTitle && !inDesc && !inAddress && !inCat && !inEventTags) return false;
+                            }
+
+                            // Filtro por tipo de evento (categoría)
+                            if (selectedCategory) {
+                                const hasCategory = event.event_categories?.some(
+                                    ec => ec.category?.name === selectedCategory
+                                );
+                                if (!hasCategory) return false;
+                            }
+
+                            // Filtro por tags (todos los seleccionados deben estar)
+                            if (selectedTags.length > 0) {
+                                const eventTagNames = event.event_tags?.map(et => et.tag?.name) || [];
+                                const hasAllTags = selectedTags.every(t => eventTagNames.includes(t));
+                                if (!hasAllTags) return false;
+                            }
+
+                            // Filtro por fecha
+                            if (selectedDate && selectedDate !== "cualquier") {
+                                const now = new Date();
+                                const start = new Date(event.start_date || event.start_time);
+                                if (isNaN(start)) return true;
+                                if (selectedDate === "hoy") {
+                                    if (start.toDateString() !== now.toDateString()) return false;
+                                } else if (selectedDate === "finde") {
+                                    const diff = (6 - now.getDay() + 7) % 7;
+                                    const sat = new Date(now); sat.setDate(now.getDate() + diff);
+                                    const sun = new Date(sat); sun.setDate(sat.getDate() + 1);
+                                    if (start.toDateString() !== sat.toDateString() && start.toDateString() !== sun.toDateString()) return false;
+                                } else if (selectedDate === "semana") {
+                                    const weekEnd = new Date(now);
+                                    weekEnd.setDate(now.getDate() + 7);
+                                    if (start < now || start > weekEnd) return false;
+                                } else if (selectedDate === "mes") {
+                                    if (start.getMonth() !== now.getMonth() || start.getFullYear() !== now.getFullYear()) return false;
+                                }
+                            }
+
+                            return true;
                         }).map(event => {
                             const badge = store.user ? getEventBadge(event) : null;
                             return (

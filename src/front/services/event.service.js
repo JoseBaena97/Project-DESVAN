@@ -156,6 +156,28 @@ const getNearbyEvents = async (latitude, longitude, distance = 10) => {
   }
 };
 
+const getCategories = async () => {
+  try {
+    const resp = await fetch(url + "api/category");
+    if (!resp.ok) throw new Error("Error getting categories");
+    const data = await resp.json();
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getTags = async () => {
+  try {
+    const resp = await fetch(url + "api/tag");
+    if (!resp.ok) throw new Error("Error getting tags");
+    const data = await resp.json();
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export default {
   createEvent,
   getEvents,
@@ -164,4 +186,6 @@ export default {
   updateEvent,
   deleteEvent,
   getNearbyEvents,
+  getCategories,
+  getTags,
 };

@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from api.routes import api
-from api.models import db, Event, EventType, EventStatus, User
+from api.models import db, Event, EventType, EventStatus, User, EventCategory, EventTag, Category, Tag
 from datetime import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -118,6 +118,19 @@ def create_event():
     )
 
     db.session.add(new_event)
+    db.session.flush()
+
+    category_id = body.get('category_id')
+    if category_id:
+        category = db.session.get(Category, int(category_id))
+        if category:
+            db.session.add(EventCategory(event_id=new_event.id, category_id=category.id))
+
+    for tag_id in body.get('tag_ids', []):
+        tag = db.session.get(Tag, int(tag_id))
+        if tag:
+            db.session.add(EventTag(event_id=new_event.id, tag_id=tag.id))
+
     db.session.commit()
     return jsonify({"success": True, "data": new_event.id}), 201
 
@@ -193,6 +206,23 @@ def update_event(event_id):
             event.latitude = body['latitude']
         if 'longitude' in body:
             event.longitude = body['longitude']
+
+        if 'category_id' in body:
+            for ec in list(event.event_categories):
+                db.session.delete(ec)
+            category_id = body['category_id']
+            if category_id:
+                category = db.session.get(Category, int(category_id))
+                if category:
+                    db.session.add(EventCategory(event_id=event.id, category_id=category.id))
+
+        if 'tag_ids' in body:
+            for et in list(event.event_tags):
+                db.session.delete(et)
+            for tag_id in body['tag_ids']:
+                tag = db.session.get(Tag, int(tag_id))
+                if tag:
+                    db.session.add(EventTag(event_id=event.id, tag_id=tag.id))
 
         db.session.commit()
         return jsonify({"success": True, "data": "All Ok"}), 200
