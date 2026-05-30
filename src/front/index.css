@@ -1821,6 +1821,45 @@ h6 {
   transform: translateY(-1px);
 }
 
+/* ── Tag chips (create event) ── */
+.tags-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1.5px solid #d4a37a;
+  background: #fff8f2;
+  color: #7b3f1a;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.tag-chip:hover {
+  background: #fde9d4;
+  border-color: #b5612a;
+}
+
+.tag-chip--selected {
+  background: #7b3112;
+  border-color: #7b3112;
+  color: #fff;
+}
+
+.tag-chip--selected:hover {
+  background: #631c11;
+  border-color: #631c11;
+}
+
 /* ── Unverified modal (create event) ── */
 .unverified-modal-backdrop {
   position: fixed;

@@ -7,14 +7,6 @@ import authService from "../services/auth.service";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
 
-const CATEGORIES = [
-    { value: "", label: "Selecciona una categoría" },
-    { value: "rastro", label: "Rastro" },
-    { value: "feria", label: "Feria" },
-    { value: "mercado", label: "Mercado" },
-    { value: "vintage", label: "Vintage" },
-    { value: "antiguedades", label: "Antigüedades" },
-];
 
 const EVENT_TYPES = [
     { value: "", label: "Selecciona un tipo" },
@@ -50,6 +42,9 @@ export const CreateEvent = () => {
     const [isEdit, setIsEdit] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [isVerified, setIsVerified] = useState(null);
+    const [categories, setCategories] = useState([]);
+    const [availableTags, setAvailableTags] = useState([]);
+    const [selectedTagIds, setSelectedTagIds] = useState([]);
     const location = useLocation();
     const addressInputRef = useRef(null);
     const autocompleteRef = useRef(null);
@@ -61,6 +56,15 @@ export const CreateEvent = () => {
             setIsVerified(store.user?.is_verified ?? false);
         }
     }, [store.user]);
+
+    useEffect(() => {
+        eventService.getCategories().then(res => {
+            if (res?.data) setCategories(res.data);
+        });
+        eventService.getTags().then(res => {
+            if (Array.isArray(res)) setAvailableTags(res);
+        });
+    }, []);
 
     useEffect(() => {
         const setupAutocomplete = () => {
@@ -123,7 +127,12 @@ export const CreateEvent = () => {
                         formattedData.end_date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
                         formattedData.end_time = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
                     }
+                    formattedData.category_id = evt.event_categories?.[0]?.category?.id ?? "";
                     setEventData((prev) => ({ ...prev, ...formattedData }));
+
+                    if (evt.event_tags?.length > 0) {
+                        setSelectedTagIds(evt.event_tags.map(et => et.tag?.id).filter(Boolean));
+                    }
                     if (evt.image_url?.cover) {
                         setMainImage(evt.image_url.cover);
                     }
@@ -181,7 +190,7 @@ export const CreateEvent = () => {
         if (!eventData.end_date) missingFields.push("Fecha de fin");
         if (!eventData.start_time) missingFields.push("Hora de inicio");
         if (!eventData.end_time) missingFields.push("Hora de fin");
-        if (!eventData.category) missingFields.push("Categoría principal");
+        if (!eventData.category_id) missingFields.push("Categoría principal");
 
         if (missingFields.length > 0) {
             const msg = missingFields.length === 1
@@ -206,6 +215,8 @@ export const CreateEvent = () => {
                 start_time: startDateTime.toISOString(),
                 end_time: endDateTime.toISOString(),
                 exact_address: addressToUse,
+                category_id: eventData.category_id ? Number(eventData.category_id) : null,
+                tag_ids: selectedTagIds,
             };
 
             if (payload.max_capacity) {
@@ -507,40 +518,53 @@ export const CreateEvent = () => {
                                 Categoría y etiquetas
                             </h3>
 
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>
-                                        Categoría principal{" "}
-                                        <span className="required">*</span>
-                                    </label>
-                                    <div className="select-wrap">
-                                        <select
-                                            name="category"
-                                            value={eventData.category}
-                                            onChange={handleChange}
-                                        >
-                                            {CATEGORIES.map((c) => (
-                                                <option key={c.value} value={c.value}>
-                                                    {c.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <i className="fa-solid fa-chevron-down select-chevron"></i>
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <label>Etiquetas</label>
-                                    <input
-                                        type="text"
-                                        name="tags"
-                                        placeholder="Añade etiquetas (máx. 5)"
-                                        value={eventData.tags}
+                            <div className="form-group">
+                                <label>
+                                    Tipo de evento{" "}
+                                    <span className="required">*</span>
+                                </label>
+                                <div className="select-wrap">
+                                    <select
+                                        name="category_id"
+                                        value={eventData.category_id || ""}
                                         onChange={handleChange}
-                                    />
-                                    <span className="input-hint">
-                                        Ej: antigüedades, coleccionismo, vintage, muebles, libros...
-                                    </span>
+                                    >
+                                        <option value="">Selecciona un tipo</option>
+                                        {categories.map((c) => (
+                                            <option key={c.id} value={c.id}>
+                                                {c.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <i className="fa-solid fa-chevron-down select-chevron"></i>
                                 </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Qué se puede encontrar</label>
+                                <div className="tags-chips-grid">
+                                    {availableTags.map((tag) => {
+                                        const selected = selectedTagIds.includes(tag.id);
+                                        return (
+                                            <button
+                                                key={tag.id}
+                                                type="button"
+                                                className={`tag-chip${selected ? " tag-chip--selected" : ""}`}
+                                                onClick={() =>
+                                                    setSelectedTagIds(prev =>
+                                                        selected
+                                                            ? prev.filter(id => id !== tag.id)
+                                                            : [...prev, tag.id]
+                                                    )
+                                                }
+                                            >
+                                                {selected && <i className="fa-solid fa-check"></i>}
+                                                {tag.name}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <span className="input-hint">Selecciona todo lo que aplique</span>
                             </div>
                         </div>
                     </div>
