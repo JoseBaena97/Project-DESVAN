@@ -427,10 +427,7 @@ export const Details = () => {
 
             </div>
 
-            <div className="sidebar-interested-footer">
-              <i className="fa-solid fa-users"></i>
-              <span>{(event.interested || 0) + (isReserved ? 1 : 0)} personas interesadas</span>
-            </div>
+            
 
           </div>
 

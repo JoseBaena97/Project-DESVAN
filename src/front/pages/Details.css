@@ -918,6 +918,7 @@
   justify-content: center;
   z-index: 1100;
   padding: 1.5rem;
+  min-height: 100vh;
   animation: galleryBackdropIn 0.2s ease;
 }
 
@@ -929,7 +930,8 @@
 .gallery-modal-panel {
   width: 100%;
   max-width: 1000px;
-  max-height: 88vh;
+  max-height: calc(100vh - 3rem);
+  margin: auto;
   background: #ffffff;
   border-radius: 24px;
   display: flex;
@@ -1201,13 +1203,14 @@
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .gallery-modal-backdrop {
-    padding: 0;
-    align-items: flex-end;
+    padding: 1rem;
+    align-items: center;
   }
 
   .gallery-modal-panel {
-    max-height: 92vh;
-    border-radius: 20px 20px 0 0;
+    max-height: calc(100vh - 2rem);
+    border-radius: 20px;
+    margin: auto;
   }
 
   .gallery-modal-grid {
@@ -1232,4 +1235,16 @@
 
 .remaining-seats {
   margin: 6px 0 10px;
+}
+
+.btn-evaluate--disabled {
+  background-color: #c4b5af;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: not-allowed;
+  width: 100%;
 }
