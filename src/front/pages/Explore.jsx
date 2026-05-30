@@ -529,7 +529,7 @@ export const Explore = () => {
                         })}
 
                         {/* Discover more card */}
-                        <div className="event-card discover-card">
+                        <div key="discover-card" className="event-card discover-card">
                             <div className="discover-inner">
                                 <img src={caja05} alt="mascota" className="discover-mascot" />
                                 <h3 className="discover-title">Descubre más</h3>

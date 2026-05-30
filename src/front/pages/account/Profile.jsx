@@ -371,7 +371,7 @@ export const Profile = () => {
 			</div>
 
 			<aside className="profile-banner">
-				<i class="fa-solid fa-address-card fa-2x"></i>
+				<i className="fa-solid fa-address-card fa-2x"></i>
 
 				<div className="profile-banner-text">
 					<h3>Este es tu registro en el Desván</h3>

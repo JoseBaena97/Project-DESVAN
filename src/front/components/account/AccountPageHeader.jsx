@@ -18,7 +18,7 @@ export const AccountPageHeader = ({ title, titleAccent, subtitle }) => {
 	return (
 		<header className="account-page-header">
 			{renderTitle()}
-			<div class="create-event-title-line"></div>
+			<div className="create-event-title-line"></div>
 			{subtitle && <p className="account-page-subtitle">{subtitle}</p>}
 		</header>
 	);
