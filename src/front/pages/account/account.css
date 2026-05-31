@@ -2036,7 +2036,7 @@
   }
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: 1199.98px) {
   .account-layout {
     padding-top: 2rem;
     padding-bottom: 2rem;
@@ -2069,13 +2069,40 @@
   }
 
   .reservation-card {
-    grid-template-columns: 1fr;
+    grid-template-columns: 160px 1fr;
+    grid-template-rows: 1fr auto;
+    min-height: 0;
+  }
+
+  .reservation-card-image {
+    grid-row: 1 / 3;
   }
 
   .reservation-card-image img,
   .reservation-card-image .account-img-placeholder {
-    min-height: 160px;
-    max-height: 180px;
+    min-height: 100%;
+    max-height: none;
+    height: 100%;
+  }
+
+  .reservation-card-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .reservation-qr {
+    flex-shrink: 0;
+  }
+
+  .reservation-btn-primary,
+  .reservation-btn-secondary {
+    width: auto;
+    flex: 1;
+    min-width: 110px;
   }
 }
 
@@ -2102,6 +2129,59 @@
 
   .events-table {
     min-width: 640px;
+  }
+
+  .reviews-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .review-card-footer {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 576px) {
+  .reservation-card {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .reservation-card-image {
+    grid-row: auto;
+  }
+
+  .reservation-card-image img,
+  .reservation-card-image .account-img-placeholder {
+    min-height: 160px;
+    max-height: 180px;
+    height: 180px;
+  }
+
+  .reservation-card-body {
+    padding: 0.9rem 1rem;
+  }
+
+  .reservation-card-title {
+    font-size: 1rem;
+  }
+
+  .reservation-card-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .reservation-btn-primary,
+  .reservation-btn-secondary {
+    width: auto;
+    flex: 1;
+    min-width: 130px;
+  }
+
+  .reservation-card-desc span {
+    white-space: normal;
   }
 }
 
@@ -2231,7 +2311,7 @@
   }
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: 1199.98px) {
   .account-layout {
     padding-top: 2rem;
     padding-bottom: 2rem;
@@ -2264,13 +2344,40 @@
   }
 
   .reservation-card {
-    grid-template-columns: 1fr;
+    grid-template-columns: 160px 1fr;
+    grid-template-rows: 1fr auto;
+    min-height: 0;
+  }
+
+  .reservation-card-image {
+    grid-row: 1 / 3;
   }
 
   .reservation-card-image img,
   .reservation-card-image .account-img-placeholder {
-    min-height: 160px;
-    max-height: 180px;
+    min-height: 100%;
+    max-height: none;
+    height: 100%;
+  }
+
+  .reservation-card-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .reservation-qr {
+    flex-shrink: 0;
+  }
+
+  .reservation-btn-primary,
+  .reservation-btn-secondary {
+    width: auto;
+    flex: 1;
+    min-width: 110px;
   }
 }
 
@@ -2297,6 +2404,14 @@
 
   .events-table {
     min-width: 640px;
+  }
+
+  .reviews-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .review-card-footer {
+    flex-wrap: wrap;
   }
 }
 

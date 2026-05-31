@@ -17,10 +17,10 @@ export const AccountLayout = () => {
 				<Navbar />
 				<div className="container account-layout">
 					<div className="row g-4 align-items-start">
-						<div className="col-12 col-lg-auto">
+						<div className="col-12 col-xl-auto">
 							<AccountSidebar />
 						</div>
-						<div className="col-12 col-lg">
+						<div className="col-12 col-xl">
 							<PageTransition>
 								<main className="account-main">
 									<Outlet />

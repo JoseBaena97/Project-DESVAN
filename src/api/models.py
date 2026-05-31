@@ -177,10 +177,10 @@ class Event (db.Model):  # ESTA TABLA DEBE IR ARRIBA?
 
     def public_serialize(self):
         return {
-
+            "id": self.id,
             "title": self.title,
             "description": self.description,
-            "image_url": self.image_url
+            "image_url": self.image_url,
         }
 
     def serialize(self):
