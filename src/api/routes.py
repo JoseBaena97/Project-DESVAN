@@ -24,6 +24,7 @@ from api.custom_routes.upload import *
 from api.custom_routes.event import *
 from api.custom_routes.auth import *
 from api.custom_routes.test import *
+from api.custom_routes.notification import *
 
 
 @api.route('/hello', methods=['POST', 'GET'])

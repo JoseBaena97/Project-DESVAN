@@ -6,6 +6,7 @@ export const initialStore=()=>{
     error: null,
     loading: false,
     userLoading: localStorage.getItem('token') ? true : false,
+    notifications: [],
   }
 }
 
@@ -23,11 +24,36 @@ export default function storeReducer(store, action = {}) {
     case 'logout':
       return{
         ...store,
-        auth:false, 
+        auth:false,
         user:null,
         name:null,
         token:null,
-        userLoading: false
+        userLoading: false,
+        notifications: [],
+      }
+
+    case 'setNotifications':
+      return{
+        ...store,
+        notifications: action.payload
+      }
+
+    case 'markAllRead':
+      return{
+        ...store,
+        notifications: store.notifications.map(n => ({ ...n, is_read: true }))
+      }
+
+    case 'deleteNotification':
+      return{
+        ...store,
+        notifications: store.notifications.filter(n => n.id !== action.payload)
+      }
+
+    case 'clearNotifications':
+      return{
+        ...store,
+        notifications: []
       }
     
     case 'setError':

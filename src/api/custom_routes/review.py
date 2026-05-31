@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from api.routes import api
-from api.models import db, Review, User, Event
+from api.models import db, Review, User, Event, Notification, NotificationType
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
@@ -81,8 +81,17 @@ def create_review():
         reviewed_id=body['reviewed_id'],
         event_id=body['event_id']
     )
-
     db.session.add(new_review)
+
+    reviewer = db.session.get(User, body['reviewer_id'])
+    reviewer_name = reviewer.username if reviewer else "Alguien"
+    db.session.add(Notification(
+        user_id=body['reviewed_id'],
+        type=NotificationType.review_received,
+        message=f"{reviewer_name} te ha dejado una reseña de {body['rating']} estrellas.",
+        related_event_id=body['event_id']
+    ))
+
     db.session.commit()
     return jsonify({"success": True, "data": "All Ok"}), 201
 
