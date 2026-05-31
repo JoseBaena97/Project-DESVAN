@@ -811,6 +811,73 @@ h6 {
   margin-left: 2px;
 }
 
+.sort-dropdown {
+  position: relative;
+  display: inline-flex;
+}
+
+.sort-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-red);
+  cursor: pointer;
+}
+
+.sort-dropdown-chevron {
+  font-size: 0.62rem;
+  transition: transform 0.2s;
+}
+
+.sort-dropdown-chevron.open {
+  transform: rotate(180deg);
+}
+
+.sort-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(61, 39, 29, 0.13);
+  border: 1px solid #e8ddd4;
+  padding: 0.3rem;
+  min-width: 168px;
+  z-index: 200;
+}
+
+.sort-dropdown-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.83rem;
+  color: #5a4235;
+  padding: 0.5rem 0.8rem;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sort-dropdown-option:hover {
+  background: #fdf5ee;
+  color: var(--text-dark);
+}
+
+.sort-dropdown-option.active {
+  color: var(--text-red);
+  font-weight: 700;
+  background: #fef0e8;
+}
+
 /* ── Nearby Events Section ── */
 .nearby-events-section {
   background: #faf7f4;
