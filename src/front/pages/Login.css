@@ -44,8 +44,8 @@
   width: 38vw;
   z-index: 10;
   background-color: var(--auth-bg-sidebar);
-  background-image: url('../assets/img/fondo_login.jpg');
-  background-size: contain;
+  background-image: url('../assets/img/Fondo_Login_1.png');
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   display: flex;
