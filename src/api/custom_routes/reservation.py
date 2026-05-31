@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from api.routes import api
-from api.models import db, Reservation, User, Event, ReservationStatus
+from api.models import db, Reservation, User, Event, ReservationStatus, Notification, NotificationType
 
 @api.route("/reservation", methods=["GET"])
 def get_reservations():
@@ -93,8 +93,16 @@ def create_reservation():
         status=ReservationStatus.confirmed
     )
     db.session.add(new_reservation)
+
+    db.session.add(Notification(
+        user_id=event.seller_id,
+        type=NotificationType.reservation_created,
+        message=f"{user.username} ha reservado una plaza en tu evento '{event.title}'.",
+        related_event_id=event.id
+    ))
+
     db.session.commit()
-    
+
     return jsonify({"message": "Reservation created successfully", "reservation": new_reservation.serialize()}), 201
 
 @api.route("/reservation/<int:reservation_id>", methods=["PUT"])

@@ -26,6 +26,13 @@ class ReservationStatus(enum.Enum):
     attended = "attended"
 
 
+class NotificationType(enum.Enum):
+    reservation_created = "reservation_created"
+    review_received = "review_received"
+    event_cancelled = "event_cancelled"
+    event_upcoming = "event_upcoming"
+
+
 class Category (db.Model):
     __tablename__ = "categories"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -350,6 +357,9 @@ class User(db.Model):
     # Relación
     favorites: Mapped[List["Favorite"]] = relationship(
         back_populates="user", cascade="all, delete-orphan")
+    # 1-M
+    notifications: Mapped[List["Notification"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan")
 
     def serialize(self):
         return {
@@ -451,4 +461,28 @@ class EventTag(db.Model):
                 "id": self.event_id,
                 "title": self.event.title
             }
+        }
+
+
+class Notification(db.Model):
+    __tablename__ = "notifications"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    type: Mapped[NotificationType] = mapped_column(Enum(NotificationType), nullable=False)
+    message: Mapped[str] = mapped_column(String(500), nullable=False)
+    is_read: Mapped[bool] = mapped_column(Boolean, default=False)
+    related_event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc))
+
+    user: Mapped["User"] = relationship(back_populates="notifications")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "type": self.type.value,
+            "message": self.message,
+            "is_read": self.is_read,
+            "related_event_id": self.related_event_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
         }

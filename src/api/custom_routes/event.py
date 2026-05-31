@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from api.routes import api
-from api.models import db, Event, EventType, EventStatus, User, EventCategory, EventTag, Category, Tag
+from api.models import db, Event, EventType, EventStatus, User, EventCategory, EventTag, Category, Tag, Reservation, ReservationStatus, Notification, NotificationType
 from datetime import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -164,7 +164,17 @@ def update_event(event_id):
             event.image_url = body['image_url']
         if 'status' in body:
             try:
-                event.status = EventStatus(body['status'])
+                new_status = EventStatus(body['status'])
+                if new_status == EventStatus.cancelled and event.status != EventStatus.cancelled:
+                    for res in event.reservations:
+                        if res.status == ReservationStatus.confirmed:
+                            db.session.add(Notification(
+                                user_id=res.user_id,
+                                type=NotificationType.event_cancelled,
+                                message=f"El evento '{event.title}' al que tenías una reserva ha sido cancelado.",
+                                related_event_id=event.id
+                            ))
+                event.status = new_status
             except Exception:
                 pass
         if 'event_type' in body:

@@ -6,6 +6,7 @@ import user_ico from "../assets/img/profile_ico+.png";
 import authService from "../services/auth.service";
 import { useEffect, useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
+import { NotificationBell } from "./NotificationBell";
 
 
 export const Navbar = () => {
@@ -38,6 +39,7 @@ export const Navbar = () => {
 						/>
 					</div>
 					<div className="nav-actions d-none d-md-flex">
+						<NotificationBell />
 						<Link to={store.user ? "/perfil" : "/login"}>
 							<button className="btn-secondary-custom">
 								<img src={user_ico} alt="user" className="user_ico"/> Mi Perfil
@@ -73,15 +75,18 @@ export const Navbar = () => {
 				</div>
 				<div className="offcanvas-body">
 					<div className="d-flex flex-column gap-3">
-						<button 
-							className="btn-secondary-custom" 
+						<div className="offcanvas-notification-wrap">
+							<NotificationBell />
+						</div>
+						<button
+							className="btn-secondary-custom"
 							data-bs-dismiss="offcanvas"
 							onClick={() => navigate(store.user ? "/perfil" : "/login")}
 						>
 							<img src={user_ico} alt="user" className="user_ico"/> Mi Perfil
 						</button>
-						<button 
-							className="btn-primary-custom" 
+						<button
+							className="btn-primary-custom"
 							data-bs-dismiss="offcanvas"
 							onClick={() => navigate(store.user ? "/crear-evento" : "/login")}
 						>
