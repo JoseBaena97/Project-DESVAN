@@ -48,6 +48,9 @@ export const CreateEvent = () => {
     const location = useLocation();
     const addressInputRef = useRef(null);
     const autocompleteRef = useRef(null);
+    const pad = (n) => String(n).padStart(2, '0');
+    const _today = new Date();
+    const todayString = `${_today.getFullYear()}-${pad(_today.getMonth() + 1)}-${pad(_today.getDate())}`;
 
     
 
@@ -105,7 +108,7 @@ export const CreateEvent = () => {
         document.head.appendChild(script);
 
         return () => { autocompleteRef.current = null; };
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []); 
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -341,7 +344,7 @@ export const CreateEvent = () => {
                         <div className="form-section">
                             <h3 className="section-title">
                                 <span className="section-icon">
-                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <i className="fa-solid fa-pen-to-square"></i>
                                 </span>
                                 Información básica
                             </h3>
@@ -469,6 +472,7 @@ export const CreateEvent = () => {
                                     <input
                                         type="date"
                                         name="start_date"
+                                        min={todayString}
                                         value={eventData.start_date}
                                         onChange={handleChange}
                                     />
@@ -480,6 +484,7 @@ export const CreateEvent = () => {
                                     <input
                                         type="date"
                                         name="end_date"
+                                        min={eventData.start_date || todayString}
                                         value={eventData.end_date}
                                         onChange={handleChange}
                                     />
@@ -646,7 +651,7 @@ export const CreateEvent = () => {
                                 </li>
                                 <li>
                                     <span className="tip-icon">
-                                        <i class="fa-solid fa-comment-dots"></i>
+                                        <i className="fa-solid fa-comment-dots"></i>
                                     </span>
                                     <div>
                                         <strong>Añade una buena descripción</strong>
@@ -658,7 +663,7 @@ export const CreateEvent = () => {
                                 </li>
                                 <li>
                                     <span className="tip-icon">
-                                        <i class="fa-solid fa-clipboard-check"></i>
+                                        <i className="fa-solid fa-clipboard-check"></i>
                                     </span>
                                     <div>
                                         <strong>Revisa los detalles</strong>
@@ -670,7 +675,7 @@ export const CreateEvent = () => {
                                 </li>
                                 <li>
                                     <span className="tip-icon">
-                                        <i class="fa-solid fa-bullhorn"></i>
+                                        <i className="fa-solid fa-bullhorn"></i>
                                     </span>
                                     <div>
                                         <strong>¡Promociónalo!</strong>
