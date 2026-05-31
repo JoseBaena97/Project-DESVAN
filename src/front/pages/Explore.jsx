@@ -143,7 +143,7 @@ export const Explore = () => {
             const distanceKm = parseInt(distance) || 10;
             const res = await eventService.getNearbyEvents(lat, lon, distanceKm);
             if (res?.data) {
-                setNearbyEvents(res.data);
+                setNearbyEvents(res.data.filter(item => item.event?.status !== 'cancelled'));
             }
         } catch (err) {
             console.log("Error fetching nearby events:", err);
@@ -341,6 +341,8 @@ export const Explore = () => {
     ];
 
     const filteredEvents = (events || []).filter(event => {
+        if (event.status === 'cancelled') return false;
+        if (getEventBadge(event)?.type === 'finalizado') return false;
         if (textQuery) {
             const q = textQuery.toLowerCase();
             const inTitle    = event.title?.toLowerCase().includes(q);

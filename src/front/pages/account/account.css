@@ -1649,6 +1649,14 @@
   flex-shrink: 0;
 }
 
+.events-table-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+.events-table-title-link:hover strong {
+  text-decoration: underline;
+}
+
 .events-table-thumb.account-img-placeholder {
   width: 48px;
   height: 48px;

@@ -19,11 +19,14 @@ const isEventEnded = (reservation) => {
 	return new Date(endAt) < new Date();
 };
 
+const isEventCancelled = (reservation) => reservation.event?.status === "cancelled";
+
 const matchesTab = (reservation, tab) => {
 	const { status } = reservation;
-	if (tab === "Próximas") return status === "confirmed" && !isEventEnded(reservation);
-	if (tab === "Completadas") return status === "attended" || (status === "confirmed" && isEventEnded(reservation));
-	if (tab === "Canceladas") return status === "cancelled";
+	const eventCancelled = isEventCancelled(reservation);
+	if (tab === "Próximas") return status === "confirmed" && !isEventEnded(reservation) && !eventCancelled;
+	if (tab === "Completadas") return status === "attended" || (status === "confirmed" && isEventEnded(reservation) && !eventCancelled);
+	if (tab === "Canceladas") return status === "cancelled" || (status === "confirmed" && eventCancelled);
 	return false;
 };
 
@@ -74,8 +77,8 @@ export const Reservations = () => {
 
 	const reservationsToShow = reservations.filter((r) => matchesTab(r, activeTab));
 
-	const activeCount = reservations.filter((r) => r.status === "confirmed" && !isEventEnded(r)).length;
-	const completedCount = reservations.filter((r) => r.status === "attended" || (r.status === "confirmed" && isEventEnded(r))).length;
+	const activeCount = reservations.filter((r) => r.status === "confirmed" && !isEventEnded(r) && !isEventCancelled(r)).length;
+	const completedCount = reservations.filter((r) => r.status === "attended" || (r.status === "confirmed" && isEventEnded(r) && !isEventCancelled(r))).length;
 
 	const summary = [
 		{ label: "Reservas activas", value: `${activeCount}` },
@@ -117,9 +120,12 @@ export const Reservations = () => {
 							</div>
 						) : (
 							reservationsToShow.map((reservation) => {
-								const statusInfo = STATUS_LABELS[reservation.status] || { label: reservation.status, cls: "vintage" };
+								const eventCancelled = isEventCancelled(reservation);
+								const statusInfo = eventCancelled
+									? { label: "Evento cancelado", cls: "cancelada" }
+									: STATUS_LABELS[reservation.status] || { label: reservation.status, cls: "vintage" };
 								const coverImage = reservation.event?.image_url?.cover;
-								const isActive = reservation.status === "confirmed" && !isEventEnded(reservation);
+								const isActive = reservation.status === "confirmed" && !isEventEnded(reservation) && !eventCancelled;
 
 								return (
 									<article key={reservation.id} className="reservation-card">
@@ -170,13 +176,15 @@ export const Reservations = () => {
 													aria-hidden="true"
 												/>
 											</div>
-											<button
-												type="button"
-												className="reservation-btn-primary"
-												onClick={() => reservation.event?.id && navigate(`/detalles/${reservation.event.id}`)}
-											>
-												Ver detalles
-											</button>
+											{!eventCancelled && (
+												<button
+													type="button"
+													className="reservation-btn-primary"
+													onClick={() => reservation.event?.id && navigate(`/detalles/${reservation.event.id}`)}
+												>
+													Ver detalles
+												</button>
+											)}
 											{isActive && (
 												<button
 													type="button"

@@ -168,6 +168,7 @@ def update_event(event_id):
                 if new_status == EventStatus.cancelled and event.status != EventStatus.cancelled:
                     for res in event.reservations:
                         if res.status == ReservationStatus.confirmed:
+                            res.status = ReservationStatus.cancelled
                             db.session.add(Notification(
                                 user_id=res.user_id,
                                 type=NotificationType.event_cancelled,
