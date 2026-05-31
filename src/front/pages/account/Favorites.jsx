@@ -5,6 +5,7 @@ import favoriteService from "../../services/favorite.service";
 import authService from "../../services/auth.service";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import mascotafav from "../../assets/img/caja03.png";
+import logoBw from "../../assets/img/logo_bw.png";
 
 
 export const Favorites = () => {
@@ -46,11 +47,7 @@ export const Favorites = () => {
 					favorites.map((item) => (
 						<article key={item.id} className="favorite-card">
 							<div className="favorite-card-image">
-								{item.event?.image_url?.cover ? (
-									<img src={item.event.image_url.cover} alt={item.event?.title} />
-								) : (
-									<div className="account-img-placeholder" aria-hidden="true" />
-								)}
+								<img src={item.event?.image_url?.cover || logoBw} alt={item.event?.title} className={!item.event?.image_url?.cover ? "img-fallback" : undefined} />
 
 								<button
 									type="button"

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import "./Details.css";
 import caja04 from "../assets/img/caja04.png";
+import logoBw from "../assets/img/logo_bw.png";
 import eventService from "../services/event.service";
 import favoriteService from "../services/favorite.service";
 import reservationService from "../services/reservation.service";
@@ -208,6 +209,10 @@ export const Details = () => {
   // calcular plazas disponibles para eventos privados
   const confirmedCount = (event.reservations || []).filter(r => r.status === "confirmed").length;
   const remainingSeats = event.max_capacity != null ? Math.max(event.max_capacity - confirmedCount, 0) : null;
+
+  const galleryImgs = (event.image_url?.gallery || []).slice(0, 4);
+  const thumbCount = galleryImgs.length;
+
   return (
     <div className="event-detail-page page-transition">
       <div className="event-detail-container">
@@ -243,25 +248,23 @@ export const Details = () => {
           </div>
 
           {/* GALLERY */}
-          <div className="event-gallery-grid">
+          <div className={`event-gallery-grid${thumbCount === 0 ? " event-gallery-grid--solo" : ""}`}>
 
             <div className="gallery-main-wrapper">
               <img
-                src={event.image_url?.cover}
+                src={event.image_url?.cover || logoBw}
                 alt={event.title}
-                className="gallery-main-img"
+                className={`gallery-main-img${!event.image_url?.cover ? " img-fallback" : ""}`}
               />
             </div>
 
-            <div className="gallery-thumbs-wrapper">
-              {(event.image_url?.gallery || []).slice(0, 4).map((src, idx) => (
-                <img key={idx} src={src} alt={`${event.title} foto ${idx + 2}`} className="gallery-thumb-img" />
-              ))}
-              {/* Rellena con la portada si hay menos de 4 imágenes en la galería */}
-              {Array.from({ length: Math.max(0, 4 - (event.image_url?.gallery?.length || 0)) }).map((_, idx) => (
-                <img key={`fallback-${idx}`} src={event.image_url?.cover} alt={event.title} className="gallery-thumb-img" />
-              ))}
-            </div>
+            {thumbCount > 0 && (
+              <div className={`gallery-thumbs-wrapper gallery-thumbs-wrapper--${thumbCount}`}>
+                {galleryImgs.map((src, idx) => (
+                  <img key={idx} src={src} alt={`${event.title} foto ${idx + 2}`} className="gallery-thumb-img" />
+                ))}
+              </div>
+            )}
 
             <div className="gallery-actions-overlay">
 

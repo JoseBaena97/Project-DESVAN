@@ -44,29 +44,35 @@
   width: 38vw;
   z-index: 10;
   background-color: var(--auth-bg-sidebar);
+  background-image: url('../assets/img/fondo_login.jpg');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 4rem 3rem;
   box-sizing: border-box;
   overflow: hidden;
-  
-  /* 
-    VINTAGE SIDEBAR BACKGROUND:
-    Below is a highly sophisticated CSS fallback that creates a beautiful vintage paper texture.
-    To use your own background image, uncomment the line below:
-    background-image: url('../assets/img/vintage_paper_texture.jpg');
-    background-size: cover;
-    background-position: center;
-  */
-  background-image: 
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.05) 100%),
-    repeating-linear-gradient(45deg, rgba(61, 39, 29, 0.01) 0px, rgba(61, 39, 29, 0.01) 1px, transparent 1px, transparent 4px),
-    linear-gradient(to bottom, #eedfc5, #e6d3b4);
-  box-shadow: inset -5px 0 15px rgba(0, 0, 0, 0.05);
-  
+  box-shadow: inset -5px 0 15px rgba(0, 0, 0, 0.15);
+
   /* Premium sliding transition */
   transition: transform 0.85s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* Overlay semi-transparente para mejorar legibilidad del texto sobre la foto */
+.auth-sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(238, 223, 197, 0.45);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-sidebar > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Sidebar Slide Content Wrapper */
@@ -123,28 +129,7 @@
 
 /* Torn paper edge effect */
 .torn-paper-edge {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: -8px;
-  width: 16px;
-  z-index: 12;
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--auth-bg-sidebar) 0px,
-    var(--auth-bg-sidebar) 8px,
-    transparent 8px,
-    transparent 16px
-  ), repeating-linear-gradient(
-    -45deg,
-    var(--auth-bg-sidebar) 0px,
-    var(--auth-bg-sidebar) 8px,
-    transparent 8px,
-    transparent 16px
-  );
-  filter: drop-shadow(4px 0 3px rgba(0, 0, 0, 0.06));
-  opacity: 0.95;
-  pointer-events: none;
+  display: none;
 }
 
 /* ── 2. VINTAGE POSTMARK STAMP ── */
@@ -229,7 +214,7 @@
     To set your own waving mascot image, put it in:
     src/front/assets/img/caja06.png
   */
-  background-image: url('../assets/img/caja06.png');
+  background-image: url('../assets/img/mascota.png');
 }
 
 /* Reading Mascot Style & Fallback */

@@ -145,20 +145,6 @@ export const Login = () => {
       <div className="auth-sidebar">
         {/* Background Paper Texture Overlay is handled in CSS */}
 
-        {/* Vintage Postmark Stamp */}
-        <div className="vintage-postmark">
-          <div className="stamp-circle">
-            <span className="stamp-text stamp-text-top">RECUERDOS</span>
-            <i className="fa-solid fa-box-open stamp-icon"></i>
-            <span className="stamp-text stamp-text-bottom">QUE IMPORTAN</span>
-          </div>
-          <div className="stamp-lines">
-            <span className="wave-line"></span>
-            <span className="wave-line"></span>
-            <span className="wave-line"></span>
-          </div>
-        </div>
-
         {/* Dynamic Sidebar Content Container */}
         <div className="sidebar-content-wrapper">
           <div className={`sidebar-slide-content ${isRegister ? "slide-out" : "slide-in"}`}>

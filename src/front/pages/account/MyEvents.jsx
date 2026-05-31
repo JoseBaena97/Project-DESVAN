@@ -5,6 +5,7 @@ import useGlobalReducer from "../../hooks/useGlobalReducer";
 import eventService from "../../services/event.service";
 import authService from "../../services/auth.service";
 import mascotamyev from "../../assets/img/caja02.png";
+import logoBw from "../../assets/img/logo_bw.png";
 
 const TABS = ["TODOS", "ACTIVOS", "FINALIZADOS", "CANCELADOS"];
 
@@ -232,22 +233,11 @@ export const MyEvents = () => {
 								<tr key={event.id}>
 									<td>
 										<div className="events-table-event">
-											{(event.image_url?.cover || event.image_url?.gallery?.[0]) ? (
-												<img
-													src={event.image_url?.cover || event.image_url?.gallery?.[0]}
-													alt={event.title}
-													className="events-table-thumb"
-												/>
-											) : (
-												<div
-													className="events-table-thumb account-img-placeholder"
-													aria-hidden="true"
-												>
-													<i
-														className="fa-regular fa-image events-table-thumb-icon"
-													/>
-												</div>
-											)}
+											<img
+												src={event.image_url?.cover || event.image_url?.gallery?.[0] || logoBw}
+												alt={event.title}
+												className={`events-table-thumb${!(event.image_url?.cover || event.image_url?.gallery?.[0]) ? " img-fallback" : ""}`}
+											/>
 											<strong>{event.title}</strong>
 										</div>
 									</td>
