@@ -245,7 +245,15 @@ class Reservation (db.Model):
             } if self.user else None,
             "event": {
                 "id": self.event_id,
-                "title": self.event.title
+                "title": self.event.title,
+                "image_url": self.event.image_url,
+                "exact_address": self.event.exact_address,
+                "event_type": self.event.event_type.value if self.event.event_type else None,
+                "start_date": self.event.start_date.isoformat() if self.event.start_date else None,
+                "end_date": self.event.end_date.isoformat() if self.event.end_date else None,
+                "start_time": self.event.start_time.isoformat() if self.event.start_time else None,
+                "end_time": self.event.end_time.isoformat() if self.event.end_time else None,
+                "status": self.event.status.value if self.event.status else None,
             } if self.event else None
 
         }

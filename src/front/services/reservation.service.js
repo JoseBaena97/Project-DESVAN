@@ -69,4 +69,27 @@ const deleteReservation = async (reservationId) => {
   }
 };
 
-export default { getReservationsByUser, createReservation, deleteReservation };
+const cancelReservation = async (reservationId) => {
+  try {
+    const resp = await fetch(url + `api/reservation/${reservationId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({ status: "cancelled" }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => null);
+      throw new Error(err?.message || "Error cancelling reservation");
+    }
+
+    return await resp.json();
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+export default { getReservationsByUser, createReservation, deleteReservation, cancelReservation };

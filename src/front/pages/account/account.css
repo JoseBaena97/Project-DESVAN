@@ -1021,6 +1021,16 @@
   color: var(--account-red);
 }
 
+.reservation-tag--cancelada {
+  background: #f5e0e0;
+  color: #b91c1c;
+}
+
+.reservation-tag--completada {
+  background: #d1fae5;
+  color: #065f46;
+}
+
 .reservation-card-title {
   font-family: var(--account-font-serif);
   font-size: 1.2rem;
@@ -1056,11 +1066,18 @@
   color: var(--account-brown-muted);
   line-height: 1.5;
   margin: 0 0 auto;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.reservation-card-desc span {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
   overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .reservation-tickets {
