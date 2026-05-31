@@ -18,6 +18,9 @@ export const Explore = () => {
     const [selectedDate, setSelectedDate] = useState("cualquier");
 
     const [distance, setDistance] = useState("10km");
+    const [sortBy, setSortBy] = useState("hot");
+    const [sortOpen, setSortOpen] = useState(false);
+    const sortRef = useRef(null);
 
     const [favoriteMap, setFavoriteMap] = useState({});
 
@@ -241,7 +244,15 @@ export const Explore = () => {
         }
     }, [store.user]);
 
-
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (sortRef.current && !sortRef.current.contains(e.target)) {
+                setSortOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     useEffect(() => {
         eventService.getCategories().then(res => {
@@ -322,6 +333,60 @@ export const Explore = () => {
             setFavoriteMap((prev) => ({ ...prev, [event.id]: resp.favorite.id }));
         }
     };
+    const SORT_OPTIONS = [
+        { value: "hot",       label: "Hot 🔥" },
+        { value: "novedades", label: "Novedades" },
+        { value: "activos",   label: "Activos ahora" },
+        { value: "valorados", label: "Mejor valorados" },
+    ];
+
+    const filteredEvents = (events || []).filter(event => {
+        if (textQuery) {
+            const q = textQuery.toLowerCase();
+            const inTitle    = event.title?.toLowerCase().includes(q);
+            const inDesc     = event.description?.toLowerCase().includes(q);
+            const inAddress  = event.exact_address?.toLowerCase().includes(q);
+            const inCat      = event.event_categories?.some(ec => ec.category?.name?.toLowerCase().includes(q));
+            const inEventTags = event.event_tags?.some(et => et.tag?.name?.toLowerCase().includes(q));
+            if (!inTitle && !inDesc && !inAddress && !inCat && !inEventTags) return false;
+        }
+        if (selectedCategory) {
+            const hasCategory = event.event_categories?.some(ec => ec.category?.name === selectedCategory);
+            if (!hasCategory) return false;
+        }
+        if (selectedTags.length > 0) {
+            const eventTagNames = event.event_tags?.map(et => et.tag?.name) || [];
+            if (!selectedTags.every(t => eventTagNames.includes(t))) return false;
+        }
+        if (selectedDate && selectedDate !== "cualquier") {
+            const now   = new Date();
+            const start = new Date(event.start_date || event.start_time);
+            if (isNaN(start)) return true;
+            if (selectedDate === "hoy") {
+                if (start.toDateString() !== now.toDateString()) return false;
+            } else if (selectedDate === "finde") {
+                const diff = (6 - now.getDay() + 7) % 7;
+                const sat  = new Date(now); sat.setDate(now.getDate() + diff);
+                const sun  = new Date(sat); sun.setDate(sat.getDate() + 1);
+                if (start.toDateString() !== sat.toDateString() && start.toDateString() !== sun.toDateString()) return false;
+            } else if (selectedDate === "semana") {
+                const weekEnd = new Date(now); weekEnd.setDate(now.getDate() + 7);
+                if (start < now || start > weekEnd) return false;
+            } else if (selectedDate === "mes") {
+                if (start.getMonth() !== now.getMonth() || start.getFullYear() !== now.getFullYear()) return false;
+            }
+        }
+        return true;
+    });
+
+    const sortedEvents = [...filteredEvents].sort((a, b) => {
+        if (sortBy === "novedades") return new Date(b.created_at) - new Date(a.created_at);
+        if (sortBy === "hot")      return (getEventBadge(b)?.type === "hot"    ? 1 : 0) - (getEventBadge(a)?.type === "hot"    ? 1 : 0);
+        if (sortBy === "activos")  return (getEventBadge(b)?.type === "activo" ? 1 : 0) - (getEventBadge(a)?.type === "activo" ? 1 : 0);
+        if (sortBy === "valorados") return (b.seller?.user_rating ?? -1) - (a.seller?.user_rating ?? -1);
+        return 0;
+    });
+
     return (
         <div className="explore-page">
             <div className="explore-layout">
@@ -434,9 +499,30 @@ export const Explore = () => {
                         </div>
                         <div className="sort-control">
                             <span className="sort-label">Ordenar por: </span>
-                            <span className="sort-value">
-                                Recomendados <i className="fa-solid fa-chevron-down"></i>
-                            </span>
+                            <div className="sort-dropdown" ref={sortRef}>
+                                <button
+                                    type="button"
+                                    className="sort-dropdown-trigger"
+                                    onClick={() => setSortOpen(prev => !prev)}
+                                >
+                                    {SORT_OPTIONS.find(o => o.value === sortBy)?.label}
+                                    <i className={`fa-solid fa-chevron-down sort-dropdown-chevron${sortOpen ? " open" : ""}`}></i>
+                                </button>
+                                {sortOpen && (
+                                    <div className="sort-dropdown-panel">
+                                        {SORT_OPTIONS.map(opt => (
+                                            <button
+                                                key={opt.value}
+                                                type="button"
+                                                className={`sort-dropdown-option${sortBy === opt.value ? " active" : ""}`}
+                                                onClick={() => { setSortBy(opt.value); setSortOpen(false); }}
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -532,56 +618,7 @@ export const Explore = () => {
                     )}
 
                     <div className="events-grid">
-                        {events?.filter(event => {
-                            // Texto del navbar
-                            if (textQuery) {
-                                const q = textQuery.toLowerCase();
-                                const inTitle = event.title?.toLowerCase().includes(q);
-                                const inDesc = event.description?.toLowerCase().includes(q);
-                                const inAddress = event.exact_address?.toLowerCase().includes(q);
-                                const inCat = event.event_categories?.some(ec => ec.category?.name?.toLowerCase().includes(q));
-                                const inEventTags = event.event_tags?.some(et => et.tag?.name?.toLowerCase().includes(q));
-                                if (!inTitle && !inDesc && !inAddress && !inCat && !inEventTags) return false;
-                            }
-
-                            // Filtro por tipo de evento (categoría)
-                            if (selectedCategory) {
-                                const hasCategory = event.event_categories?.some(
-                                    ec => ec.category?.name === selectedCategory
-                                );
-                                if (!hasCategory) return false;
-                            }
-
-                            // Filtro por tags (todos los seleccionados deben estar)
-                            if (selectedTags.length > 0) {
-                                const eventTagNames = event.event_tags?.map(et => et.tag?.name) || [];
-                                const hasAllTags = selectedTags.every(t => eventTagNames.includes(t));
-                                if (!hasAllTags) return false;
-                            }
-
-                            // Filtro por fecha
-                            if (selectedDate && selectedDate !== "cualquier") {
-                                const now = new Date();
-                                const start = new Date(event.start_date || event.start_time);
-                                if (isNaN(start)) return true;
-                                if (selectedDate === "hoy") {
-                                    if (start.toDateString() !== now.toDateString()) return false;
-                                } else if (selectedDate === "finde") {
-                                    const diff = (6 - now.getDay() + 7) % 7;
-                                    const sat = new Date(now); sat.setDate(now.getDate() + diff);
-                                    const sun = new Date(sat); sun.setDate(sat.getDate() + 1);
-                                    if (start.toDateString() !== sat.toDateString() && start.toDateString() !== sun.toDateString()) return false;
-                                } else if (selectedDate === "semana") {
-                                    const weekEnd = new Date(now);
-                                    weekEnd.setDate(now.getDate() + 7);
-                                    if (start < now || start > weekEnd) return false;
-                                } else if (selectedDate === "mes") {
-                                    if (start.getMonth() !== now.getMonth() || start.getFullYear() !== now.getFullYear()) return false;
-                                }
-                            }
-
-                            return true;
-                        }).map(event => {
+                        {sortedEvents.map(event => {
                             const badge = store.user ? getEventBadge(event) : null;
                             return (
                                 <div key={event.id} className="event-card">

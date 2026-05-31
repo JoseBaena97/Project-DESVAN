@@ -14,9 +14,6 @@ export const Navbar = () => {
 
     const { store, dispatch } = useGlobalReducer();
     const [searchQuery, setSearchQuery] = useState("");
-
-	console.log(store.user)
-
 	return (
 		<>
 			<nav className="custom-navbar">
