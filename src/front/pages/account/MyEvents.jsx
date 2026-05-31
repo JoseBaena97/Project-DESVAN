@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import eventService from "../../services/event.service";
@@ -248,7 +248,7 @@ export const MyEvents = () => {
 													/>
 												</div>
 											)}
-											<strong>{event.title}</strong>
+											<Link to={`/detalles/${event.id}`} className="events-table-title-link"><strong>{event.title}</strong></Link>
 										</div>
 									</td>
 									<td>
