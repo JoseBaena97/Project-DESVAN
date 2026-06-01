@@ -23,6 +23,7 @@ export const Explore = () => {
     const sortRef = useRef(null);
 
     const [favoriteMap, setFavoriteMap] = useState({});
+    const [filtersOpen, setFiltersOpen] = useState(false);
 
     // Estados para el mapa de eventos cercanos
     const [latitude, setLatitude] = useState(null);
@@ -395,9 +396,17 @@ export const Explore = () => {
 
                 {/* ── Sidebar ── */}
                 <aside className="filters-sidebar">
-                    <div className="filters-panel">
-                        <h3 className="filters-heading">Filtros</h3>
-                        <p className="filters-sub">Refina tu búsqueda</p>
+                    <div className={`filters-panel${filtersOpen ? " filters-panel--open" : ""}`}>
+                        <div className="filters-panel-header" onClick={() => setFiltersOpen(o => !o)}>
+                            <div>
+                                <h3 className="filters-heading">Filtros</h3>
+                                <p className="filters-sub">Refina tu búsqueda</p>
+                            </div>
+                            <button className="filters-toggle-btn" aria-label="Mostrar/ocultar filtros">
+                                <i className={`fa-solid fa-chevron-${filtersOpen ? "up" : "down"}`}></i>
+                            </button>
+                        </div>
+                        <div className="filters-panel-body">
                         <hr className="filters-hr" />
 
                         {/* Tipo de evento */}
@@ -488,6 +497,7 @@ export const Explore = () => {
                                 <i className="fa-solid fa-xmark"></i> Limpiar filtros
                             </button>
                         )}
+                        </div>
                     </div>
                 </aside>
 

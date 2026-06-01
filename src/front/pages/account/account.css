@@ -54,6 +54,24 @@
   box-sizing: border-box;
 }
 
+.account-sidebar-toggle {
+  display: none;
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--account-brown);
+  font-size: 0.85rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: background-color 0.15s;
+}
+
+.account-sidebar-toggle:hover {
+  background-color: rgba(61, 39, 29, 0.08);
+}
+
 .account-sidebar-profile {
   display: flex;
   gap: 0.85rem;
@@ -2332,6 +2350,31 @@
   .account-sidebar {
     width: 100%;
     max-height: none;
+  }
+
+  .account-sidebar-profile {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+    cursor: pointer;
+    align-items: center;
+  }
+
+  .account-sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .account-sidebar-body {
+    display: none;
+    padding-top: 1.25rem;
+    margin-top: 1.25rem;
+    border-top: 1px solid #e5d9c8;
+  }
+
+  .account-sidebar--open .account-sidebar-body {
+    display: block;
   }
 
   .account-nav-link--active::before {

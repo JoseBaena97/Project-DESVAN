@@ -28,7 +28,7 @@ function timeAgo(isoString) {
     }).format(date);
 }
 
-export const NotificationBell = () => {
+export const NotificationBell = ({ compact = false }) => {
     const { store, dispatch } = useGlobalReducer();
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -113,9 +113,9 @@ export const NotificationBell = () => {
 
     return (
         <div className="notification-bell" ref={dropdownRef}>
-            <button className="btn-secondary-custom notification-trigger" onClick={handleOpen} aria-label="Notificaciones">
+            <button className={`btn-secondary-custom notification-trigger${compact ? " notification-trigger--compact" : ""}`} onClick={handleOpen} aria-label="Notificaciones">
                 <img src={notificacionIco} alt="Notificaciones" className="notification-ico" />
-                Notificaciones
+                {!compact && "Notificaciones"}
                 {unreadCount > 0 && (
                     <span className="notification-badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
                 )}

@@ -14,6 +14,7 @@ const NAV_ITEMS = [
 export const AccountSidebar = () => {
 	const { store, dispatch } = useGlobalReducer();
 	const navigate = useNavigate();
+	const [open, setOpen] = useState(false);
 
 	const handleLogout = () => {
 		authService.logout();
@@ -23,11 +24,8 @@ export const AccountSidebar = () => {
 
 	return (
 		<div className="account-sidebar-wrap">
-		<aside className="account-sidebar">
-			<div className="account-sidebar-profile">
-				{/* TODO: Sustituye por tu foto de perfil del sidebar
-				    <img src={rutaATuImagen} alt="Archibald Vance" className="account-sidebar-avatar" />
-				*/}
+		<aside className={`account-sidebar${open ? " account-sidebar--open" : ""}`}>
+			<div className="account-sidebar-profile" onClick={() => setOpen(o => !o)}>
 				{store.user?.profile_picture_url ? (
 					<img src={store.user.profile_picture_url} alt={store.user.username || "Usuario"} className="account-sidebar-avatar" />
 				) : (
@@ -43,31 +41,37 @@ export const AccountSidebar = () => {
 						{store.user?.created_at ? new Date(store.user.created_at).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" }) : ""}
 					</span>
 				</div>
+
+				<button className="account-sidebar-toggle" aria-label="Mostrar/ocultar menú">
+					<i className={`fa-solid fa-chevron-${open ? "up" : "down"}`}></i>
+				</button>
 			</div>
 
-			<nav className="account-sidebar-nav">
-				{NAV_ITEMS.map((item) => (
-					<NavLink
-						key={item.to}
-						to={item.to}
-						className={({ isActive }) =>
-							`account-nav-link${isActive ? " account-nav-link--active" : ""}`
-						}
-					>
-						<i className={item.icon} />
-						{item.label}
-					</NavLink>
-				))}
-			</nav>
+			<div className="account-sidebar-body">
+				<nav className="account-sidebar-nav">
+					{NAV_ITEMS.map((item) => (
+						<NavLink
+							key={item.to}
+							to={item.to}
+							className={({ isActive }) =>
+								`account-nav-link${isActive ? " account-nav-link--active" : ""}`
+							}
+						>
+							<i className={item.icon} />
+							{item.label}
+						</NavLink>
+					))}
+				</nav>
 
-			<div className="account-sidebar-footer">
-				<Link to="/explorar" className="account-btn-explore">
-					VOLVER A EXPLORAR
-				</Link>
-				<button type="button" className="account-btn-logout" onClick={handleLogout}>
-					<i className="fa-solid fa-right-from-bracket" />
-					Cerrar sesión
-				</button>
+				<div className="account-sidebar-footer">
+					<Link to="/explorar" className="account-btn-explore">
+						VOLVER A EXPLORAR
+					</Link>
+					<button type="button" className="account-btn-logout" onClick={handleLogout}>
+						<i className="fa-solid fa-right-from-bracket" />
+						Cerrar sesión
+					</button>
+				</div>
 			</div>
 		</aside>
 		</div>
