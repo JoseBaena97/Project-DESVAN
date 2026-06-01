@@ -198,6 +198,17 @@ class Event (db.Model):  # ESTA TABLA DEBE IR ARRIBA?
             "image_url": self.image_url,
         }
 
+    def profile_event_serialize(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "image_url": self.image_url,
+            "exact_address": self.exact_address,
+            "start_time": self.start_time.isoformat() if self.start_time else None,
+            "start_date": self.start_date.isoformat() if self.start_date else None,
+        }
+
     def serialize(self):
         return {
             "id": self.id,
@@ -321,6 +332,22 @@ class Review (db.Model):
 
         }
 
+    def serialize_for_public_profile(self):
+        return {
+            "id": self.id,
+            "rating": float(self.rating) if self.rating is not None else None,
+            "comment": self.comment,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "reviewer": {
+                "username": self.reviewer.username,
+                "profile_picture_url": self.reviewer.profile_picture_url,
+            } if self.reviewer else None,
+            "event": {
+                "id": self.event_id,
+                "title": self.event.title,
+            } if self.event else None,
+        }
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -368,6 +395,44 @@ class User(db.Model):
     # 1-M
     notifications: Mapped[List["Notification"]] = relationship(
         back_populates="user", cascade="all, delete-orphan")
+
+    @property
+    def full_name(self):
+        if self.profile:
+            return f"{self.profile.firstname} {self.profile.lastname}".strip()
+        return self.username
+
+    def public_profile_serialize(self):
+        active_events = sorted(
+            [
+                event
+                for event in (self.events or [])
+                if event.status == EventStatus.active
+            ],
+            key=lambda e: e.start_time or e.created_at,
+            reverse=True,
+        )
+        received_reviews = sorted(
+            self.my_received_reviews or [],
+            key=lambda r: r.created_at,
+            reverse=True,
+        )
+        return {
+            "id": self.id,
+            "username": self.username,
+            "full_name": self.full_name,
+            "bio": self.bio,
+            "profile_picture_url": self.profile_picture_url,
+            "is_verified": self.is_verified,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "user_rating": self.user_rating,
+            "reviews_count": len(received_reviews),
+            "events_count": len(active_events),
+            "events": [event.profile_event_serialize() for event in active_events],
+            "received_reviews": [
+                review.serialize_for_public_profile() for review in received_reviews
+            ],
+        }
 
     def serialize(self):
         return {

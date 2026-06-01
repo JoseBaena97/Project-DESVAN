@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from flask_jwt_extended import jwt_required
 from api.routes import api
 from api.models import db, User
 from datetime import datetime, timezone
@@ -14,6 +15,15 @@ def get_user(user_id):
     if not user or user.deleted_at:
         return jsonify({"message": "User not found"}), 404
     return jsonify(user.serialize()), 200
+
+
+@api.route("/user/<int:user_id>/public", methods=["GET"])
+@jwt_required()
+def get_user_public_profile(user_id):
+    user = db.session.get(User, user_id)
+    if not user or user.deleted_at:
+        return jsonify({"message": "User not found"}), 404
+    return jsonify({"data": user.public_profile_serialize()}), 200
 
 
 @api.route("/user/<int:user_id>", methods=["PUT"])

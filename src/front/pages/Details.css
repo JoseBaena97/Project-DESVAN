@@ -558,6 +558,15 @@
   margin: 0;
 }
 
+.seller-name--link {
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.seller-name--link:hover {
+  color: var(--text-red);
+}
+
 .seller-rating {
   display: flex;
   align-items: center;

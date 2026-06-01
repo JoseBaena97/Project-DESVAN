@@ -369,9 +369,19 @@ export const Details = () => {
                 <span className="seller-handle">
                   @{event.seller?.username || event.seller?.email?.split("@")[0] || "vendedor"}
                 </span>
-                <p className="seller-name">
-                  {event.seller?.full_name || event.seller?.username || "Vendedor"}
-                </p>
+                {event.seller?.id ? (
+                  <Link
+                    to={`/vendedor/${event.seller.id}`}
+                    className="seller-name seller-name--link"
+                    state={{ from: `/detalles/${eventId}` }}
+                  >
+                    {event.seller?.full_name || event.seller?.username || "Vendedor"}
+                  </Link>
+                ) : (
+                  <p className="seller-name">
+                    {event.seller?.full_name || event.seller?.username || "Vendedor"}
+                  </p>
+                )}
                 <div className="seller-rating">
                   {event.seller?.user_rating || event.event_rating ? (
                     <>
