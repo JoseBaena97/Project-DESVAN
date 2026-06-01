@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
+import "./MyEvents.css";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import eventService from "../../services/event.service";
-import authService from "../../services/auth.service";
 import mascotamyev from "../../assets/img/caja02.png";
-import logoBw from "../../assets/img/logo_bw.png";
 
 const TABS = ["TODOS", "ACTIVOS", "FINALIZADOS", "CANCELADOS"];
 
@@ -73,7 +72,6 @@ export const MyEvents = () => {
 				setUserEvents(filtered);
 				showErrorAlert(null);
 			} catch (err) {
-				console.error("Error fetching user events:", err);
 				showErrorAlert("Error al cargar tus eventos");
 				setUserEvents([]);
 			} finally {
@@ -150,7 +148,6 @@ export const MyEvents = () => {
 			setUserEvents((prev) => prev.filter((e) => e.id !== eventId));
 			setEventToDelete(null);
 		} catch (err) {
-			console.error(err);
 			alert("No se pudo eliminar el evento");
 		} finally {
 			dispatch({ type: 'setLoading', payload: false });
@@ -167,7 +164,6 @@ export const MyEvents = () => {
 			setUserEvents((prev) => prev.map((e) => (e.id === eventId ? { ...e, status: 'cancelled' } : e)));
 			setEventToCancel(null);
 		} catch (err) {
-			console.error(err);
 			alert('No se pudo cancelar el evento');
 		} finally {
 			dispatch({ type: 'setLoading', payload: false });
@@ -183,7 +179,6 @@ export const MyEvents = () => {
 			setUserEvents((prev) => prev.map((e) => (e.id === eventId ? { ...e, status: 'active' } : e)));
 			setEventToReactivate(null);
 		} catch (err) {
-			console.error(err);
 			alert('No se pudo reactivar el evento');
 		} finally {
 			dispatch({ type: 'setLoading', payload: false });

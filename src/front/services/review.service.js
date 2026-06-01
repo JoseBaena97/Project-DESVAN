@@ -13,13 +13,11 @@ const createReview = async (reviewData) => {
 
     const data = await resp.json();
     if (!resp.ok) {
-      console.log("Error creating review", data);
       throw new Error(data?.msg || "Error creating review");
     }
 
     return data;
   } catch (error) {
-    console.log(error);
     return null;
   }
 };
@@ -39,7 +37,6 @@ const getWrittenReviewsByUser = async (userId) => {
     }
     return data?.data ?? data?.msg ?? [];
   } catch (error) {
-    console.log(error);
     return [];
   }
 };
@@ -57,13 +54,11 @@ const updateReview = async (reviewId, reviewData) => {
 
     const data = await resp.json();
     if (!resp.ok) {
-      console.log("Error updating review", data);
       throw new Error(data?.msg || "Error updating review");
     }
 
     return data;
   } catch (error) {
-    console.log(error);
     return null;
   }
 };
@@ -80,13 +75,11 @@ const deleteReview = async (reviewId) => {
 
     const data = await resp.json();
     if (!resp.ok) {
-      console.log("Error deleting review", data);
       throw new Error(data?.msg || "Error deleting review");
     }
 
     return data;
   } catch (error) {
-    console.log(error);
     return null;
   }
 };
@@ -106,7 +99,6 @@ const getReceivedReviewsByUser = async (userId) => {
     }
     return data?.data ?? data?.msg ?? [];
   } catch (error) {
-    console.log(error);
     return [];
   }
 };

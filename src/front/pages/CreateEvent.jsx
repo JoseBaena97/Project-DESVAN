@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import "./CreateEvent.css";
 import mascotOpen from "../assets/img/caja04.png";
 import eventService from "../services/event.service";
 import uploadService from "../services/upload.service";
-import authService from "../services/auth.service";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
 
@@ -15,7 +15,7 @@ const EVENT_TYPES = [
 ];
 
 export const CreateEvent = () => {
-    const { store, dispatch, showErrorAlert } = useGlobalReducer();
+    const { store, showErrorAlert } = useGlobalReducer();
     const navigate = useNavigate();
 
     const [eventData, setEventData] = useState({
@@ -145,9 +145,7 @@ export const CreateEvent = () => {
                     setIsEdit(true);
                     setEditingId(eventId);
                 }
-            }).catch((err) => {
-                console.error('Error cargando evento para editar', err);
-            });
+            }).catch(() => {});
         }
     }, [location.search]);
 
@@ -269,10 +267,7 @@ export const CreateEvent = () => {
             // MODO EDICIÓN
             // =========================
             if (isEdit && editingId) {
-                const data = await eventService.updateEvent(editingId, payload);
-
-                console.log("Evento actualizado:", data);
-
+                await eventService.updateEvent(editingId, payload);
                 navigate('/mis-eventos');
                 return;
             }
@@ -282,8 +277,6 @@ export const CreateEvent = () => {
             // =========================
             const data = await eventService.createEvent(payload);
 
-            console.log("Evento creado:", data);
-
             if (data?.success && data?.data) {
                 navigate(`/detalles/${data.data}`);
                 return;
@@ -292,13 +285,6 @@ export const CreateEvent = () => {
             showErrorAlert("Evento creado, pero no se pudo navegar automáticamente.");
 
         } catch (err) {
-            console.error(
-                isEdit
-                    ? "Error actualizando evento:"
-                    : "Error creando evento:",
-                err
-            );
-
             // Manejar errores devueltos por el backend
             if (err.response && err.response.data) {
                 const data = err.response.data;

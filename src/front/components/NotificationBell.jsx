@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import notificacionIco from "../assets/img/notificacion.png";
+import "./NotificationBell.css";
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL;
 
@@ -45,7 +46,7 @@ export const NotificationBell = ({ compact = false }) => {
                 dispatch({ type: "setNotifications", payload: data.data });
             }
         } catch (e) {
-            console.error("Error fetching notifications:", e);
+            // silently fail — bell stays with last known state
         }
     };
 
@@ -77,7 +78,7 @@ export const NotificationBell = ({ compact = false }) => {
                 });
                 dispatch({ type: "markAllRead" });
             } catch (e) {
-                console.error("Error marking notifications as read:", e);
+                // silently fail
             }
         }
     };
@@ -93,7 +94,7 @@ export const NotificationBell = ({ compact = false }) => {
             });
             dispatch({ type: "deleteNotification", payload: id });
         } catch (e) {
-            console.error("Error deleting notification:", e);
+            // silently fail
         }
     };
 
@@ -105,7 +106,7 @@ export const NotificationBell = ({ compact = false }) => {
             });
             dispatch({ type: "clearNotifications" });
         } catch (e) {
-            console.error("Error clearing notifications:", e);
+            // silently fail
         }
     };
 

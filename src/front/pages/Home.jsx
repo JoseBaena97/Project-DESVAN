@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import "./Home.css";
 import mascotSad from "../assets/img/caja05.png";
 import mascotPointing from "../assets/img/caja06.png";
 

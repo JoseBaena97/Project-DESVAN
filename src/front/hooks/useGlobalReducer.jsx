@@ -19,8 +19,7 @@ export function StoreProvider({ children }) {
                         dispatch({ type: 'setUserLoading', payload: false });
                     }
                 })
-                .catch(err => {
-                    console.error("Global auth fetch error:", err);
+                .catch(() => {
                     localStorage.removeItem('token');
                     dispatch({ type: 'logout' });
                 });

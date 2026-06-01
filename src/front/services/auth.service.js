@@ -24,7 +24,6 @@ authService.auth = async (FormData) => {
     if (data.access_token) localStorage.setItem("token", data.access_token);
     return data;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };
@@ -41,7 +40,6 @@ authService.forgotPassword = async (email) => {
     if (!resp.ok) throw new Error("Error al enviar enlace de recuperación");
     return await resp.json();
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };
@@ -61,7 +59,6 @@ authService.resetPassword = async (token, password) => {
     }
     return await resp.json();
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };
@@ -79,7 +76,7 @@ authService.getMe = async () => {
     const data = await resp.json(); //se cuela solo la info necesaria
     return data;
   } catch (error) {
-    console.log(error);
+    // silently fail — callers handle undefined return
   }
 };
 
@@ -101,7 +98,7 @@ authService.updateProfile = async (payload) => {
     const data = await resp.json();
     return data;
   } catch (error) {
-    console.log(error);
+    // silently fail — callers handle undefined return
   }
 };
 
@@ -118,7 +115,7 @@ authService.deactivateAccount = async () => {
     const data = await resp.json();
     return data;
   } catch (error) {
-    console.log(error);
+    // silently fail — callers handle undefined return
   }
 };
 

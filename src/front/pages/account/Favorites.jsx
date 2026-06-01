@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
+import "./Favorites.css";
 import favoriteService from "../../services/favorite.service";
-import authService from "../../services/auth.service";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import mascotafav from "../../assets/img/caja03.png";
 import logoBw from "../../assets/img/logo_bw.png";
@@ -10,7 +10,7 @@ import logoBw from "../../assets/img/logo_bw.png";
 
 export const Favorites = () => {
 	const [favorites, setFavorites] = useState([]);
-	const { store, dispatch } = useGlobalReducer();
+	const { store } = useGlobalReducer();
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -19,7 +19,7 @@ export const Favorites = () => {
 			.then((data) => {
 				setFavorites(data || []);
 			})
-			.catch((err) => console.log(err));
+			.catch(() => {});
 
 	}, [store.user, navigate]);
 

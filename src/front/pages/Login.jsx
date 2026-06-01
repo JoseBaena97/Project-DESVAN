@@ -76,8 +76,6 @@ export const Login = () => {
         navigate(data.data?.is_admin ? '/admin' : returnPath, { replace: true });
       })
       .catch((err) => {
-        console.log(err);
-
         //Manejar errores específicos del backend
         if (err.response) {
           const status = err.response.status;

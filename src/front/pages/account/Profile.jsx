@@ -1,4 +1,5 @@
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
+import "./Profile.css";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../../services/auth.service";

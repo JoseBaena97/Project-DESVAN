@@ -97,7 +97,7 @@
 /* Vintage Header Typography */
 .sidebar-title {
   font-family: var(--auth-font-serif);
-  font-size: 4.5rem !important;
+  font-size: 4.5rem;
   font-weight: 700;
   line-height: 1.1;
   margin: 0;
@@ -403,10 +403,10 @@
 .input-wrapper input,
 .form-group .input-wrapper input[type="text"] {
   width: 100%;
-  padding: 0.95rem 1rem 0.95rem 2.65rem !important;
+  padding: 0.95rem 1rem 0.95rem 2.65rem;
   font-size: 0.9rem;
   font-family: var(--auth-font-sans);
-  background-color: #ffffff !important;
+  background-color: #ffffff;
   border: 1.5px solid var(--auth-border-color);
   border-radius: 12px;
   color: var(--auth-text-dark);
@@ -421,10 +421,10 @@
 
 .input-wrapper input:focus,
 .form-group .input-wrapper input[type="text"]:focus {
-  outline: none !important;
-  border-color: var(--auth-border-focus) !important;
-  box-shadow: 0 0 0 4px rgba(181, 146, 122, 0.15) !important;
-  background-color: #ffffff !important;
+  outline: none;
+  border-color: var(--auth-border-focus);
+  box-shadow: 0 0 0 4px rgba(181, 146, 122, 0.15);
+  background-color: #ffffff;
 }
 
 .password-toggle-btn {

@@ -55,7 +55,7 @@ export const Details = () => {
       .then(res => {
         setEvent(res.data);
       })
-      .catch(err => console.log(err));
+      .catch(() => {});
 
   }, [eventId]);
 

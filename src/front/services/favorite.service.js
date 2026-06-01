@@ -15,7 +15,6 @@ const getFavoritesByUser = async (userId) => {
     const data = await resp.json();
     return data;
   } catch (error) {
-    console.log(error);
     return [];
   }
 };
@@ -38,7 +37,6 @@ const createFavorite = async (eventId) => {
 
     return await resp.json();
   } catch (error) {
-    console.log(error);
     return null;
   }
 };
@@ -60,7 +58,6 @@ const deleteFavorite = async (favoriteId) => {
 
     return await resp.json();
   } catch (error) {
-    console.log(error);
     return null;
   }
 };

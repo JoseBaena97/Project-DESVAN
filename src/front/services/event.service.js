@@ -17,7 +17,7 @@ const createEvent = async (eventData) => {
 
     return data;
   } catch (error) {
-    console.log(error);
+    // silently fail — callers handle undefined return
   }
 };
 
@@ -34,7 +34,7 @@ const getEventsPublic = async () => {
 
     return data;
   } catch (error) {
-    console.log(error);
+    // silently fail — callers handle undefined return
   }
 };
 const getEvents = async () => {
@@ -53,7 +53,7 @@ const getEvents = async () => {
 
     return data;
   } catch (error) {
-    console.log(error);
+    // silently fail — callers handle undefined return
   }
 };
 
@@ -78,7 +78,7 @@ const getEvent = async (eventId) => {
 
     return data;
   } catch (error) {
-    console.log(error);
+    // silently fail — callers handle undefined return
   }
 };
 
@@ -97,13 +97,12 @@ const updateEvent = async (eventId, eventData) => {
     const data = await resp.json();
 
     if (!resp.ok) {
-      console.log("Update event response:", resp.status, data);
       throw new Error(data?.data || data?.msg || "Error updating event");
     }
 
     return data;
   } catch (error) {
-    console.log(error);
+    // silently fail — callers handle undefined return
   }
 };
 
@@ -129,7 +128,6 @@ const deleteEvent = async (eventId) => {
 
     return data;
   } catch (error) {
-    console.log(error);
     return false;
   }
 };
@@ -157,7 +155,7 @@ const getNearbyEvents = async (latitude, longitude, distance = 10) => {
 
     return data;
   } catch (error) {
-    console.log(error);
+    // silently fail — callers handle undefined return
   }
 };
 
@@ -168,7 +166,7 @@ const getCategories = async () => {
     const data = await resp.json();
     return data;
   } catch (error) {
-    console.log(error);
+    // silently fail — callers handle undefined return
   }
 };
 
@@ -179,7 +177,7 @@ const getTags = async () => {
     const data = await resp.json();
     return data;
   } catch (error) {
-    console.log(error);
+    // silently fail — callers handle undefined return
   }
 };
 

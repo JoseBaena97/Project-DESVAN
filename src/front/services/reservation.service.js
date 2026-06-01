@@ -18,7 +18,6 @@ const getReservationsByUser = async (userId) => {
 
     return await resp.json();
   } catch (error) {
-    console.log(error);
     return null;
   }
 };
@@ -42,7 +41,6 @@ const createReservation = async (eventId, userId) => {
 
     return await resp.json();
   } catch (error) {
-    console.log(error);
     return null;
   }
 };
@@ -64,7 +62,6 @@ const deleteReservation = async (reservationId) => {
 
     return await resp.json();
   } catch (error) {
-    console.log(error);
     return null;
   }
 };
@@ -87,7 +84,6 @@ const cancelReservation = async (reservationId) => {
 
     return await resp.json();
   } catch (error) {
-    console.log(error);
     return null;
   }
 };

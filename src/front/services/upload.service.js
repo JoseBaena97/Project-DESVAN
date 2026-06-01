@@ -23,7 +23,6 @@ const uploadImage = async (file, folder) => {
 
     return data.data;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };

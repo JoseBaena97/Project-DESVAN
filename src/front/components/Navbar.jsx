@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import "./Navbar.css";
 import desvanLogo from "../assets/img/desvanlogonav.png";
 import create_ico from "../assets/img/create_ico.png";
 import favorites_ico from "../assets/img/favorites_ico1.png";

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
-import authService from "../../services/auth.service";
+import "./Reviews.css";
 import reviewService from "../../services/review.service";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import mascotareview from "../../assets/img/caja_dineros_ico.png";
@@ -9,7 +9,6 @@ import mascotareview from "../../assets/img/caja_dineros_ico.png";
 const TABS = ["Recibidas", "Escritas"];
 
 export const Reviews = () => {
-  const [user, setUser] = useState(null);
   const [writtenReviews, setWrittenReviews] = useState([]);
   const [receivedReviews, setReceivedReviews] = useState([]);
   const [activeTab, setActiveTab] = useState(TABS[0]);
@@ -34,7 +33,6 @@ export const Reviews = () => {
         setWrittenReviews(written || []);
         setReceivedReviews(received || []);
       } catch (err) {
-        console.log(err);
         showErrorAlert("Error al cargar valoraciones");
       } finally {
         dispatch({ type: 'setLoading', payload: false });
@@ -90,19 +88,8 @@ export const Reviews = () => {
       setWrittenReviews((prevWritten) =>
         prevWritten.map((review) => (review.id === reviewId ? updatedReview : review))
       );
-
-      setUser((prevUser) => {
-        if (!prevUser) return prevUser;
-        const my_written_reviews = prevUser.my_written_reviews?.map((review) =>
-          review.id === reviewId ? updatedReview : review
-        );
-        const updatedUser = { ...prevUser, my_written_reviews };
-        dispatch({ type: "auth", payload: { user: updatedUser } });
-        return updatedUser;
-      });
       handleCloseEditReview();
     } catch (err) {
-      console.log(err);
       setActionError(err?.message || "Error actualizando valoracion");
     } finally {
       setIsSaving(false);
@@ -126,19 +113,11 @@ export const Reviews = () => {
       }
 
       setWrittenReviews((prevWritten) => prevWritten.filter((review) => review.id !== reviewToDelete));
-      setUser((prevUser) => {
-        if (!prevUser) return prevUser;
-        const my_written_reviews = prevUser.my_written_reviews?.filter((review) => review.id !== reviewToDelete);
-        const updatedUser = { ...prevUser, my_written_reviews };
-        dispatch({ type: "auth", payload: { user: updatedUser } });
-        return updatedUser;
-      });
       if (selectedReview?.id === reviewToDelete) {
         setSelectedReview(null);
       }
       setReviewToDelete(null);
     } catch (err) {
-      console.log(err);
       setActionError(err?.message || "Error eliminando valoracion");
     } finally {
       setIsDeleting(false);

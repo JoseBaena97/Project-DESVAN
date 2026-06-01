@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
+import "./Reservations.css";
 import reservationService from "../../services/reservation.service";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import mascotareservas from "../../assets/img/caja01.png";
@@ -55,7 +56,7 @@ export const Reservations = () => {
 				const data = await reservationService.getReservationsByUser(store.user.id);
 				setReservations(data || []);
 			} catch (error) {
-				console.log(error);
+				// silently fail — reservations remain empty
 			} finally {
 				dispatch({ type: 'setLoading', payload: false });
 			}

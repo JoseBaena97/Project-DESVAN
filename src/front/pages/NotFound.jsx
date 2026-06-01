@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import "./NotFound.css";
 import errorImage from "../assets/img/Desvanitos error 404.png";
 
 export const NotFound = () => {

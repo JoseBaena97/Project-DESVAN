@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import "./Explore.css";
 import caja05 from "../assets/img/caja05.png";
 import logoBw from "../assets/img/logo_bw.png";
 import eventService from "../services/event.service";
 import favoriteService from "../services/favorite.service";
-import authService from "../services/auth.service";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { Map } from "../components/Map";
 
@@ -31,11 +31,10 @@ export const Explore = () => {
     const [longitude, setLongitude] = useState(null);
     const [nearbyEvents, setNearbyEvents] = useState([]);
     const [loadingNearby, setLoadingNearby] = useState(false);
-    const [locationInput, setLocationInput] = useState("");
     const locationInputRef = useRef(null);
     const autocompleteRef = useRef(null);
 
-    const { store, dispatch } = useGlobalReducer();
+    const { store } = useGlobalReducer();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -148,7 +147,7 @@ export const Explore = () => {
                 setNearbyEvents(res.data.filter(item => item.event?.status !== 'cancelled'));
             }
         } catch (err) {
-            console.log("Error fetching nearby events:", err);
+            // silently fail — nearby list stays empty
         } finally {
             setLoadingNearby(false);
         }
@@ -169,11 +168,10 @@ export const Explore = () => {
                     const lon = position.coords.longitude;
                     setLatitude(lat);
                     setLongitude(lon);
-                    setLocationInput("Ubicación actual");
+                    if (locationInputRef.current) locationInputRef.current.value = "Ubicación actual";
                     fetchNearbyEvents(lat, lon);
                 },
-                (error) => {
-                    console.log("Error getting location:", error);
+                () => {
                     alert("No se pudo obtener tu ubicación. Por favor, verifica los permisos.");
                     setLoadingNearby(false);
                 }
@@ -187,7 +185,6 @@ export const Explore = () => {
     const initPlaceAutocomplete = () => {
         // Cargar Google Maps con Place Autocomplete
         if (!window.google) {
-            console.warn("Google Maps API no está cargada");
             return;
         }
 
@@ -213,7 +210,7 @@ export const Explore = () => {
 
                 setLatitude(lat);
                 setLongitude(lng);
-                setLocationInput(place.formatted_address || place.name || "");
+                if (locationInputRef.current) locationInputRef.current.value = place.formatted_address || place.name || "";
                 fetchNearbyEvents(lat, lng);
             });
 
@@ -234,9 +231,7 @@ export const Explore = () => {
                 script.onload = () => {
                     setTimeout(initPlaceAutocomplete, 100);
                 };
-                script.onerror = () => {
-                    console.error("Error al cargar Google Maps API");
-                };
+                script.onerror = () => {};
                 document.head.appendChild(script);
             }
         };
@@ -277,7 +272,7 @@ export const Explore = () => {
                     setFavoriteMap(buildFavoriteMap(items, store.user.id));
                 }
             })
-            .catch((err) => console.log(err));
+            .catch(() => {});
 
     }, []);
 
