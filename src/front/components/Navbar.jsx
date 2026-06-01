@@ -38,8 +38,8 @@ export const Navbar = () => {
 							}}
 						/>
 					</div>
-					<div className="nav-actions d-none d-md-flex">
-						<NotificationBell />
+					<div className="nav-actions d-none d-lg-flex">
+						<NotificationBell compact />
 						<Link to={store.user ? "/perfil" : "/login"}>
 							<button className="btn-secondary-custom">
 								<img src={user_ico} alt="user" className="user_ico"/> Mi Perfil
@@ -52,7 +52,7 @@ export const Navbar = () => {
 						</Link>
 					</div>
 					<button
-						className="btn-hamburger d-flex d-md-none"
+						className="btn-hamburger d-flex d-lg-none"
 						type="button"
 						data-bs-toggle="offcanvas"
 						data-bs-target="#navOffcanvas"
