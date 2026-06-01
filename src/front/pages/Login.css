@@ -97,7 +97,7 @@
 /* Vintage Header Typography */
 .sidebar-title {
   font-family: var(--auth-font-serif);
-  font-size: 500px;
+  font-size: 4.5rem !important;
   font-weight: 700;
   line-height: 1.1;
   margin: 0;
@@ -205,20 +205,23 @@
 
 /* Waving Mascot Style & Fallback */
 .mascot-waving {
-  /* 
-    To set your own waving mascot image, put it in:
-    src/front/assets/img/caja06.png
-  */
   background-image: url('../assets/img/mascota.png');
+  width: 500px;
+  height: 500px;
+}
+
+/* Forgot Password Mascot */
+.mascot-forgot {
+  background-image: url('../assets/img/caja02.png');
+  width: 400px;
+  height: 400px;
 }
 
 /* Reading Mascot Style & Fallback */
 .mascot-reading {
-  /* 
-    To set your own reading mascot image, put it in:
-    src/front/assets/img/caja05.png
-  */
-  background-image: url('../assets/img/caja05.png');
+  background-image: url('../assets/img/Register_ico.png');
+  width: 400px;
+  height: 400px;
 }
 
 /* Fallback visual representation if images are not found */
