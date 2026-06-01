@@ -4,6 +4,14 @@ from api.models import db, Review, User, Event, Notification, NotificationType
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
+def _recalculate_user_rating(user):
+    reviews = user.my_received_reviews
+    if reviews:
+        user.user_rating = round(sum(float(r.rating) for r in reviews) / len(reviews), 2)
+    else:
+        user.user_rating = None
+
+
 @api.route("/review", methods=['GET'])
 def get_reviews():
     reviews = db.session.execute(db.select(Review)).scalars().all()
@@ -82,9 +90,15 @@ def create_review():
         event_id=body['event_id']
     )
     db.session.add(new_review)
+    db.session.flush()
 
+    reviewed = db.session.get(User, body['reviewed_id'])
     reviewer = db.session.get(User, body['reviewer_id'])
     reviewer_name = reviewer.username if reviewer else "Alguien"
+
+    if reviewed:
+        _recalculate_user_rating(reviewed)
+
     db.session.add(Notification(
         user_id=body['reviewed_id'],
         type=NotificationType.review_received,
@@ -121,6 +135,10 @@ def update_review(review_id):
     if 'comment' in body:
         review.comment = body['comment']
 
+    reviewed = db.session.get(User, review.reviewed_id)
+    if reviewed:
+        _recalculate_user_rating(reviewed)
+
     db.session.commit()
     return jsonify({"success": True, "data": "All Ok"}), 200
 
@@ -141,6 +159,12 @@ def delete_review(review_id):
     if str(review.reviewer_id) != str(reviewer_id):
         return jsonify({"success": False, "msg": "Unauthorized"}), 401
 
+    reviewed = db.session.get(User, review.reviewed_id)
     db.session.delete(review)
+    db.session.flush()
+
+    if reviewed:
+        _recalculate_user_rating(reviewed)
+
     db.session.commit()
     return jsonify({"success": True, "data": "Review deleted successfully"}), 200

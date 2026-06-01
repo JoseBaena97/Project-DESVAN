@@ -64,20 +64,15 @@ authService.resetPassword = async (token, password) => {
 };
 
 authService.getMe = async () => {
-  try {
-    const resp = await fetch(url + "api/profile", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"), //si tiene la ruta de @jwt_required() se envía la autorización con el bearer token. Cuidado es "Bearer " con espacio porque si no lee el token junto con Bearer.
-      },
-    });
-    if (!resp.ok) throw new Error("Error auth");
-    const data = await resp.json(); //se cuela solo la info necesaria
-    return data;
-  } catch (error) {
-    // silently fail — callers handle undefined return
-  }
+  const resp = await fetch(url + "api/profile", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + localStorage.getItem("token"),
+    },
+  });
+  if (!resp.ok) throw new Error("Error auth");
+  return await resp.json();
 };
 
 authService.logout = () => {

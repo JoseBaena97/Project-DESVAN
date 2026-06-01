@@ -221,6 +221,12 @@ export const Details = () => {
 
   return (
     <div className="event-detail-page page-transition">
+      <div className="event-back-row">
+        <button className="btn-back" onClick={() => navigate(-1)}>
+          <i className="fa-solid fa-arrow-left"></i>
+          Volver
+        </button>
+      </div>
       <div className="event-detail-container">
 
         {/* ── MAIN ── */}

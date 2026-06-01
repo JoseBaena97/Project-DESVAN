@@ -10,6 +10,31 @@
   font-family: var(--font-sans);
 }
 
+.event-back-row {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 0.75rem;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-red);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.35rem 0;
+  transition: opacity 0.15s ease;
+}
+
+.btn-back:hover {
+  opacity: 0.8;
+  color: var(--text-red);
+}
+
 .event-detail-container {
   max-width: 1200px;
   margin: 0 auto;
