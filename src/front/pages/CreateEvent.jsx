@@ -167,11 +167,23 @@ export const CreateEvent = () => {
         }
     };
 
+    const handleRemoveMainImage = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setMainImage(null);
+        setMainImageFile(null);
+    };
+
     const handleAddImages = (e) => {
         const files = Array.from(e.target.files).slice(0, 5);
         const newPreviews = files.map((f) => URL.createObjectURL(f));
         setImages((prev) => [...prev, ...newPreviews].slice(0, 5));
         setGalleryFiles((prev) => [...prev, ...files].slice(0, 5));
+    };
+
+    const handleRemoveGalleryImage = (index) => {
+        setImages((prev) => prev.filter((_, i) => i !== index));
+        setGalleryFiles((prev) => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e) => {
@@ -587,11 +599,21 @@ export const CreateEvent = () => {
 
                             <label className="image-upload-zone" htmlFor="main-image-input">
                                 {mainImage ? (
-                                    <img
-                                        src={mainImage}
-                                        alt="Preview"
-                                        className="image-preview-main"
-                                    />
+                                    <>
+                                        <img
+                                            src={mainImage}
+                                            alt="Preview"
+                                            className="image-preview-main"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="img-remove-btn img-remove-btn--main"
+                                            onClick={handleRemoveMainImage}
+                                            aria-label="Quitar imagen principal"
+                                        >
+                                            <i className="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </>
                                 ) : (
                                     <>
                                         <i className="fa-solid fa-cloud-arrow-up upload-icon"></i>
@@ -617,6 +639,14 @@ export const CreateEvent = () => {
                                 {images.map((img, i) => (
                                     <div key={i} className="gallery-thumb">
                                         <img src={img} alt={`thumb-${i}`} />
+                                        <button
+                                            type="button"
+                                            className="img-remove-btn"
+                                            onClick={() => handleRemoveGalleryImage(i)}
+                                            aria-label="Quitar imagen"
+                                        >
+                                            <i className="fa-solid fa-xmark"></i>
+                                        </button>
                                     </div>
                                 ))}
                             </div>

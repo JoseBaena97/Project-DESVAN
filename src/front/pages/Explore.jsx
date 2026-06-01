@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import caja05 from "../assets/img/caja05.png";
+import logoBw from "../assets/img/logo_bw.png";
 import eventService from "../services/event.service";
 import favoriteService from "../services/favorite.service";
 import authService from "../services/auth.service";
@@ -635,7 +636,7 @@ export const Explore = () => {
                             return (
                                 <div key={event.id} className="event-card">
                                     <div className="event-img-wrapper">
-                                        <img src={event.image_url?.cover || event.image} alt={event.title} className="event-img" />
+                                        <img src={event.image_url?.cover || event.image || logoBw} alt={event.title} className={`event-img${!(event.image_url?.cover || event.image) ? " img-fallback" : ""}`} />
 
                                         <button
                                             className={`event-fav-btn${favoriteMap[event.id] ? " active" : ""}`}

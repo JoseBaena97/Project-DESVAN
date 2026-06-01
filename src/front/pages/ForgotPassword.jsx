@@ -34,6 +34,22 @@ export const ForgotPassword = () => {
 
   return (
     <div className="auth-page-container">
+
+      {/* DECORATIVE SIDEBAR */}
+      <div className="auth-sidebar">
+        <div className="sidebar-content-wrapper">
+          <div className="sidebar-slide-content slide-in">
+            <h1 className="sidebar-title">¿Olvidaste tu acceso?</h1>
+            <div className="vintage-divider"></div>
+            <p className="sidebar-subtitle">Te ayudamos a recuperarlo en un momento.</p>
+            <div className="mascot-container">
+              <div className="mascot-image mascot-forgot"></div>
+            </div>
+          </div>
+        </div>
+        <div className="torn-paper-edge"></div>
+      </div>
+
       <div className="auth-form-area">
         <div className="auth-card auth-card-small">
           <div className="brand-header">

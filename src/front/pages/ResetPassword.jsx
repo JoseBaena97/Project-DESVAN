@@ -62,6 +62,22 @@ export const ResetPassword = () => {
 
   return (
     <div className="auth-page-container">
+
+      {/* DECORATIVE SIDEBAR */}
+      <div className="auth-sidebar">
+        <div className="sidebar-content-wrapper">
+          <div className="sidebar-slide-content slide-in">
+            <h1 className="sidebar-title">Nueva contraseña</h1>
+            <div className="vintage-divider"></div>
+            <p className="sidebar-subtitle">Elige algo seguro y fácil de recordar.</p>
+            <div className="mascot-container">
+              <div className="mascot-image mascot-waving"></div>
+            </div>
+          </div>
+        </div>
+        <div className="torn-paper-edge"></div>
+      </div>
+
       <div className="auth-form-area">
         <div className="auth-card auth-card-small">
           <div className="brand-header">
