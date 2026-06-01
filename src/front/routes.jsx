@@ -20,7 +20,8 @@ import { Favorites } from "./pages/account/Favorites";
 import { Reservations } from "./pages/account/Reservations";
 import { MyEvents } from "./pages/account/MyEvents";
 import { Reviews } from "./pages/account/Reviews";
-import { Details } from "./pages/Details"
+import { Details } from "./pages/Details";
+import { NotFound } from "./pages/NotFound";
 
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -28,7 +29,7 @@ export const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       {/* Root Route: All navigation will start from here. */}
-      <Route path="/" element={<Layout />} errorElement={<h1>Not found!</h1>} >
+      <Route path="/" element={<Layout />} errorElement={<NotFound />} >
 
         {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
         <Route path="/" element={<Home />} />
@@ -59,6 +60,9 @@ export const router = createBrowserRouter(
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* Página 404 sin navbar ni footer */}
+      <Route path="*" element={<NotFound />} />
     </>
   )
 );
