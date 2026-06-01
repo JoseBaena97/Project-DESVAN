@@ -73,7 +73,7 @@ export const Login = () => {
           }
         });
 
-        navigate(returnPath, { replace: true });
+        navigate(data.data?.is_admin ? '/admin' : returnPath, { replace: true });
       })
       .catch((err) => {
         console.log(err);
@@ -121,7 +121,7 @@ export const Login = () => {
 
   useEffect(() => {
     if (localStorage.getItem('token') && store.user) {
-      navigate(returnPath, { replace: true });
+      navigate(store.user.is_admin ? '/admin' : returnPath, { replace: true });
     }
   }, [store.user, navigate, returnPath]);
 

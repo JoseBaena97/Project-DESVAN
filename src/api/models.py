@@ -33,6 +33,14 @@ class NotificationType(enum.Enum):
     event_upcoming = "event_upcoming"
 
 
+class ReportReason(enum.Enum):
+    spam = "spam"
+    inappropriate_content = "inappropriate_content"
+    harassment = "harassment"
+    fraud = "fraud"
+    other = "other"
+
+
 class Category (db.Model):
     __tablename__ = "categories"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -461,6 +469,30 @@ class EventTag(db.Model):
                 "id": self.event_id,
                 "title": self.event.title
             }
+        }
+
+
+class Report(db.Model):
+    __tablename__ = "reports"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    reason: Mapped[ReportReason] = mapped_column(Enum(ReportReason), nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=True)
+    is_resolved: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc))
+
+    reporter_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    reported_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "reason": self.reason.value,
+            "message": self.message,
+            "is_resolved": self.is_resolved,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "reporter_id": self.reporter_id,
+            "reported_id": self.reported_id,
         }
 
 

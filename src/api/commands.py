@@ -113,8 +113,13 @@ def setup_commands(app):
             profile_picture_url="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2",
             is_verified=False, user_rating=None,
         )
+        admin = User(
+            email="admin@admin.com", username="admin", password=generate_password_hash("Admin@123"),
+            bio="Administrador de la plataforma.",
+            is_verified=True, is_admin=True,
+        )
 
-        db.session.add_all([pepe, lola, matia, sara, carlos, ana, luis, maria])
+        db.session.add_all([pepe, lola, matia, sara, carlos, ana, luis, maria, admin])
         db.session.flush()
 
         # ── PERFILES ──────────────────────────────────────────────────────────
@@ -128,6 +133,7 @@ def setup_commands(app):
             Profile(user_id=ana.id,    firstname="Ana",    lastname="Garcia",   address="Paseo de la Independencia 5, Zaragoza", phone="+34911000116"),
             Profile(user_id=luis.id,   firstname="Luis",   lastname="Fernandez",address="Calle Luna 7, Madrid",            phone="+34911000117"),
             Profile(user_id=maria.id,  firstname="Maria",  lastname="Blanco",   address="Avenida Constitucion 3, Sevilla", phone="+34911000118"),
+            Profile(user_id=admin.id,  firstname="Admin",  lastname="",         address="",                                phone=""),
         ])
 
         # ── CATEGORÍAS Y TAGS ─────────────────────────────────────────────────
@@ -520,7 +526,7 @@ def setup_commands(app):
         ])
 
         db.session.commit()
-        print("Test data inserted successfully: 8 usuarios, 13 eventos, categorias, tags, reservas, favoritos y resenas.")
+        print("Test data inserted successfully: 9 usuarios (1 admin), 13 eventos, categorias, tags, reservas, favoritos y resenas.")
 
     @app.cli.command("seed-categories-tags")
     def seed_categories_tags():

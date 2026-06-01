@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 436de5f304db
+Revision ID: 000617aa8847
 Revises: 
-Create Date: 2026-05-31 18:52:04.824100
+Create Date: 2026-06-01 12:17:31.959111
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '436de5f304db'
+revision = '000617aa8847'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -77,6 +77,18 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id')
+    )
+    op.create_table('reports',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('reason', sa.Enum('spam', 'inappropriate_content', 'harassment', 'fraud', 'other', name='reportreason'), nullable=False),
+    sa.Column('message', sa.Text(), nullable=True),
+    sa.Column('is_resolved', sa.Boolean(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('reporter_id', sa.Integer(), nullable=False),
+    sa.Column('reported_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['reported_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['reporter_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('event_categories',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -149,6 +161,7 @@ def downgrade():
     op.drop_table('favorites')
     op.drop_table('event_tags')
     op.drop_table('event_categories')
+    op.drop_table('reports')
     op.drop_table('profile')
     op.drop_table('events')
     op.drop_table('users')

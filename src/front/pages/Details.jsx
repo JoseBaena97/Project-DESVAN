@@ -6,6 +6,7 @@ import eventService from "../services/event.service";
 import favoriteService from "../services/favorite.service";
 import reservationService from "../services/reservation.service";
 import reviewService from "../services/review.service";
+import adminService from "../services/admin.service";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { Map } from "../components/Map";
 
@@ -24,6 +25,11 @@ export const Details = () => {
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewComment, setReviewComment] = useState("");
   const [reviewFeedback, setReviewFeedback] = useState("");
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("spam");
+  const [reportMessage, setReportMessage] = useState("");
+  const [reportFeedback, setReportFeedback] = useState("");
+  const [reportLoading, setReportLoading] = useState(false);
   const [event, setEvent] = useState(null);
   const [favoriteRecord, setFavoriteRecord] = useState(null);
   const [reservationRecord, setReservationRecord] = useState(null);
@@ -385,9 +391,17 @@ export const Details = () => {
                 No puedes evaluarte a ti mismo
               </button>
             ) : (
-              <button className="btn-evaluate" onClick={() => setShowReviewModal(true)}>
-                Evaluar
-              </button>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <button className="btn-evaluate" onClick={() => setShowReviewModal(true)}>
+                  Evaluar
+                </button>
+                <button
+                  className="btn-report-seller"
+                  onClick={() => { setShowReportModal(true); setReportFeedback(""); }}
+                >
+                  <i className="bi bi-flag"></i> Reportar usuario
+                </button>
+              </div>
             )}
           </div>
 
@@ -618,6 +632,80 @@ export const Details = () => {
               </button>
               <button type="button" className="btn-submit" onClick={handleSubmitReview}>
                 Enviar valoración
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showReportModal && (
+        <div className="modal-backdrop" onClick={() => setShowReportModal(false)}>
+          <div className="modal-content-custom report-modal" onClick={e => e.stopPropagation()}>
+
+            <div className="review-modal-header">
+              <h3>Reportar a @{event.seller?.username}</h3>
+              <button className="modal-close-btn" onClick={() => setShowReportModal(false)}>
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div className="report-modal-body">
+              <div className="report-field">
+                <label className="report-label">Motivo del reporte</label>
+                <select
+                  className="report-select"
+                  value={reportReason}
+                  onChange={e => setReportReason(e.target.value)}
+                >
+                  <option value="spam">Spam</option>
+                  <option value="inappropriate_content">Contenido inapropiado</option>
+                  <option value="harassment">Acoso</option>
+                  <option value="fraud">Fraude</option>
+                  <option value="other">Otro</option>
+                </select>
+              </div>
+
+              <div className="report-field">
+                <label className="report-label">Descripción <span className="report-label-opt">(opcional)</span></label>
+                <textarea
+                  className="review-comment-textarea"
+                  rows={3}
+                  placeholder="Describe el problema con más detalle..."
+                  value={reportMessage}
+                  onChange={e => setReportMessage(e.target.value)}
+                />
+              </div>
+
+              {reportFeedback && (
+                <p className={reportFeedback.startsWith("✓") ? "report-feedback report-feedback--ok" : "report-feedback report-feedback--err"}>
+                  {reportFeedback}
+                </p>
+              )}
+            </div>
+
+            <div className="review-modal-actions">
+              <button type="button" className="btn-cancel" onClick={() => setShowReportModal(false)}>
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn-submit"
+                disabled={reportLoading}
+                onClick={async () => {
+                  setReportLoading(true);
+                  try {
+                    await adminService.reportUser(event.seller.id, reportReason, reportMessage);
+                    setReportFeedback("✓ Reporte enviado. Lo revisaremos pronto.");
+                    setReportMessage("");
+                    setTimeout(() => setShowReportModal(false), 1800);
+                  } catch (err) {
+                    setReportFeedback(err.message || "Error al enviar el reporte.");
+                  } finally {
+                    setReportLoading(false);
+                  }
+                }}
+              >
+                {reportLoading ? "Enviando..." : "Enviar reporte"}
               </button>
             </div>
           </div>

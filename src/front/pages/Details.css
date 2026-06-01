@@ -555,6 +555,28 @@
   background-color: #7f1f12;
 }
 
+.btn-report-seller {
+  width: 100%;
+  padding: 10px 16px;
+  background: none;
+  border: 1.5px solid #f5c6cb;
+  border-radius: 12px;
+  color: #c0392b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-report-seller:hover {
+  background: #fde8ea;
+  border-color: #c0392b;
+}
+
 .review-type-selector {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1247,4 +1269,74 @@
   font-weight: 700;
   cursor: not-allowed;
   width: 100%;
+}
+
+/* ── Modal de reporte ── */
+.report-modal {
+  max-width: 480px;
+}
+
+.report-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.report-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.report-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.report-label-opt {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #8c7a72;
+  font-size: 0.8rem;
+}
+
+.report-select {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 1px solid #e8d8cc;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  background: #fcfbf8;
+  appearance: auto;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.report-select:focus {
+  border-color: var(--text-red);
+}
+
+.report-feedback {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+}
+
+.report-feedback--ok {
+  background: #e6f7ec;
+  color: #1a6b30;
+}
+
+.report-feedback--err {
+  background: #fde8ea;
+  color: #9b1a25;
 }

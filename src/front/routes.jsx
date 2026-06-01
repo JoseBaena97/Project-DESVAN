@@ -23,6 +23,13 @@ import { Reviews } from "./pages/account/Reviews";
 import { Details } from "./pages/Details"
 
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AdminRoute } from "./components/AdminRoute";
+import { AdminLayout } from "./pages/admin/AdminLayout";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminUsers } from "./pages/admin/AdminUsers";
+import { AdminEvents } from "./pages/admin/AdminEvents";
+import { AdminReviews } from "./pages/admin/AdminReviews";
+import { AdminReports } from "./pages/admin/AdminReports";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -52,6 +59,17 @@ export const router = createBrowserRouter(
           <Route path="/mis-reservas" element={<Reservations />} />
           <Route path="/mis-eventos" element={<MyEvents />} />
           <Route path="/mis-valoraciones" element={<Reviews />} />
+        </Route>
+      </Route>
+
+      {/* Panel de administración — protegido por AdminRoute */}
+      <Route element={<AdminRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/usuarios" element={<AdminUsers />} />
+          <Route path="/admin/reportes" element={<AdminReports />} />
+          <Route path="/admin/eventos" element={<AdminEvents />} />
+          <Route path="/admin/valoraciones" element={<AdminReviews />} />
         </Route>
       </Route>
 
