@@ -99,7 +99,7 @@ export const Login = () => {
               return;
             }
             if (status === 403 && data && data.msg === "Esta cuenta ha sido desactivada") {
-              showErrorAlert("Esta cuenta ha sido desactivada.");
+              showErrorAlert("Esta cuenta ha sido desactivada. Para reactivarla contacte con soporte: suport@desvan.com");
               return;
             }
           }
