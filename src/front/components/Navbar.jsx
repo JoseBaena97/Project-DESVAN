@@ -43,7 +43,7 @@ export const Navbar = () => {
 						<NotificationBell compact />
 						<Link to={store.user ? "/perfil" : "/login"}>
 							<button className="btn-secondary-custom">
-								<img src={user_ico} alt="user" className="user_ico"/> Mi Perfil
+								<img src={user_ico} alt="user" className="user_ico"/> {store.user ? "Mi Perfil" : "Iniciar sesión"}
 							</button>
 						</Link>
 						<Link to={store.user ? "/crear-evento" : "/login"}>
@@ -84,7 +84,7 @@ export const Navbar = () => {
 							data-bs-dismiss="offcanvas"
 							onClick={() => navigate(store.user ? "/perfil" : "/login")}
 						>
-							<img src={user_ico} alt="user" className="user_ico"/> Mi Perfil
+							<img src={user_ico} alt="user" className="user_ico"/> {store.user ? "Mi Perfil" : "Iniciar sesión"}
 						</button>
 						<button
 							className="btn-primary-custom"
