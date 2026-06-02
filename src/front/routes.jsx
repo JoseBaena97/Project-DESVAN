@@ -64,11 +64,11 @@ export const router = createBrowserRouter(
       {/* Panel de administración — protegido por AdminRoute */}
       <Route element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/usuarios" element={<AdminUsers />} />
-          <Route path="/admin/reportes" element={<AdminReports />} />
-          <Route path="/admin/eventos" element={<AdminEvents />} />
-          <Route path="/admin/valoraciones" element={<AdminReviews />} />
+          <Route path="/backoffice" element={<AdminDashboard />} />
+          <Route path="/backoffice/usuarios" element={<AdminUsers />} />
+          <Route path="/backoffice/reportes" element={<AdminReports />} />
+          <Route path="/backoffice/eventos" element={<AdminEvents />} />
+          <Route path="/backoffice/valoraciones" element={<AdminReviews />} />
         </Route>
       </Route>
 
