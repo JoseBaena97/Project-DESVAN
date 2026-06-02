@@ -140,15 +140,6 @@ export const PublicProfile = () => {
         </div>
       </header>
 
-      <section className="public-profile-bio-section">
-        <h2 className="public-profile-section-title">Biografía</h2>
-        {profile.bio ? (
-          <p className="public-profile-bio-text">{profile.bio}</p>
-        ) : (
-          <p className="public-profile-bio-empty">Este vendedor aún no ha escrito su biografía.</p>
-        )}
-      </section>
-
       <section className="public-profile-section">
         <div className="public-profile-section-header">
           <h2 className="public-profile-section-title">Eventos creados</h2>
