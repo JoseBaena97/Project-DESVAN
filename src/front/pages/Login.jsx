@@ -73,7 +73,7 @@ export const Login = () => {
           }
         });
 
-        navigate(data.data?.is_admin ? '/admin' : returnPath, { replace: true });
+        navigate(data.data?.is_admin ? '/backoffice' : returnPath, { replace: true });
       })
       .catch((err) => {
         //Manejar errores específicos del backend
@@ -119,7 +119,7 @@ export const Login = () => {
 
   useEffect(() => {
     if (localStorage.getItem('token') && store.user) {
-      navigate(store.user.is_admin ? '/admin' : returnPath, { replace: true });
+      navigate(store.user.is_admin ? '/backoffice' : returnPath, { replace: true });
     }
   }, [store.user, navigate, returnPath]);
 
