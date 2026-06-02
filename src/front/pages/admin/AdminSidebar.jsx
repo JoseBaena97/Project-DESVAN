@@ -7,11 +7,11 @@ export const AdminSidebar = () => {
     const navigate = useNavigate();
 
     const links = [
-        { to: "/admin", label: "Dashboard", icon: "bi-speedometer2", end: true },
-        { to: "/admin/usuarios", label: "Usuarios", icon: "bi-people" },
-        { to: "/admin/reportes", label: "Reportes", icon: "bi-flag" },
-        { to: "/admin/eventos", label: "Eventos", icon: "bi-calendar-event" },
-        { to: "/admin/valoraciones", label: "Valoraciones", icon: "bi-star" },
+        { to: "/backoffice", label: "Dashboard", icon: "bi-speedometer2", end: true },
+        { to: "/backoffice/usuarios", label: "Usuarios", icon: "bi-people" },
+        { to: "/backoffice/reportes", label: "Reportes", icon: "bi-flag" },
+        { to: "/backoffice/eventos", label: "Eventos", icon: "bi-calendar-event" },
+        { to: "/backoffice/valoraciones", label: "Valoraciones", icon: "bi-star" },
     ];
 
     const handleLogout = () => {
