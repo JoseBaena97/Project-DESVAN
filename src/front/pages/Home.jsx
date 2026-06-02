@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./Home.css";
-import mascotSad from "../assets/img/caja05.png";
+import mascotLanding from "../assets/img/mascota_landing.png";
 import mascotPointing from "../assets/img/caja06.png";
 
 export const Home = () => {
@@ -29,7 +29,7 @@ export const Home = () => {
 					<div className="hero-image-container">
 						<div className="hero-box">
 							<span className="tag-est">EST. 2026</span>
-							<img src={mascotSad} alt="Sad Box Mascot" />
+							<img src={mascotLanding} alt="Landing Box Mascot" />
 							<span className="tag-sell">Vende aquí</span>
 						</div>
 					</div>
