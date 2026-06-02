@@ -356,6 +356,15 @@ export const Details = () => {
             </div>
           )}
 
+          {event.event_type === "publico" && (
+            <div className="card-limited">
+              <h3>Evento público</h3>
+              <p className="remaining-seats">
+                Este evento está abierto a todo el mundo
+              </p>
+            </div>
+          )}
+
           <div className="card-seller-box">
             <div className="seller-card-header">Vendedor</div>
             <div className="seller-card-inner">

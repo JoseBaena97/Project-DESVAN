@@ -184,6 +184,11 @@ export const Login = () => {
       <div className="auth-form-area">
         <div className="auth-card">
 
+          {/* Back Button */}
+          <button className="auth-back-btn" onClick={() => navigate(-1)}>
+            <i className="fa-solid fa-arrow-left"></i> Volver
+          </button>
+
           {/* Brand Icon Header */}
           <div className="brand-header">
             <div className="brand-box-icon">
