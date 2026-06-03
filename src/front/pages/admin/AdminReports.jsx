@@ -9,6 +9,25 @@ const REASON_LABELS = {
     other: "Otro",
 };
 
+const ExpandableMessage = ({ text }) => {
+    const [expanded, setExpanded] = useState(false);
+    if (!text) return <em className="admin-no-comment">Sin mensaje</em>;
+    const isLong = text.length > 80;
+    return (
+        <span>
+            {expanded || !isLong ? text : `${text.slice(0, 80)}…`}
+            {isLong && (
+                <button
+                    className="admin-expand-btn"
+                    onClick={() => setExpanded(e => !e)}
+                >
+                    {expanded ? " Ver menos" : " Ver más"}
+                </button>
+            )}
+        </span>
+    );
+};
+
 const SortIcon = ({ field, sort }) => {
     if (sort.field !== field) return <i className="bi bi-arrow-down-up admin-sort-icon admin-sort-icon--inactive"></i>;
     return sort.dir === "asc"
@@ -151,7 +170,7 @@ export const AdminReports = () => {
                                         </span>
                                     </td>
                                     <td className="admin-td-comment">
-                                        {r.message || <em className="admin-no-comment">Sin mensaje</em>}
+                                        <ExpandableMessage text={r.message} />
                                     </td>
                                     <td>{r.created_at ? new Date(r.created_at).toLocaleDateString("es-ES") : "—"}</td>
                                     <td>
