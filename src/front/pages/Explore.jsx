@@ -330,6 +330,14 @@ export const Explore = () => {
             setFavoriteMap((prev) => ({ ...prev, [event.id]: resp.favorite.id }));
         }
     };
+    const DATE_OPTIONS = [
+        { value: "cualquier", label: "Cualquier fecha" },
+        { value: "hoy",       label: "Hoy" },
+        { value: "finde",     label: "Este fin de semana" },
+        { value: "semana",    label: "Esta semana" },
+        { value: "mes",       label: "Este mes" },
+    ];
+
     const SORT_OPTIONS = [
         { value: "hot",       label: "Hot 🔥" },
         { value: "novedades", label: "Novedades" },
@@ -465,20 +473,18 @@ export const Explore = () => {
                                 <span className="filter-icon"><i className="fa-solid fa-calendar-days"></i></span>
                                 Fecha
                             </h4>
-                            <div className="select-wrapper">
-                                <select
-                                    className="date-select"
-                                    value={selectedDate}
-                                    onChange={e => setSelectedDate(e.target.value)}
-                                >
-                                    <option value="cualquier">Cualquier fecha</option>
-                                    <option value="hoy">Hoy</option>
-                                    <option value="finde">Este fin de semana</option>
-                                    <option value="semana">Esta semana</option>
-                                    <option value="mes">Este mes</option>
-                                </select>
-                                <i className="fa-solid fa-chevron-down select-arrow"></i>
-                            </div>
+                            <ul className="categories-list">
+                                {DATE_OPTIONS.map(opt => (
+                                    <li
+                                        key={opt.value}
+                                        className={`category-item${selectedDate === opt.value ? " active" : ""}`}
+                                        onClick={() => setSelectedDate(opt.value)}
+                                    >
+                                        {opt.label}
+                                        {selectedDate === opt.value && <span className="cat-arrow">›</span>}
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
 
                         {(selectedCategory || selectedTags.length > 0 || selectedDate !== "cualquier") && (

@@ -2,6 +2,19 @@
    DESVAN - Single Event Detail Page Styles
    ========================================================================== */
 
+.loading-container {
+  min-height: calc(100vh - 160px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 105px;
+}
+
+.loading-container p {
+  color: var(--text-muted, #718096);
+  font-size: 1rem;
+}
+
 .event-detail-page {
   padding-top: 105px; /* Compensa la altura del navbar (83px) con espacio de respiración */
   background-color: var(--bg-main);

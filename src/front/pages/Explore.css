@@ -219,39 +219,6 @@
   border-radius: 3px;
 }
 
-/* Date select */
-.select-wrapper {
-  position: relative;
-}
-
-.date-select {
-  width: 100%;
-  padding: 0.5rem 2rem 0.5rem 0.65rem;
-  border: 1px solid #ddd3c7;
-  border-radius: 8px;
-  font-size: 0.82rem;
-  color: var(--text-dark);
-  background-color: #fafafa;
-  appearance: none;
-  -webkit-appearance: none;
-  cursor: pointer;
-  font-family: var(--font-sans);
-}
-
-.date-select:focus {
-  outline: none;
-  border-color: #b5927a;
-}
-
-.select-arrow {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.7rem;
-  color: #8c7a72;
-  pointer-events: none;
-}
 
 /* Apply button */
 .btn-apply-filters {
