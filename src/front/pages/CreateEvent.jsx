@@ -52,7 +52,7 @@ export const CreateEvent = () => {
     const _today = new Date();
     const todayString = `${_today.getFullYear()}-${pad(_today.getMonth() + 1)}-${pad(_today.getDate())}`;
 
-    
+
 
     useEffect(() => {
         if (store.user) {
