@@ -153,6 +153,7 @@ export const Profile = () => {
 		if (resp) {
 			const updatedUser = resp?.data ?? resp;
 			setData(updatedUser);
+			dispatch({ type: 'auth', payload: { user: updatedUser } });
 			if (updatedUser.profile_picture_url) {
 				setProfilePicturePreview(updatedUser.profile_picture_url);
 			}
