@@ -1,6 +1,19 @@
+from datetime import datetime, timedelta, timezone
 from flask import request, jsonify
 from api.routes import api
-from api.models import db, Reservation, User, Event, ReservationStatus, Notification, NotificationType
+from api.models import db, Reservation, User, Event, EventType, ReservationStatus, Notification, NotificationType
+
+CANCELLATION_WINDOW = timedelta(hours=24)
+
+
+def _cancellation_blocked(event):
+    """Las reservas de eventos privados no se pueden cancelar dentro de las 24h previas al evento."""
+    if event.event_type != EventType.privado or not event.start_time:
+        return False
+    event_start = event.start_time
+    if event_start.tzinfo is None:
+        event_start = event_start.replace(tzinfo=timezone.utc)
+    return datetime.now(timezone.utc) >= event_start - CANCELLATION_WINDOW
 
 @api.route("/reservation", methods=["GET"])
 def get_reservations():
@@ -117,10 +130,19 @@ def update_reservation(reservation_id):
         
     if "status" in body:
         try:
-            reservation.status = ReservationStatus(body["status"])
+            new_status = ReservationStatus(body["status"])
         except ValueError:
             return jsonify({"message": f"Invalid status. Must be one of: {[s.value for s in ReservationStatus]}"}), 400
-        
+
+        if new_status == ReservationStatus.cancelled and reservation.status != ReservationStatus.cancelled:
+            event = db.session.get(Event, reservation.event_id)
+            if event and _cancellation_blocked(event):
+                return jsonify({
+                    "message": "Reservations for private events cannot be cancelled within 24 hours of the event"
+                }), 400
+
+        reservation.status = new_status
+
     db.session.commit()
     return jsonify({"message": "Reservation updated successfully", "reservation": reservation.serialize()}), 200
 
@@ -129,7 +151,13 @@ def delete_reservation(reservation_id):
     reservation = db.session.get(Reservation, reservation_id)
     if not reservation:
         return jsonify({"message": "Reservation not found"}), 404
-        
+
+    event = db.session.get(Event, reservation.event_id)
+    if event and _cancellation_blocked(event):
+        return jsonify({
+            "message": "Reservations for private events cannot be cancelled within 24 hours of the event"
+        }), 400
+
     db.session.delete(reservation)
     db.session.commit()
     return jsonify({"message": "Reservation deleted successfully"}), 200

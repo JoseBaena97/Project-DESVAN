@@ -22,6 +22,13 @@ const isEventEnded = (reservation) => {
 
 const isEventCancelled = (reservation) => reservation.event?.status === "cancelled";
 
+const isCancellationBlocked = (reservation) => {
+	if (reservation.event?.event_type !== "privado") return false;
+	const startTime = reservation.event?.start_time;
+	if (!startTime) return false;
+	return new Date(startTime) - new Date() <= 24 * 60 * 60 * 1000;
+};
+
 const matchesTab = (reservation, tab) => {
 	const { status } = reservation;
 	const eventCancelled = isEventCancelled(reservation);
@@ -34,6 +41,7 @@ const matchesTab = (reservation, tab) => {
 export const Reservations = () => {
 	const [activeTab, setActiveTab] = useState("Próximas");
 	const [reservations, setReservations] = useState([]);
+	const [cancelError, setCancelError] = useState("");
 	const { store, dispatch } = useGlobalReducer();
 	const navigate = useNavigate();
 
@@ -66,13 +74,18 @@ export const Reservations = () => {
 	}, [store.user, store.userLoading, dispatch, navigate]);
 
 	const handleCancel = async (reservationId) => {
-		const resp = await reservationService.cancelReservation(reservationId);
-		if (resp) {
-			setReservations((prev) =>
-				prev.map((item) =>
-					item.id === reservationId ? { ...item, status: "cancelled" } : item
-				)
-			);
+		setCancelError("");
+		try {
+			const resp = await reservationService.cancelReservation(reservationId);
+			if (resp) {
+				setReservations((prev) =>
+					prev.map((item) =>
+						item.id === reservationId ? { ...item, status: "cancelled" } : item
+					)
+				);
+			}
+		} catch (error) {
+			setCancelError(error.message);
 		}
 	};
 
@@ -107,6 +120,8 @@ export const Reservations = () => {
 					</button>
 				))}
 			</div>
+
+			{cancelError && <p className="reservations-feedback">{cancelError}</p>}
 
 			<div className="reservations-layout">
 				<div className="reservations-main">
@@ -191,6 +206,8 @@ export const Reservations = () => {
 													type="button"
 													className="reservation-btn-secondary"
 													onClick={() => handleCancel(reservation.id)}
+													disabled={isCancellationBlocked(reservation)}
+													title={isCancellationBlocked(reservation) ? "Las reservas de eventos privados no se pueden cancelar en las últimas 24h" : undefined}
 												>
 													Cancelar reserva
 												</button>

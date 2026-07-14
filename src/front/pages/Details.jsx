@@ -34,6 +34,7 @@ export const Details = () => {
   const [event, setEvent] = useState(null);
   const [favoriteRecord, setFavoriteRecord] = useState(null);
   const [reservationRecord, setReservationRecord] = useState(null);
+  const [reservationFeedback, setReservationFeedback] = useState("");
 
   const { store } = useGlobalReducer();
 
@@ -129,6 +130,7 @@ export const Details = () => {
   };
 
   const handleReserve = async () => {
+    setReservationFeedback("");
 
     // no dejar que el mismo usuario se reserve a sí mismo
     if (store.user.id === event.seller?.id) {
@@ -138,14 +140,18 @@ export const Details = () => {
 
     // si ya hay reserva, eliminarla
     if (reservationRecord) {
-      const resp = await reservationService.deleteReservation(reservationRecord.id);
-      if (resp) {
-        setReservationRecord(null);
-        setIsReserved(false);
-        setEvent((prevEvent) => ({
-          ...prevEvent,
-          reservations: (prevEvent.reservations || []).filter((r) => r.id !== reservationRecord.id),
-        }));
+      try {
+        const resp = await reservationService.deleteReservation(reservationRecord.id);
+        if (resp) {
+          setReservationRecord(null);
+          setIsReserved(false);
+          setEvent((prevEvent) => ({
+            ...prevEvent,
+            reservations: (prevEvent.reservations || []).filter((r) => r.id !== reservationRecord.id),
+          }));
+        }
+      } catch (error) {
+        setReservationFeedback(error.message);
       }
       return;
     }
@@ -215,6 +221,10 @@ export const Details = () => {
   // calcular plazas disponibles para eventos privados
   const confirmedCount = (event.reservations || []).filter(r => r.status === "confirmed").length;
   const remainingSeats = event.max_capacity != null ? Math.max(event.max_capacity - confirmedCount, 0) : null;
+
+  // las reservas de eventos privados no se pueden cancelar en las últimas 24h
+  const cancellationBlocked = event.event_type === "privado" && event.start_time
+    && (new Date(event.start_time) - new Date() <= 24 * 60 * 60 * 1000);
 
   const galleryImgs = (event.image_url?.gallery || []).slice(0, 4);
   const thumbCount = galleryImgs.length;
@@ -346,13 +356,18 @@ export const Details = () => {
               <button
                 className="btn-reserve-ticket"
                 onClick={handleReserve}
-                disabled={remainingSeats === 0}
+                disabled={remainingSeats === 0 || (isReserved && cancellationBlocked)}
               >
                 <i className={isReserved ? "fa-solid fa-circle-check" : "fa-solid fa-ticket"}></i>
-                <span>{isReserved ? "¡Plaza reservada!" : (remainingSeats === 0 ? "Sin plazas" : "Reservar plaza")}</span>
+                <span>
+                  {isReserved
+                    ? (cancellationBlocked ? "Plaza reservada (no cancelable)" : "¡Plaza reservada!")
+                    : (remainingSeats === 0 ? "Sin plazas" : "Reservar plaza")}
+                </span>
               </button>
 
               )}
+              {reservationFeedback && <p className="review-feedback">{reservationFeedback}</p>}
             </div>
           )}
 

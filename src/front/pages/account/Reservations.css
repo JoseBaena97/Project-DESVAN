@@ -2,6 +2,12 @@
    RESERVATIONS PAGE
    ═══════════════════════════════════════════════════════════ */
 
+.reservations-feedback {
+  color: #9a3412;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+
 .reservations-layout {
   display: flex;
   gap: 1.75rem;

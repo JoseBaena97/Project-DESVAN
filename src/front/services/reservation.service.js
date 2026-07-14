@@ -46,46 +46,38 @@ const createReservation = async (eventId, userId) => {
 };
 
 const deleteReservation = async (reservationId) => {
-  try {
-    const resp = await fetch(url + `api/reservation/${reservationId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    });
+  const resp = await fetch(url + `api/reservation/${reservationId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + localStorage.getItem("token"),
+    },
+  });
 
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => null);
-      throw new Error(err?.message || "Error deleting reservation");
-    }
-
-    return await resp.json();
-  } catch (error) {
-    return null;
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => null);
+    throw new Error(err?.message || "Error deleting reservation");
   }
+
+  return await resp.json();
 };
 
 const cancelReservation = async (reservationId) => {
-  try {
-    const resp = await fetch(url + `api/reservation/${reservationId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-      body: JSON.stringify({ status: "cancelled" }),
-    });
+  const resp = await fetch(url + `api/reservation/${reservationId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + localStorage.getItem("token"),
+    },
+    body: JSON.stringify({ status: "cancelled" }),
+  });
 
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => null);
-      throw new Error(err?.message || "Error cancelling reservation");
-    }
-
-    return await resp.json();
-  } catch (error) {
-    return null;
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => null);
+    throw new Error(err?.message || "Error cancelling reservation");
   }
+
+  return await resp.json();
 };
 
 export default { getReservationsByUser, createReservation, deleteReservation, cancelReservation };
