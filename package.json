@@ -1,11 +1,11 @@
 {
-	"name": "react-hello-webapp",
+	"name": "el-desvan",
+	"private": true,
 	"engines": {
 		"node": ">=20.0.0"
 	},
-	"version": "1.0.1",
-	"description": "",
-	"main": "index.js",
+	"version": "1.0.0",
+	"description": "El Desván: plataforma para descubrir y organizar mercadillos, mercados artesanales y garage sales",
 	"scripts": {
 		"dev": "vite",
         "start": "vite",
@@ -14,17 +14,13 @@
         "preview": "vite preview"
 	},
 	"author": {
-		"name": "Alejandro Sanchez",
-		"url": "http://alesanchezr.com/"
+		"name": "Jose Baena",
+		"url": "https://github.com/JoseBaena97"
 	},
 	"contributors": [
 		{
-			"name": "Alejandro Sanchez",
-			"url": "http://alesanchezr.com/"
-		},
-		{
-			"name": "Ignacio Cordoba",
-			"url": "http://github.com/nachovz"
+			"name": "Alicia López",
+			"url": "https://github.com/Alicia2202"
 		}
 	],
 	"license": "ISC",
@@ -37,21 +33,6 @@
         "eslint-plugin-react-hooks": "^4.6.0",
         "eslint-plugin-react-refresh": "^0.4.3",
         "vite": "^4.4.8"
-	},
-	"babel": {
-		"presets": [
-			"@babel/preset-env",
-			"@babel/preset-react"
-		],
-		"plugins": [
-			"@babel/plugin-proposal-class-properties",
-			[
-				"@babel/plugin-transform-runtime",
-				{
-					"regenerator": true
-				}
-			]
-		]
 	},
 	"dependencies": {
 		"prop-types": "^15.8.1",
