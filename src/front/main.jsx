@@ -1,23 +1,21 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import './index.css'  // Global styles for your application
-import { RouterProvider } from "react-router-dom";  // Import RouterProvider to use the router
-import { router } from "./routes";  // Import the router configuration
-import { StoreProvider } from './hooks/useGlobalReducer';  // Import the StoreProvider for global state management
-import { BackendURL } from './components/BackendURL';
+import './index.css'
+import { RouterProvider } from "react-router-dom";
+import { router } from "./routes";
+import { StoreProvider } from './hooks/useGlobalReducer';
 
 const Main = () => {
-    
-    if(! import.meta.env.VITE_BACKEND_URL ||  import.meta.env.VITE_BACKEND_URL == "") return (
-        <React.StrictMode>
-              <BackendURL/ >
-        </React.StrictMode>
-        );
+
+    if (!import.meta.env.VITE_BACKEND_URL) return (
+        <div className="container py-5 text-center">
+            <h1 className="h4">Falta configurar VITE_BACKEND_URL</h1>
+            <p>Añade la URL del backend en el archivo <code>.env</code> (por ejemplo <code>VITE_BACKEND_URL=http://localhost:3001/</code>) y reinicia Vite.</p>
+        </div>
+    );
     return (
-        <React.StrictMode>  
-            {/* Provide global state to all components */}
-            <StoreProvider> 
-                {/* Set up routing for the application */} 
+        <React.StrictMode>
+            <StoreProvider>
                 <RouterProvider router={router}>
                 </RouterProvider>
             </StoreProvider>
@@ -25,5 +23,4 @@ const Main = () => {
     );
 }
 
-// Render the Main component into the root DOM element.
 ReactDOM.createRoot(document.getElementById('root')).render(<Main />)

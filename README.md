@@ -73,7 +73,6 @@ El proyecto se construyó como una aplicación real de producción: autenticaci�
 ### Base de datos e infraestructura
 - **PostgreSQL** (producción) / **SQLite** (desarrollo local)
 - **Render.com** — despliegue continuo (backend + frontend)
-- Compatible con **Heroku**, **Docker**, **GitHub Codespaces** y **Gitpod**
 
 ---
 
@@ -107,7 +106,7 @@ Project-DESVAN/
 │       └── services/             # Capa de comunicación con la API (fetch)
 │
 ├── migrations/                   # Migraciones de base de datos (Alembic)
-├── render.yaml, Procfile         # Configuración de despliegue
+├── render.yaml, render_build.sh  # Configuración de despliegue en Render
 └── Pipfile / package.json        # Dependencias backend / frontend
 ```
 
@@ -171,7 +170,11 @@ npm run dev
 DATABASE_URL=postgres://usuario:password@localhost:5432/eldesvan
 FLASK_APP=src/app.py
 FLASK_APP_KEY=una-clave-secreta
-VITE_BACKEND_URL=http://localhost:3001
+JWT_SECRET_KEY=otra-clave-secreta   # obligatoria en producción
+
+# Frontend
+VITE_BACKEND_URL=http://localhost:3001/
+VITE_GOOGLE_MAPS_API_KEY=
 
 # Envío de emails (recuperación de contraseña)
 MAIL_SERVER=
@@ -191,7 +194,7 @@ CLOUDINARY_API_SECRET=
 
 ## 📦 Despliegue
 
-Proyecto listo para desplegarse en **Render.com** (`render.yaml`, `Dockerfile.render`) y compatible con **Heroku** (`Procfile`), sirviendo el backend con Gunicorn y el frontend compilado con Vite.
+Desplegado en **Render.com** mediante `render.yaml`: `render_build.sh` compila el frontend con Vite e instala las dependencias de Python, y el servicio aplica las migraciones y arranca Flask con Gunicorn, que sirve también el frontend compilado.
 
 ---
 
