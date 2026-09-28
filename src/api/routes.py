@@ -1,14 +1,13 @@
 """
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
+Blueprint principal de la API. Los endpoints se definen por entidad en
+api/custom_routes y se registran al importarse aquí.
 """
-from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
-from api.utils import generate_sitemap, APIException
+from flask import Blueprint
 from flask_cors import CORS
 
 api = Blueprint('api', __name__)
 
-# Allow CORS requests to this API
+# permite peticiones CORS a la API
 CORS(api)
 
 from api.custom_routes.event_category import *
@@ -27,13 +26,3 @@ from api.custom_routes.test import *
 from api.custom_routes.notification import *
 from api.custom_routes.admin import *
 from api.custom_routes.report import *
-
-
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
-
-    response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    }
-
-    return jsonify(response_body), 200

@@ -1,5 +1,5 @@
-# This file was created to run the application on heroku using gunicorn.
-# Read more about it here: https://devcenter.heroku.com/articles/python-gunicorn
+# Punto de entrada WSGI para producción (gunicorn wsgi --chdir ./src/).
+# Aplica las migraciones pendientes al arrancar salvo RUN_DB_UPGRADE_ON_START=0.
 
 import os
 from flask_migrate import upgrade
