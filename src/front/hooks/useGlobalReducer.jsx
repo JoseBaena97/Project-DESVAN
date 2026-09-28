@@ -1,4 +1,3 @@
-// Import necessary hooks and functions from React.
 import { useContext, useReducer, createContext, useEffect } from "react";
 import storeReducer, { initialStore } from "../store"
 import authService from "../services/auth.service";
@@ -35,7 +34,7 @@ export function StoreProvider({ children }) {
 
 let alertTimeout = null;
 
-// Custom hook to access the global state and dispatch function.
+// Hook para acceder al estado global y a dispatch
 export default function useGlobalReducer() {
     const { dispatch, store } = useContext(StoreContext)
     
