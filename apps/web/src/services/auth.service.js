@@ -114,4 +114,17 @@ authService.deactivateAccount = async () => {
   }
 };
 
+// Borrado definitivo (página pública /eliminar-cuenta). Funciona sin sesión
+// y también con cuentas desactivadas. Lanza un Error con el mensaje de la API.
+authService.deleteAccount = async (email, password) => {
+  const resp = await fetch(url + "api/v1/account/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await resp.json().catch(() => null);
+  if (!resp.ok) throw new Error(data?.msg || "No se pudo eliminar la cuenta");
+  return data;
+};
+
 export default authService;

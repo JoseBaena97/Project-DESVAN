@@ -32,8 +32,9 @@ export const Footer = () => (
 					<h4>LEGAL</h4>
 					<ul>
 						<li><Link to="/">Términos de uso</Link></li>
-						<li><Link to="/">Privacidad</Link></li>
+						<li><Link to="/privacidad">Privacidad</Link></li>
 						<li><Link to="/">Cookies</Link></li>
+						<li><Link to="/eliminar-cuenta">Eliminar cuenta</Link></li>
 					</ul>
 				</div>
 				<div className="footer-col">

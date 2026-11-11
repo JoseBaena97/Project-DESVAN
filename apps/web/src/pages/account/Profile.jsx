@@ -1,7 +1,7 @@
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import "./Profile.css";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import authService from "../../services/auth.service";
 import uploadService from "../../services/upload.service";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
@@ -404,6 +404,10 @@ export const Profile = () => {
 					<p>
 						Al desactivar tu cuenta, tu perfil dejará de ser visible y no podrás acceder
 						al Desván. Tus datos quedarán archivados de forma segura.
+					</p>
+					<p>
+						¿Prefieres borrarla para siempre?{" "}
+						<Link to="/eliminar-cuenta">Eliminar la cuenta definitivamente</Link>.
 					</p>
 				</div>
 				<button

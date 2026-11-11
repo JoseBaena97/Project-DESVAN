@@ -19,6 +19,8 @@ import { Reviews } from "./pages/account/Reviews";
 import { Details } from "./pages/Details";
 import {PublicProfile} from "./pages/PublicProfile";
 import { NotFound } from "./pages/NotFound";
+import { Privacy } from "./pages/Privacy";
+import { DeleteAccount } from "./pages/DeleteAccount";
 
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminRoute } from "./components/AdminRoute";
@@ -38,6 +40,9 @@ export const router = createBrowserRouter(
         {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
         <Route path="/" element={<Home />} />
         <Route path="/explorar" element={<Explore />} />
+        {/* Páginas públicas exigidas por Google Play */}
+        <Route path="/privacidad" element={<Privacy />} />
+        <Route path="/eliminar-cuenta" element={<DeleteAccount />} />
         
         {/* Rutas que comparten Layout y requieren autenticación */}
         <Route element={<ProtectedRoute />}>

@@ -4,6 +4,7 @@ extensiones y registro de endpoints.
 """
 import os
 from flask import Flask, jsonify, send_from_directory
+from flask_cors import CORS
 from flask_migrate import Migrate
 from api.utils import APIException
 from api.models import db
@@ -62,8 +63,37 @@ setup_admin(app)
 # comandos CLI (flask insert-test-data)
 setup_commands(app)
 
-# todos los endpoints de la API cuelgan de /api
-app.register_blueprint(api, url_prefix='/api')
+# Versionado de la API: /api/v1 es la ruta oficial (la usa la app móvil).
+# /api se mantiene como alias temporal para que la web actual no se rompa;
+# se retirará cuando la web llame a /api/v1.
+app.register_blueprint(api, url_prefix='/api/v1')
+app.register_blueprint(api, url_prefix='/api', name='api_legacy')
+
+
+# CORS: solo los orígenes permitidos pueden llamar a la API desde un navegador.
+# La app nativa no envía cabecera Origin, así que no le afecta.
+def _cors_origins():
+    raw = os.getenv("CORS_ORIGINS")
+    if raw:
+        origins = [o.strip().rstrip("/") for o in raw.split(",") if o.strip()]
+    else:
+        origins = [
+            "http://localhost:3000",   # web con Vite
+            "http://127.0.0.1:3000",
+            "http://localhost:8081",   # Expo (web / dev server)
+            "https://localhost",       # Expo / WebView
+        ]
+    # Render define esta variable con la URL pública del servicio
+    render_url = os.getenv("RENDER_EXTERNAL_URL")
+    if render_url:
+        origins.append(render_url.rstrip("/"))
+    if ENV == "development":
+        # GitHub Codespaces: https://<nombre>-3000.app.github.dev
+        origins.append(r"https://.*-3000\.app\.github\.dev")
+    return origins
+
+
+CORS(app, resources={r"/api/*": {"origins": _cors_origins()}})
 
 # los errores de la API se devuelven como JSON
 
