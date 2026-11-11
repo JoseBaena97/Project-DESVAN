@@ -79,7 +79,24 @@ El proyecto se construyó como una aplicación real de producción: autenticaci�
 ## 🏗️ Arquitectura del proyecto
 
 ```
-Project-DESVAN/
+Project-DESVAN/                   # Monorepo (npm workspaces)
+├── apps/
+│   └── web/                      # Frontend React + Vite (@desvan/web)
+│       ├── index.html, vite.config.js
+│       ├── public/
+│       └── src/
+│           ├── routes.jsx        # Definición de rutas
+│           ├── store.js          # Estado global (Context + Reducer)
+│           ├── components/       # Navbar, Footer, Map, NotificationBell...
+│           ├── pages/
+│           │   ├── Home, Explore, Details, CreateEvent, Login...
+│           │   ├── account/      # Perfil, favoritos, mis eventos, reservas, reseñas
+│           │   └── admin/        # Backoffice: dashboard, usuarios, eventos, reportes
+│           └── services/         # Capa de comunicación con la API (fetch)
+│
+├── packages/
+│   └── shared/                   # Código común web/móvil (@desvan/shared)
+│
 ├── src/
 │   ├── app.py                    # Entry point de Flask (config JWT, Mail, CORS, DB)
 │   ├── wsgi.py                   # Entry point para Gunicorn (producción)
@@ -94,20 +111,10 @@ Project-DESVAN/
 │   │       ├── reservation.py, favorite.py, review.py
 │   │       ├── notification.py, report.py, admin.py
 │   │       └── upload.py, email_service.py
-│   │
-│   └── front/                    # Frontend React
-│       ├── routes.jsx            # Definición de rutas
-│       ├── store.js              # Estado global (Context + Reducer)
-│       ├── components/           # Navbar, Footer, Map, NotificationBell...
-│       ├── pages/
-│       │   ├── Home, Explore, Details, CreateEvent, Login...
-│       │   ├── account/          # Perfil, favoritos, mis eventos, reservas, reseñas
-│       │   └── admin/            # Backoffice: dashboard, usuarios, eventos, reportes
-│       └── services/             # Capa de comunicación con la API (fetch)
 │
 ├── migrations/                   # Migraciones de base de datos (Alembic)
 ├── render.yaml, render_build.sh  # Configuración de despliegue en Render
-└── Pipfile / package.json        # Dependencias backend / frontend
+└── Pipfile / package.json        # Dependencias backend / workspaces del monorepo
 ```
 
 ---
@@ -157,11 +164,14 @@ pipenv run start
 ### Frontend
 
 ```bash
-# 1. Instalar dependencias
+# 1. Instalar dependencias de todos los workspaces (desde la raíz)
 npm install
 
-# 2. Arrancar el servidor de desarrollo (Vite)
+# 2. Arrancar el servidor de desarrollo de la web (Vite, puerto 3000)
 npm run dev
+
+# El build (npm run build) se genera en apps/web/dist, que es lo que sirve Flask
+
 ```
 
 ### Variables de entorno principales

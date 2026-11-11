@@ -1,17 +1,21 @@
 {
 	"name": "el-desvan",
 	"private": true,
+	"version": "1.0.0",
+	"description": "El Desván: plataforma para descubrir y organizar mercadillos, mercados artesanales y garage sales",
 	"engines": {
 		"node": ">=20.0.0"
 	},
-	"version": "1.0.0",
-	"description": "El Desván: plataforma para descubrir y organizar mercadillos, mercados artesanales y garage sales",
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
 	"scripts": {
-		"dev": "vite",
-        "start": "vite",
-        "build": "vite build",
-        "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-        "preview": "vite preview"
+		"dev": "npm run dev -w @desvan/web",
+		"start": "npm run dev -w @desvan/web",
+		"build": "npm run build -w @desvan/web",
+		"preview": "npm run preview -w @desvan/web",
+		"lint": "npm run lint --workspaces --if-present"
 	},
 	"author": {
 		"name": "Jose Baena",
@@ -23,21 +27,5 @@
 			"url": "https://github.com/Alicia2202"
 		}
 	],
-	"license": "ISC",
-	"devDependencies": {
-		"@types/react": "^18.2.18",
-        "@types/react-dom": "^18.2.7",
-        "@vitejs/plugin-react": "^4.0.4",
-        "eslint": "^8.46.0",
-        "eslint-plugin-react": "^7.33.1",
-        "eslint-plugin-react-hooks": "^4.6.0",
-        "eslint-plugin-react-refresh": "^0.4.3",
-        "vite": "^4.4.8"
-	},
-	"dependencies": {
-		"prop-types": "^15.8.1",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "react-router-dom": "^6.18.0"
-	}
+	"license": "ISC"
 }
