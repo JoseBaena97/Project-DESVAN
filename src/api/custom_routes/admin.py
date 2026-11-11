@@ -5,6 +5,7 @@ from api.routes import api
 from api.models import db, User, Event, Reservation, Review, Report, EventStatus, ReservationStatus, Notification, NotificationType
 from datetime import datetime, timezone
 from sqlalchemy import func
+from api.custom_routes.account import is_erased
 
 
 def admin_required(fn):
@@ -98,6 +99,8 @@ def admin_restore_user(user_id):
         return jsonify({"success": False, "msg": "User not found"}), 404
     if user.deleted_at is None:
         return jsonify({"success": False, "msg": "User is not suspended"}), 400
+    if is_erased(user):
+        return jsonify({"success": False, "msg": "The user deleted their account; it cannot be restored"}), 400
     user.deleted_at = None
     db.session.commit()
     return jsonify({"success": True, "msg": "User restored"}), 200
