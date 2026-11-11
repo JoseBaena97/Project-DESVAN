@@ -1,17 +1,35 @@
 from flask import request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.routes import api
 from api.models import db, User
+from api.auth_helpers import get_current_user, is_owner_or_admin
 from datetime import datetime, timezone
 
+
+# Listado completo con datos personales: solo admin
 @api.route("/user", methods=["GET"])
+@jwt_required()
 def get_users():
+    requester = get_current_user()
+    if not requester:
+        return jsonify({"message": "Unauthorized"}), 401
+    if not requester.is_admin:
+        return jsonify({"message": "Forbidden"}), 403
     users = db.session.execute(db.select(User).where(User.deleted_at.is_(None))).scalars().all()
     return jsonify([user.serialize() for user in users]), 200
 
+
+# Datos completos de un usuario: solo él mismo o un admin.
+# Para ver a otro usuario está /user/<id>/public.
 @api.route("/user/<int:user_id>", methods=["GET"])
+@jwt_required()
 def get_user(user_id):
+    requester = get_current_user()
+    if not requester:
+        return jsonify({"message": "Unauthorized"}), 401
+    if not is_owner_or_admin(requester, user_id):
+        return jsonify({"message": "Forbidden"}), 403
     user = db.session.get(User, user_id)
     if not user or user.deleted_at:
         return jsonify({"message": "User not found"}), 404
@@ -27,22 +45,14 @@ def get_user_public_profile(user_id):
     return jsonify({"data": user.public_profile_serialize()}), 200
 
 
-def _get_requester():
-    """Usuario que hace la petición, según el token. None si no existe o está desactivado."""
-    requester = db.session.get(User, int(get_jwt_identity()))
-    if not requester or requester.deleted_at:
-        return None
-    return requester
-
-
 @api.route("/user/<int:user_id>", methods=["PUT"])
 @jwt_required()
 def update_user(user_id):
-    requester = _get_requester()
+    requester = get_current_user()
     if not requester:
         return jsonify({"message": "Unauthorized"}), 401
     # solo el propio usuario o un admin pueden editar la cuenta
-    if requester.id != user_id and not requester.is_admin:
+    if not is_owner_or_admin(requester, user_id):
         return jsonify({"message": "Forbidden"}), 403
 
     user = db.session.get(User, user_id)
@@ -87,11 +97,11 @@ def update_user(user_id):
 @api.route("/user/<int:user_id>", methods=["DELETE"])
 @jwt_required()
 def delete_user(user_id):
-    requester = _get_requester()
+    requester = get_current_user()
     if not requester:
         return jsonify({"message": "Unauthorized"}), 401
     # solo el propio usuario o un admin pueden desactivar la cuenta
-    if requester.id != user_id and not requester.is_admin:
+    if not is_owner_or_admin(requester, user_id):
         return jsonify({"message": "Forbidden"}), 403
 
     user = db.session.get(User, user_id)

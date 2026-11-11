@@ -1,6 +1,8 @@
 from flask import request, jsonify
 from api.routes import api
 from api.models import db, Reservation, User, Event, ReservationStatus, Notification, NotificationType
+from flask_jwt_extended import jwt_required
+from api.auth_helpers import get_current_user, is_owner_or_admin
 
 @api.route("/reservation", methods=["GET"])
 def get_reservations():
@@ -16,7 +18,14 @@ def get_reservation(reservation_id):
 
 # Obtener reservas de un usuario
 @api.route("/user/<int:user_id>/reservations", methods=["GET"])
+@jwt_required()
 def get_reservations_by_user(user_id):
+    # solo el propio usuario o un admin
+    requester = get_current_user()
+    if not requester:
+        return jsonify({"message": "Unauthorized"}), 401
+    if not is_owner_or_admin(requester, user_id):
+        return jsonify({"message": "Forbidden"}), 403
     user = db.session.get(User, user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
