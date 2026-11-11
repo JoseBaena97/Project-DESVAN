@@ -153,7 +153,7 @@ export const Login = () => {
                 <p className="sidebar-subtitle">Personas reales, tesoros auténticos.</p>
                 <div className="mascot-container">
                   {/* 
-                      MASCOT IMAGE: PLACE HERE /src/front/assets/img/caja06.png 
+                      MASCOT IMAGE: PLACE HERE /src/assets/img/caja06.png 
                       (Mascot waving cheerfully, standing on stone/brick shadow floor)
                   */}
                   <div className="mascot-image mascot-waving"></div>
@@ -166,7 +166,7 @@ export const Login = () => {
                 <p className="sidebar-subtitle">Reconecta con lo auténtico.</p>
                 <div className="mascot-container">
                   {/* 
-                      MASCOT IMAGE: PLACE HERE /src/front/assets/img/caja05.png 
+                      MASCOT IMAGE: PLACE HERE /src/assets/img/caja05.png 
                       (Mascot reading the "OLD BOOK OF SECRETS" with glasses, standing on shadow floor)
                   */}
                   <div className="mascot-image mascot-reading"></div>
