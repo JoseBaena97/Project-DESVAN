@@ -62,8 +62,11 @@ setup_admin(app)
 # comandos CLI (flask insert-test-data)
 setup_commands(app)
 
-# todos los endpoints de la API cuelgan de /api
-app.register_blueprint(api, url_prefix='/api')
+# Versionado de la API: /api/v1 es la ruta oficial (la usa la app móvil).
+# /api se mantiene como alias temporal para que la web actual no se rompa;
+# se retirará cuando la web llame a /api/v1.
+app.register_blueprint(api, url_prefix='/api/v1')
+app.register_blueprint(api, url_prefix='/api', name='api_legacy')
 
 # los errores de la API se devuelven como JSON
 
