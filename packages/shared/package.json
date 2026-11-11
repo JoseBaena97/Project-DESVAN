@@ -1,0 +1,14 @@
+{
+	"name": "@desvan/shared",
+	"private": true,
+	"version": "1.0.0",
+	"description": "Código compartido entre la web y la app móvil: services, store, utils y design tokens",
+	"type": "module",
+	"main": "./src/index.js",
+	"exports": {
+		".": "./src/index.js",
+		"./services": "./src/services/index.js",
+		"./store": "./src/store/index.js",
+		"./utils": "./src/utils/index.js"
+	}
+}
