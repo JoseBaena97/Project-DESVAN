@@ -1,0 +1,79 @@
+﻿Issue Id,Parent Id,Issue Type,Summary,Description,Story Points,Labels,Labels,Labels
+1,,Epic,E1 · Preparar el backend para móvil,La API de Flask es el contrato común: compatibilidad entre versiones y requisitos de Google Play.,,app-movil,,
+2,1,Story,Versionar la API (/api/v1) sin romper la web,Prefijo de versión con alias temporal de las rutas actuales. Ref: E1-01.,3,app-movil,api,sprint-1
+3,1,Story,Endpoint para borrar la cuenta,"DELETE /api/users/me: borra o anonimiza datos, eventos y reservas. Requisito de Google Play. Ref: E1-02.",5,app-movil,api,sprint-1
+4,1,Story,Página web pública de borrado de cuenta,"URL accesible sin la app, exigida en la ficha de Play. Depende de: E1-02. Ref: E1-03.",2,app-movil,web,sprint-1
+5,1,Story,Política de privacidad pública,"Página /privacidad con datos recogidos (ubicación, fotos, email). Ref: E1-04.",2,app-movil,web,sprint-1
+6,1,Story,Revisar CORS y orígenes permitidos,"Permitir https://localhost (Expo) y el dominio web; dejar de aceptar cualquier origen. Ref: E1-05.",1,app-movil,api,sprint-1
+7,1,Story,Modelo PushToken y endpoint de registro,"Tabla + migración Alembic; POST/DELETE /api/push-tokens. Ref: E1-06.",3,app-movil,api,sprint-6
+8,1,Story,Endpoint de salud y mitigar cold start de Render,"GET /api/health; valorar plan de pago o ping programado. Ref: E1-07.",2,app-movil,api,sprint-6
+9,,Epic,E2 · Monorepo y código compartido,"Reorganizar el repo para que web y móvil compartan services, store y design tokens.",,app-movil,,
+10,9,Story,Configurar npm workspaces en la raíz,package.json raíz con apps/* y packages/*. Ref: E2-01.,2,app-movil,shared,sprint-1
+11,9,Story,Mover el front a apps/web,"Ajustar vite.config.js, render_build.sh y render.yaml; la web debe seguir desplegando. Depende de: E2-01. Ref: E2-02.",3,app-movil,web,sprint-1
+12,9,Story,Crear packages/shared,"Paquete @desvan/shared con exports para services, store y utils. Depende de: E2-01. Ref: E2-03.",2,app-movil,shared,sprint-1
+13,9,Story,Abstraer el almacenamiento del token,"tokenStorage.get/set/remove asíncrono; sustituir los localStorage directos en services, store y componentes. Depende de: E2-03. Ref: E2-04.",5,app-movil,shared,sprint-2
+14,9,Story,URL del backend inyectable,"Los services reciben la URL vía configure(); la web pasa VITE_BACKEND_URL. Depende de: E2-03. Ref: E2-05.",3,app-movil,shared,sprint-2
+15,9,Story,Mover services y store a shared,"Los 8 services + storeReducer; la web los importa desde @desvan/shared. Depende de: E2-04. Ref: E2-06.",5,app-movil,shared,sprint-2
+16,9,Story,Hidratación asíncrona de la sesión,"initialStore sin lecturas síncronas; estado userLoading hasta leer el token. Depende de: E2-06. Ref: E2-07.",3,app-movil,shared,sprint-2
+17,9,Story,Design tokens compartidos,"Colores, tipografías y espaciados en un único fichero usado por web y móvil. Depende de: E2-03. Ref: E2-08.",3,app-movil,shared,sprint-2
+18,9,Story,Regresión manual de la web,"Recorrer login, explorar, crear evento, reservas y admin tras el refactor. Depende de: E2-07. Ref: E2-09.",2,app-movil,qa,sprint-2
+19,,Epic,E3 · Base de la app Expo,"Esqueleto de la app con navegación, componentes base y build de desarrollo.",,app-movil,,
+20,19,Story,Crear apps/mobile con Expo y Expo Router,"Proyecto Expo SDK actual, package com.eldesvan.app. Depende de: E2-01. Ref: E3-01.",2,app-movil,mobile,sprint-2
+21,19,Story,Consumir @desvan/shared desde la app,Verificar resolución de Metro en el monorepo. Depende de: E2-06. Ref: E3-02.,2,app-movil,mobile,sprint-2
+22,19,Story,tokenStorage con expo-secure-store,Implementación móvil cifrada del almacenamiento del token. Depende de: E2-04. Ref: E3-03.,2,app-movil,mobile,sprint-3
+23,19,Story,Navegación principal,"Tabs Explorar, Favoritos, Reservas y Perfil + stack de autenticación. Depende de: E3-01. Ref: E3-04.",3,app-movil,mobile,sprint-3
+24,19,Story,Componentes UI base,"Button, Input, Card, Avatar, Badge, EmptyState y Loader con los design tokens. Depende de: E2-08. Ref: E3-05.",5,app-movil,mobile,sprint-3
+25,19,Story,Gestión de errores de red y carga inicial,"Mensajes de error claros, reintento y pantalla de carga para el cold start. Depende de: E3-01. Ref: E3-06.",2,app-movil,mobile,sprint-3
+26,19,Story,Development build con EAS,Perfil development en eas.json e instalación en móviles del equipo. Depende de: E3-01. Ref: E3-07.,2,app-movil,mobile,sprint-3
+27,,Epic,E4 · Autenticación,"Registro, inicio de sesión y perfil completo para poder publicar eventos.",,app-movil,,
+28,27,Story,Pantalla de inicio de sesión,"Login con JWT, errores de credenciales y sesión persistida. Depende de: E3-03. Ref: E4-01.",3,app-movil,mobile,sprint-3
+29,27,Story,Pantalla de registro,Validaciones compartidas con la web. Depende de: E3-05. Ref: E4-02.,3,app-movil,mobile,sprint-3
+30,27,Story,Solicitar recuperación de contraseña,"Envía el email; el enlace abre la web hasta que existan deep links. Depende de: E4-01. Ref: E4-03.",2,app-movil,mobile,sprint-3
+31,27,Story,Rutas protegidas y cierre de sesión,"Redirección al login si no hay sesión; logout borra el token. Depende de: E4-01. Ref: E4-04.",2,app-movil,mobile,sprint-3
+32,27,Story,Completar perfil (teléfono y dirección),Requisito para publicar eventos. Depende de: E4-01. Ref: E4-05.,3,app-movil,mobile,sprint-4
+33,,Epic,E5 · Explorar y eventos,"Descubrir eventos: listado, filtros, mapa, cercanía y detalle.",,app-movil,,
+34,33,Story,Listado de eventos con FlashList,"Scroll fluido, paginación y pull-to-refresh. Depende de: E3-05. Ref: E5-01.",5,app-movil,mobile,sprint-3
+35,33,Story,"Filtros por categoría, etiquetas y búsqueda","Mercadillo, mercado artesanal y casa abierta. Depende de: E5-01. Ref: E5-02.",3,app-movil,mobile,sprint-4
+36,33,Story,Detalle de evento,"Galería, fechas, aforo, mapa, organizador y acciones. Depende de: E5-01. Ref: E5-03.",5,app-movil,mobile,sprint-4
+37,33,Story,Mapa de eventos con react-native-maps,"Marcadores, agrupación y tarjeta al pulsar; requiere API key de Google Maps. Depende de: E5-01. Ref: E5-04.",5,app-movil,mobile,sprint-4
+38,33,Story,Eventos cercanos con expo-location,Permiso de ubicación y orden por distancia (Haversine en la API). Depende de: E5-04. Ref: E5-05.,3,app-movil,mobile,sprint-4
+39,33,Story,Abrir “Cómo llegar” en Google Maps,Intent geo: con las coordenadas del evento. Depende de: E5-03. Ref: E5-06.,1,app-movil,mobile,sprint-4
+40,33,Story,Perfil público del vendedor,Eventos del usuario y sus valoraciones. Depende de: E5-03. Ref: E5-07.,3,app-movil,mobile,sprint-4
+41,,Epic,"E6 · Reservas, favoritos y reseñas","La parte de cliente: guardar, reservar y valorar.",,app-movil,,
+42,41,Story,Favoritos,"Marcar desde listado y detalle; pestaña con la lista. Depende de: E5-03. Ref: E6-01.",3,app-movil,mobile,sprint-4
+43,41,Story,Reservar y cancelar plaza,Eventos privados con control de aforo y reservas duplicadas. Depende de: E5-03. Ref: E6-02.,3,app-movil,mobile,sprint-5
+44,41,Story,Mis reservas,"Próximas y pasadas, con acceso al detalle. Depende de: E6-02. Ref: E6-03.",3,app-movil,mobile,sprint-5
+45,41,Story,Valorar al organizador,"Solo tras asistir al evento; recálculo de rating en la API. Depende de: E6-03. Ref: E6-04.",3,app-movil,mobile,sprint-5
+46,41,Story,Reportar usuario o evento,Formulario de denuncia que llega al backoffice. Depende de: E5-03. Ref: E6-05.,2,app-movil,mobile,sprint-5
+47,,Epic,E7 · Gestión de eventos (vendedor),Publicar y administrar eventos propios desde el móvil.,,app-movil,,
+48,47,Story,Crear evento: formulario por pasos,"Datos, fechas, ubicación, imágenes y tipo público/privado con aforo. Depende de: E4-05. Ref: E7-01.",8,app-movil,mobile,sprint-5
+49,47,Story,Selectores nativos de fecha y hora,"Inicio, fin y horarios. Depende de: E7-01. Ref: E7-02.",2,app-movil,mobile,sprint-5
+50,47,Story,Subida de imágenes con expo-image-picker,"Cámara y galería, compresión y subida a Cloudinary vía API. Depende de: E7-01. Ref: E7-03.",5,app-movil,mobile,sprint-5
+51,47,Story,Elegir ubicación en el mapa,Pin arrastrable y autocompletado de dirección. Depende de: E5-04. Ref: E7-04.,5,app-movil,mobile,sprint-6
+52,47,Story,Editar y borrar evento,Con confirmación y aviso a quienes reservaron. Depende de: E7-01. Ref: E7-05.,3,app-movil,mobile,sprint-6
+53,47,Story,Mis eventos y reservas recibidas,Listado de eventos propios con asistentes. Depende de: E7-01. Ref: E7-06.,3,app-movil,mobile,sprint-6
+54,47,Story,Editar perfil y foto,Datos personales y avatar. Depende de: E7-03. Ref: E7-07.,3,app-movil,mobile,sprint-6
+55,,Epic,E8 · Notificaciones y deep links,Avisos push reales y enlaces que abren la app.,,app-movil,,
+56,55,Story,Bandeja de notificaciones in-app,"Lista, marcar como leídas y contador en la pestaña. Depende de: E4-04. Ref: E8-01.",3,app-movil,mobile,sprint-6
+57,55,Story,Push: permisos y registro del token,"expo-notifications; envía el token a la API al iniciar sesión. Depende de: E1-06. Ref: E8-02.",3,app-movil,mobile,sprint-6
+58,55,Story,Envío de push desde Flask,"Expo Push API en nueva reserva, reseña recibida y evento cancelado. Depende de: E1-06. Ref: E8-03.",5,app-movil,api,sprint-7
+59,55,Story,Recordatorio 24 h antes del evento,Tarea programada (cron job en Render) que envía el push. Depende de: E8-03. Ref: E8-04.,5,app-movil,api,sprint-7
+60,55,Story,Deep links y Android App Links,Esquema eldesvan:// + assetlinks.json en el dominio web. Depende de: E3-01. Ref: E8-05.,3,app-movil,mobile,sprint-7
+61,55,Story,Recuperar contraseña abre la app,El enlace del email lleva a la pantalla de nueva contraseña. Depende de: E8-05. Ref: E8-06.,2,app-movil,mobile,sprint-7
+62,55,Story,Pulsar una notificación abre su pantalla,Navegación al evento o reserva correspondiente. Depende de: E8-02. Ref: E8-07.,2,app-movil,mobile,sprint-7
+63,,Epic,E9 · Calidad,Que la app funcione bien en móviles reales antes de publicarla.,,app-movil,,
+64,63,Story,ESLint y Prettier en todo el monorepo,Configuración común y script lint en la raíz. Depende de: E2-01. Ref: E9-01.,1,app-movil,qa,sprint-2
+65,63,Story,Tests unitarios de @desvan/shared,Jest para services y reducer. Depende de: E2-06. Ref: E9-02.,3,app-movil,qa,sprint-7
+66,63,Story,Pruebas en gama baja y alta,"Rendimiento de listas, mapa y arranque; medir y corregir. Depende de: E6-02. Ref: E9-03.",3,app-movil,qa,sprint-7
+67,63,Story,Accesibilidad,"Etiquetas para lector de pantalla, tamaños de texto y contraste. Depende de: E3-05. Ref: E9-04.",3,app-movil,qa,sprint-7
+68,63,Story,Informes de errores con Sentry,Crashes de la app con source maps. Depende de: E3-07. Ref: E9-05.,2,app-movil,qa,sprint-8
+69,,Epic,E10 · Build y publicación en Google Play,Desde la cuenta de desarrollador hasta producción.,,app-movil,,
+70,69,Story,Crear la cuenta de Google Play Developer,Pago único de 25 $ y verificación de identidad. Ref: E10-01.,1,app-movil,store,sprint-1
+71,69,Story,Perfiles de EAS y variables de entorno,"development, preview (APK) y production (AAB) con su URL de backend. Depende de: E3-07. Ref: E10-02.",2,app-movil,mobile,sprint-6
+72,69,Story,"Icono, splash y nombre de la app",Generar recursos y configurarlos en app.json. Depende de: E3-01. Ref: E10-03.,2,app-movil,mobile,sprint-6
+73,69,Story,Firma y Play App Signing,Keystore gestionada por EAS y Play App Signing activado. Depende de: E10-01. Ref: E10-04.,1,app-movil,store,sprint-8
+74,69,Story,Ficha de Play Store,"Capturas, descripción, clasificación de contenido y formulario de seguridad de datos. Depende de: E1-04. Ref: E10-05.",3,app-movil,store,sprint-7
+75,69,Story,Prueba cerrada: 12 testers durante 14 días,Subir el primer AAB a mano y reclutar testers desde el sprint 6. Depende de: E10-05. Ref: E10-06.,2,app-movil,store,sprint-8
+76,69,Story,Subida automática con eas submit,"Service account de Google Cloud; el JSON fuera del repo. Depende de: E10-06. Ref: E10-07.",2,app-movil,store,sprint-8
+77,69,Story,CI con GitHub Actions,Build y subida al track interno cuando cambien apps/mobile o packages/shared. Depende de: E10-07. Ref: E10-08.,3,app-movil,qa,sprint-8
+78,69,Story,Publicar en producción,Solicitar acceso a producción y lanzamiento escalonado. Depende de: E10-06. Ref: E10-09.,1,app-movil,store,sprint-8
