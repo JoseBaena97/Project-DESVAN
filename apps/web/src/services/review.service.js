@@ -1,9 +1,9 @@
+import { getApiUrl } from "@desvan/shared/config";
 import { authHeader } from "@desvan/shared/storage";
-const url = import.meta.env.VITE_BACKEND_URL;
 
 const createReview = async (reviewData) => {
   try {
-    const resp = await fetch(url + "api/review", {
+    const resp = await fetch(getApiUrl() + "review", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -25,7 +25,7 @@ const createReview = async (reviewData) => {
 
 const getWrittenReviewsByUser = async (userId) => {
   try {
-    const resp = await fetch(url + `api/user/${userId}/written_reviews`, {
+    const resp = await fetch(getApiUrl() + `user/${userId}/written_reviews`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ const getWrittenReviewsByUser = async (userId) => {
 
 const updateReview = async (reviewId, reviewData) => {
   try {
-    const resp = await fetch(url + `api/review/${reviewId}`, {
+    const resp = await fetch(getApiUrl() + `review/${reviewId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -66,7 +66,7 @@ const updateReview = async (reviewId, reviewData) => {
 
 const deleteReview = async (reviewId) => {
   try {
-    const resp = await fetch(url + `api/review/${reviewId}`, {
+    const resp = await fetch(getApiUrl() + `review/${reviewId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -87,7 +87,7 @@ const deleteReview = async (reviewId) => {
 
 const getReceivedReviewsByUser = async (userId) => {
   try {
-    const resp = await fetch(url + `api/user/${userId}/recieved_reviews`, {
+    const resp = await fetch(getApiUrl() + `user/${userId}/recieved_reviews`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

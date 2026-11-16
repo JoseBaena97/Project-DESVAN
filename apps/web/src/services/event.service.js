@@ -1,9 +1,9 @@
+import { getApiUrl } from "@desvan/shared/config";
 import { authHeader } from "@desvan/shared/storage";
-const url = import.meta.env.VITE_BACKEND_URL;
 
 const createEvent = async (eventData) => {
   try {
-    const resp = await fetch(url + "api/event", {
+    const resp = await fetch(getApiUrl() + "event", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -25,7 +25,7 @@ const createEvent = async (eventData) => {
 // obtener todos los eventos
 const getEventsPublic = async () => {
   try {
-    const resp = await fetch(url + "api/event/public", {
+    const resp = await fetch(getApiUrl() + "event/public", {
       method: "GET",
     });
 
@@ -40,7 +40,7 @@ const getEventsPublic = async () => {
 };
 const getEvents = async () => {
   try {
-    const resp = await fetch(url + "api/event/private", {
+    const resp = await fetch(getApiUrl() + "event/private", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -61,7 +61,7 @@ const getEvents = async () => {
 //obtener un evento
 const getEvent = async (eventId) => {
   try {
-    const resp = await fetch(url + "api/event/" + eventId, {
+    const resp = await fetch(getApiUrl() + "event/" + eventId, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -86,7 +86,7 @@ const getEvent = async (eventId) => {
 //actualizar un evento
 const updateEvent = async (eventId, eventData) => {
   try {
-    const resp = await fetch(url + "api/event/" + eventId, {
+    const resp = await fetch(getApiUrl() + "event/" + eventId, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -115,7 +115,7 @@ const reactivateEvent = async (eventId) => {
 //eliminar un evento
 const deleteEvent = async (eventId) => {
   try {
-    const resp = await fetch(url + "api/event/" + eventId, {
+    const resp = await fetch(getApiUrl() + "event/" + eventId, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -142,7 +142,7 @@ const getNearbyEvents = async (latitude, longitude, distance = 10) => {
       distance,
     });
 
-    const resp = await fetch(url + "api/event/nearby?" + params.toString(), {
+    const resp = await fetch(getApiUrl() + "event/nearby?" + params.toString(), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -162,7 +162,7 @@ const getNearbyEvents = async (latitude, longitude, distance = 10) => {
 
 const getCategories = async () => {
   try {
-    const resp = await fetch(url + "api/category");
+    const resp = await fetch(getApiUrl() + "category");
     if (!resp.ok) throw new Error("Error getting categories");
     const data = await resp.json();
     return data;
@@ -173,7 +173,7 @@ const getCategories = async () => {
 
 const getTags = async () => {
   try {
-    const resp = await fetch(url + "api/tag");
+    const resp = await fetch(getApiUrl() + "tag");
     if (!resp.ok) throw new Error("Error getting tags");
     const data = await resp.json();
     return data;

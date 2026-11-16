@@ -10,6 +10,7 @@
 		"./services": "./src/services/index.js",
 		"./store": "./src/store/index.js",
 		"./storage": "./src/storage/index.js",
+		"./config": "./src/config/index.js",
 		"./utils": "./src/utils/index.js"
 	}
 }

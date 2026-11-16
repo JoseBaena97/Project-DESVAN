@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { authHeader } from "@desvan/shared/storage";
+import { getApiUrl } from "@desvan/shared/config";
 import notificacionIco from "../assets/img/notificacion.png";
 import "./NotificationBell.css";
 
-const BACKEND = import.meta.env.VITE_BACKEND_URL;
 
 const TYPE_ICONS = {
     reservation_created: "fa-ticket",
@@ -38,7 +38,7 @@ export const NotificationBell = ({ compact = false }) => {
     const fetchNotifications = async () => {
         if (!store.user) return;
         try {
-            const res = await fetch(`${BACKEND}api/notification/my`, {
+            const res = await fetch(`${getApiUrl()}notification/my`, {
                 headers: await authHeader(),
             });
             if (res.ok) {
@@ -71,7 +71,7 @@ export const NotificationBell = ({ compact = false }) => {
         setOpen(willOpen);
         if (willOpen && unreadCount > 0) {
             try {
-                await fetch(`${BACKEND}api/notification/read-all`, {
+                await fetch(`${getApiUrl()}notification/read-all`, {
                     method: "PATCH",
                     headers: await authHeader(),
                 });
@@ -86,7 +86,7 @@ export const NotificationBell = ({ compact = false }) => {
 
     const handleDelete = async (id) => {
         try {
-            await fetch(`${BACKEND}api/notification/${id}`, {
+            await fetch(`${getApiUrl()}notification/${id}`, {
                 method: "DELETE",
                 headers: await authHeader(),
             });
@@ -98,7 +98,7 @@ export const NotificationBell = ({ compact = false }) => {
 
     const handleClearAll = async () => {
         try {
-            await fetch(`${BACKEND}api/notification/all`, {
+            await fetch(`${getApiUrl()}notification/all`, {
                 method: "DELETE",
                 headers: await authHeader(),
             });

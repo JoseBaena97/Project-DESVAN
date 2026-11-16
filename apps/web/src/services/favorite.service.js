@@ -1,9 +1,9 @@
+import { getApiUrl } from "@desvan/shared/config";
 import { authHeader } from "@desvan/shared/storage";
-const url = import.meta.env.VITE_BACKEND_URL;
 
 const getFavoritesByUser = async (userId) => {
   try {
-    const resp = await fetch(url + `api/user/${userId}/favorites`, {
+    const resp = await fetch(getApiUrl() + `user/${userId}/favorites`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -22,7 +22,7 @@ const getFavoritesByUser = async (userId) => {
 
 const createFavorite = async (eventId) => {
   try {
-    const resp = await fetch(url + "api/favorite", {
+    const resp = await fetch(getApiUrl() + "favorite", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ const createFavorite = async (eventId) => {
 
 const deleteFavorite = async (favoriteId) => {
   try {
-    const resp = await fetch(url + `api/favorite/${favoriteId}`, {
+    const resp = await fetch(getApiUrl() + `favorite/${favoriteId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

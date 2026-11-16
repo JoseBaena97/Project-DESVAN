@@ -1,10 +1,10 @@
+import { getApiUrl } from "@desvan/shared/config";
 import { authHeader, tokenStorage } from "@desvan/shared/storage";
 const authService = {};
-const url = import.meta.env.VITE_BACKEND_URL;
 
 authService.auth = async (FormData) => {
   try {
-    const resp = await fetch(url + "api/auth", {
+    const resp = await fetch(getApiUrl() + "auth", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -31,7 +31,7 @@ authService.auth = async (FormData) => {
 
 authService.forgotPassword = async (email) => {
   try {
-    const resp = await fetch(url + "api/auth/forgot-password", {
+    const resp = await fetch(getApiUrl() + "auth/forgot-password", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -47,7 +47,7 @@ authService.forgotPassword = async (email) => {
 
 authService.resetPassword = async (token, password) => {
   try {
-    const resp = await fetch(url + "api/auth/reset-password", {
+    const resp = await fetch(getApiUrl() + "auth/reset-password", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -65,7 +65,7 @@ authService.resetPassword = async (token, password) => {
 };
 
 authService.getMe = async () => {
-  const resp = await fetch(url + "api/profile", {
+  const resp = await fetch(getApiUrl() + "profile", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -82,7 +82,7 @@ authService.logout = async () => {
 
 authService.updateProfile = async (payload) => {
   try {
-    const resp = await fetch(url + "api/profile", {
+    const resp = await fetch(getApiUrl() + "profile", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -100,7 +100,7 @@ authService.updateProfile = async (payload) => {
 
 authService.deactivateAccount = async () => {
   try {
-    const resp = await fetch(url + "api/profile", {
+    const resp = await fetch(getApiUrl() + "profile", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -118,7 +118,7 @@ authService.deactivateAccount = async () => {
 // Borrado definitivo (página pública /eliminar-cuenta). Funciona sin sesión
 // y también con cuentas desactivadas. Lanza un Error con el mensaje de la API.
 authService.deleteAccount = async (email, password) => {
-  const resp = await fetch(url + "api/v1/account/delete", {
+  const resp = await fetch(getApiUrl() + "account/delete", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),

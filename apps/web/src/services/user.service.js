@@ -1,5 +1,5 @@
+import { getApiUrl } from "@desvan/shared/config";
 import { authHeader } from "@desvan/shared/storage";
-const url = import.meta.env.VITE_BACKEND_URL;
 
 const getAuthHeaders = async () => ({
   "Content-Type": "application/json",
@@ -8,7 +8,7 @@ const getAuthHeaders = async () => ({
 
 const getPublicProfile = async (userId) => {
   try {
-    const resp = await fetch(`${url}api/user/${userId}/public`, {
+    const resp = await fetch(`${getApiUrl()}user/${userId}/public`, {
       method: "GET",
       headers: await getAuthHeaders(),
     });

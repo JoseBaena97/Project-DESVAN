@@ -1,5 +1,5 @@
+import { getApiUrl } from "@desvan/shared/config";
 import { authHeader } from "@desvan/shared/storage";
-const url = import.meta.env.VITE_BACKEND_URL;
 
 const uploadImage = async (file, folder) => {
   try {
@@ -9,7 +9,7 @@ const uploadImage = async (file, folder) => {
       formData.append("folder", folder);
     }
 
-    const resp = await fetch(url + "api/upload", {
+    const resp = await fetch(getApiUrl() + "upload", {
       method: "POST",
       headers: {
         ...(await authHeader()),

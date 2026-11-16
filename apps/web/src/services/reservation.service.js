@@ -1,10 +1,10 @@
+import { getApiUrl } from "@desvan/shared/config";
 import { authHeader } from "@desvan/shared/storage";
-const url = import.meta.env.VITE_BACKEND_URL;
 
 const getReservationsByUser = async (userId) => {
   if (!userId) throw new Error("userId is required");
   try {
-    const resp = await fetch(url + `api/user/${userId}/reservations`, {
+    const resp = await fetch(getApiUrl() + `user/${userId}/reservations`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -26,7 +26,7 @@ const getReservationsByUser = async (userId) => {
 const createReservation = async (eventId, userId) => {
   if (!userId) throw new Error("userId is required");
   try {
-    const resp = await fetch(url + "api/reservation", {
+    const resp = await fetch(getApiUrl() + "reservation", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +48,7 @@ const createReservation = async (eventId, userId) => {
 
 const deleteReservation = async (reservationId) => {
   try {
-    const resp = await fetch(url + `api/reservation/${reservationId}`, {
+    const resp = await fetch(getApiUrl() + `reservation/${reservationId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -69,7 +69,7 @@ const deleteReservation = async (reservationId) => {
 
 const cancelReservation = async (reservationId) => {
   try {
-    const resp = await fetch(url + `api/reservation/${reservationId}`, {
+    const resp = await fetch(getApiUrl() + `reservation/${reservationId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

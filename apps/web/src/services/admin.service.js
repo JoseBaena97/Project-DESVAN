@@ -1,6 +1,6 @@
+import { getApiUrl } from "@desvan/shared/config";
 import { authHeader } from "@desvan/shared/storage";
 const adminService = {};
-const url = import.meta.env.VITE_BACKEND_URL;
 
 const authHeaders = async () => ({
     "Content-Type": "application/json",
@@ -8,19 +8,19 @@ const authHeaders = async () => ({
 });
 
 adminService.getStats = async () => {
-    const resp = await fetch(url + "api/admin/stats", { headers: await authHeaders() });
+    const resp = await fetch(getApiUrl() + "admin/stats", { headers: await authHeaders() });
     if (!resp.ok) throw new Error("Error fetching stats");
     return await resp.json();
 };
 
 adminService.getUsers = async () => {
-    const resp = await fetch(url + "api/admin/users", { headers: await authHeaders() });
+    const resp = await fetch(getApiUrl() + "admin/users", { headers: await authHeaders() });
     if (!resp.ok) throw new Error("Error fetching users");
     return await resp.json();
 };
 
 adminService.suspendUser = async (userId) => {
-    const resp = await fetch(url + `api/admin/users/${userId}/suspend`, {
+    const resp = await fetch(getApiUrl() + `admin/users/${userId}/suspend`, {
         method: "PUT",
         headers: await authHeaders(),
     });
@@ -29,7 +29,7 @@ adminService.suspendUser = async (userId) => {
 };
 
 adminService.restoreUser = async (userId) => {
-    const resp = await fetch(url + `api/admin/users/${userId}/restore`, {
+    const resp = await fetch(getApiUrl() + `admin/users/${userId}/restore`, {
         method: "PUT",
         headers: await authHeaders(),
     });
@@ -38,13 +38,13 @@ adminService.restoreUser = async (userId) => {
 };
 
 adminService.getEvents = async () => {
-    const resp = await fetch(url + "api/admin/events", { headers: await authHeaders() });
+    const resp = await fetch(getApiUrl() + "admin/events", { headers: await authHeaders() });
     if (!resp.ok) throw new Error("Error fetching events");
     return await resp.json();
 };
 
 adminService.cancelEvent = async (eventId) => {
-    const resp = await fetch(url + `api/admin/events/${eventId}/cancel`, {
+    const resp = await fetch(getApiUrl() + `admin/events/${eventId}/cancel`, {
         method: "PUT",
         headers: await authHeaders(),
     });
@@ -53,7 +53,7 @@ adminService.cancelEvent = async (eventId) => {
 };
 
 adminService.deleteEvent = async (eventId) => {
-    const resp = await fetch(url + `api/admin/events/${eventId}`, {
+    const resp = await fetch(getApiUrl() + `admin/events/${eventId}`, {
         method: "DELETE",
         headers: await authHeaders(),
     });
@@ -62,13 +62,13 @@ adminService.deleteEvent = async (eventId) => {
 };
 
 adminService.getReviews = async () => {
-    const resp = await fetch(url + "api/admin/reviews", { headers: await authHeaders() });
+    const resp = await fetch(getApiUrl() + "admin/reviews", { headers: await authHeaders() });
     if (!resp.ok) throw new Error("Error fetching reviews");
     return await resp.json();
 };
 
 adminService.deleteReview = async (reviewId) => {
-    const resp = await fetch(url + `api/admin/reviews/${reviewId}`, {
+    const resp = await fetch(getApiUrl() + `admin/reviews/${reviewId}`, {
         method: "DELETE",
         headers: await authHeaders(),
     });
@@ -77,13 +77,13 @@ adminService.deleteReview = async (reviewId) => {
 };
 
 adminService.getReports = async () => {
-    const resp = await fetch(url + "api/admin/reports", { headers: await authHeaders() });
+    const resp = await fetch(getApiUrl() + "admin/reports", { headers: await authHeaders() });
     if (!resp.ok) throw new Error("Error fetching reports");
     return await resp.json();
 };
 
 adminService.resolveReport = async (reportId) => {
-    const resp = await fetch(url + `api/admin/reports/${reportId}/resolve`, {
+    const resp = await fetch(getApiUrl() + `admin/reports/${reportId}/resolve`, {
         method: "PUT",
         headers: await authHeaders(),
     });
@@ -92,7 +92,7 @@ adminService.resolveReport = async (reportId) => {
 };
 
 adminService.deleteReport = async (reportId) => {
-    const resp = await fetch(url + `api/admin/reports/${reportId}`, {
+    const resp = await fetch(getApiUrl() + `admin/reports/${reportId}`, {
         method: "DELETE",
         headers: await authHeaders(),
     });
@@ -101,7 +101,7 @@ adminService.deleteReport = async (reportId) => {
 };
 
 adminService.reportUser = async (reportedId, reason, message) => {
-    const resp = await fetch(url + "api/report", {
+    const resp = await fetch(getApiUrl() + "report", {
         method: "POST",
         headers: await authHeaders(),
         body: JSON.stringify({ reported_id: reportedId, reason, message }),
