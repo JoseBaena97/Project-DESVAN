@@ -1,16 +1,35 @@
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required
+from werkzeug.security import generate_password_hash, check_password_hash
 from api.routes import api
 from api.models import db, User
+from api.auth_helpers import get_current_user, is_owner_or_admin
 from datetime import datetime, timezone
 
+
+# Listado completo con datos personales: solo admin
 @api.route("/user", methods=["GET"])
+@jwt_required()
 def get_users():
+    requester = get_current_user()
+    if not requester:
+        return jsonify({"message": "Unauthorized"}), 401
+    if not requester.is_admin:
+        return jsonify({"message": "Forbidden"}), 403
     users = db.session.execute(db.select(User).where(User.deleted_at.is_(None))).scalars().all()
     return jsonify([user.serialize() for user in users]), 200
 
+
+# Datos completos de un usuario: solo él mismo o un admin.
+# Para ver a otro usuario está /user/<id>/public.
 @api.route("/user/<int:user_id>", methods=["GET"])
+@jwt_required()
 def get_user(user_id):
+    requester = get_current_user()
+    if not requester:
+        return jsonify({"message": "Unauthorized"}), 401
+    if not is_owner_or_admin(requester, user_id):
+        return jsonify({"message": "Forbidden"}), 403
     user = db.session.get(User, user_id)
     if not user or user.deleted_at:
         return jsonify({"message": "User not found"}), 404
@@ -27,35 +46,68 @@ def get_user_public_profile(user_id):
 
 
 @api.route("/user/<int:user_id>", methods=["PUT"])
+@jwt_required()
 def update_user(user_id):
+    requester = get_current_user()
+    if not requester:
+        return jsonify({"message": "Unauthorized"}), 401
+    # solo el propio usuario o un admin pueden editar la cuenta
+    if not is_owner_or_admin(requester, user_id):
+        return jsonify({"message": "Forbidden"}), 403
+
     user = db.session.get(User, user_id)
-    if not user:
+    if not user or user.deleted_at:
         return jsonify({"message": "User not found"}), 404
-        
-    body = request.get_json()
+
+    body = request.get_json(silent=True)
     if not body:
         return jsonify({"message": "Request body is required"}), 400
-        
-    if "email" in body:
+
+    if "email" in body and body["email"] != user.email:
+        exists = db.session.execute(
+            db.select(User).where(User.email == body["email"])).scalar_one_or_none()
+        if exists:
+            return jsonify({"message": "Email already in use"}), 409
         user.email = body["email"]
-    if "password" in body:
-        user.password = body["password"]
-    if "username" in body:
+    if "username" in body and body["username"] != user.username:
+        exists = db.session.execute(
+            db.select(User).where(User.username == body["username"])).scalar_one_or_none()
+        if exists:
+            return jsonify({"message": "Username already in use"}), 409
         user.username = body["username"]
+    if "password" in body:
+        # solo el propio usuario, confirmando la contraseña actual
+        if requester.id != user_id:
+            return jsonify({"message": "Only the account owner can change the password"}), 403
+        current = body.get("current_password")
+        if not current or not check_password_hash(user.password, current):
+            return jsonify({"message": "Current password is incorrect"}), 401
+        if not body["password"]:
+            return jsonify({"message": "Password cannot be empty"}), 400
+        user.password = generate_password_hash(body["password"])
     if "bio" in body:
         user.bio = body["bio"]
     if "profile_picture_url" in body:
         user.profile_picture_url = body["profile_picture_url"]
-        
+
     db.session.commit()
     return jsonify({"message": "User updated successfully", "user": user.serialize()}), 200
 
+
 @api.route("/user/<int:user_id>", methods=["DELETE"])
+@jwt_required()
 def delete_user(user_id):
+    requester = get_current_user()
+    if not requester:
+        return jsonify({"message": "Unauthorized"}), 401
+    # solo el propio usuario o un admin pueden desactivar la cuenta
+    if not is_owner_or_admin(requester, user_id):
+        return jsonify({"message": "Forbidden"}), 403
+
     user = db.session.get(User, user_id)
     if not user or user.deleted_at:
         return jsonify({"message": "User not found"}), 404
-        
+
     user.deleted_at = datetime.now(timezone.utc)
     db.session.commit()
     return jsonify({"message": "User deleted successfully"}), 200
