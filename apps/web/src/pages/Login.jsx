@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate,useLocation, Link } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
-import authService from "../services/auth.service";
+import { authService } from "@desvan/shared/services";
 import "./Login.css";
 
 

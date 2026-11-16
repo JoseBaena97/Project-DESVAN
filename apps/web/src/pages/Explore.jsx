@@ -3,8 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Explore.css";
 import caja05 from "../assets/img/caja05.png";
 import logoBw from "../assets/img/logo_bw.png";
-import eventService from "../services/event.service";
-import favoriteService from "../services/favorite.service";
+import { eventService, favoriteService } from "@desvan/shared/services";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { Map } from "../components/Map";
 

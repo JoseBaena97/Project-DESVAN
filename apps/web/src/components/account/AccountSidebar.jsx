@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
-import authService from "../../services/auth.service";
+import { authService } from "@desvan/shared/services";
 
 const NAV_ITEMS = [
 	{ to: "/mis-eventos", label: "Mis Eventos", icon: "fa-solid fa-table-cells-large" },

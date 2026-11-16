@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import authService from "../services/auth.service";
+import { authService } from "@desvan/shared/services";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import "./Legal.css";
 

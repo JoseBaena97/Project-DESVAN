@@ -1,6 +1,6 @@
 import { useContext, useReducer, createContext, useEffect } from "react";
-import storeReducer, { initialStore } from "../store"
-import authService from "../services/auth.service";
+import { storeReducer, initialStore } from "@desvan/shared/store";
+import { authService } from "@desvan/shared/services";
 
 const StoreContext = createContext()
 

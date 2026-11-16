@@ -1,5 +1,5 @@
-import { getApiUrl } from "@desvan/shared/config";
-import { authHeader, tokenStorage } from "@desvan/shared/storage";
+import { getApiUrl } from "../config/index.js";
+import { authHeader, tokenStorage } from "../storage/index.js";
 const authService = {};
 
 authService.auth = async (FormData) => {

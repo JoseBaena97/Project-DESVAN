@@ -1,2 +1,2 @@
-// Pendiente: se rellenará durante el refactor de E2 (ver docs/plan-app-movil.md).
-export {};
+// Estado global (reducer) común a la web y a la app.
+export { default as storeReducer, initialStore } from './storeReducer.js';

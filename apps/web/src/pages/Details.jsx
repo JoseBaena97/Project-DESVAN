@@ -3,11 +3,7 @@ import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import "./Details.css";
 import caja04 from "../assets/img/caja04.png";
 import logoBw from "../assets/img/logo_bw.png";
-import eventService from "../services/event.service";
-import favoriteService from "../services/favorite.service";
-import reservationService from "../services/reservation.service";
-import reviewService from "../services/review.service";
-import adminService from "../services/admin.service";
+import { eventService, favoriteService, reservationService, reviewService, adminService } from "@desvan/shared/services";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { Map } from "../components/Map";
 

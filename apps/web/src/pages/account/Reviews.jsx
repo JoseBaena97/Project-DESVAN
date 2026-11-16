@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import "./Reviews.css";
-import reviewService from "../../services/review.service";
+import { reviewService } from "@desvan/shared/services";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import mascotareview from "../../assets/img/caja_dineros_ico.png";
 

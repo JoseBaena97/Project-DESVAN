@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import userService from "../services/user.service";
+import { userService } from "@desvan/shared/services";
 import "./PublicProfile.css";
 import "./Explore.css";
 

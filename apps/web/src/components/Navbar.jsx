@@ -4,7 +4,7 @@ import desvanLogo from "../assets/img/desvanlogonav.png";
 import create_ico from "../assets/img/create_ico.png";
 import favorites_ico from "../assets/img/favorites_ico1.png";
 import user_ico from "../assets/img/profile_ico+.png";
-import authService from "../services/auth.service";
+import { authService } from "@desvan/shared/services";
 import { useEffect, useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { NotificationBell } from "./NotificationBell";

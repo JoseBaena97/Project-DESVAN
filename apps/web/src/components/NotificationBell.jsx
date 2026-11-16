@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
-import { authHeader } from "@desvan/shared/storage";
-import { getApiUrl } from "@desvan/shared/config";
+import { notificationService } from "@desvan/shared/services";
 import notificacionIco from "../assets/img/notificacion.png";
 import "./NotificationBell.css";
 
@@ -38,13 +37,8 @@ export const NotificationBell = ({ compact = false }) => {
     const fetchNotifications = async () => {
         if (!store.user) return;
         try {
-            const res = await fetch(`${getApiUrl()}notification/my`, {
-                headers: await authHeader(),
-            });
-            if (res.ok) {
-                const data = await res.json();
-                dispatch({ type: "setNotifications", payload: data.data });
-            }
+            const notifications = await notificationService.getMyNotifications();
+            dispatch({ type: "setNotifications", payload: notifications });
         } catch (e) {
             // silently fail — bell stays with last known state
         }
@@ -71,10 +65,7 @@ export const NotificationBell = ({ compact = false }) => {
         setOpen(willOpen);
         if (willOpen && unreadCount > 0) {
             try {
-                await fetch(`${getApiUrl()}notification/read-all`, {
-                    method: "PATCH",
-                    headers: await authHeader(),
-                });
+                await notificationService.markAllAsRead();
                 dispatch({ type: "markAllRead" });
             } catch (e) {
                 // silently fail
@@ -86,10 +77,7 @@ export const NotificationBell = ({ compact = false }) => {
 
     const handleDelete = async (id) => {
         try {
-            await fetch(`${getApiUrl()}notification/${id}`, {
-                method: "DELETE",
-                headers: await authHeader(),
-            });
+            await notificationService.deleteNotification(id);
             dispatch({ type: "deleteNotification", payload: id });
         } catch (e) {
             // silently fail
@@ -98,10 +86,7 @@ export const NotificationBell = ({ compact = false }) => {
 
     const handleClearAll = async () => {
         try {
-            await fetch(`${getApiUrl()}notification/all`, {
-                method: "DELETE",
-                headers: await authHeader(),
-            });
+            await notificationService.deleteAllNotifications();
             dispatch({ type: "clearNotifications" });
         } catch (e) {
             // silently fail

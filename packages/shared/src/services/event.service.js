@@ -1,5 +1,5 @@
-import { getApiUrl } from "@desvan/shared/config";
-import { authHeader } from "@desvan/shared/storage";
+import { getApiUrl } from "../config/index.js";
+import { authHeader } from "../storage/index.js";
 
 const createEvent = async (eventData) => {
   try {
