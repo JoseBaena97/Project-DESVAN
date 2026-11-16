@@ -1,3 +1,4 @@
+import { authHeader } from "@desvan/shared/storage";
 const url = import.meta.env.VITE_BACKEND_URL;
 
 const createReview = async (reviewData) => {
@@ -6,7 +7,7 @@ const createReview = async (reviewData) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify(reviewData),
     });
@@ -28,7 +29,7 @@ const getWrittenReviewsByUser = async (userId) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
     const data = await resp.json();
@@ -47,7 +48,7 @@ const updateReview = async (reviewId, reviewData) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify(reviewData),
     });
@@ -69,7 +70,7 @@ const deleteReview = async (reviewId) => {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
 
@@ -90,7 +91,7 @@ const getReceivedReviewsByUser = async (userId) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
     const data = await resp.json();

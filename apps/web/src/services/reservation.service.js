@@ -1,3 +1,4 @@
+import { authHeader } from "@desvan/shared/storage";
 const url = import.meta.env.VITE_BACKEND_URL;
 
 const getReservationsByUser = async (userId) => {
@@ -7,7 +8,7 @@ const getReservationsByUser = async (userId) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
 
@@ -29,7 +30,7 @@ const createReservation = async (eventId, userId) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify({ event_id: eventId, user_id: userId }),
     });
@@ -51,7 +52,7 @@ const deleteReservation = async (reservationId) => {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
 
@@ -72,7 +73,7 @@ const cancelReservation = async (reservationId) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify({ status: "cancelled" }),
     });

@@ -3,11 +3,12 @@ import ScrollToTop from "../../components/ScrollToTop";
 import { Navbar } from "../../components/Navbar";
 import { AccountSidebar } from "../../components/account/AccountSidebar";
 import { PageTransition } from "../../components/PageTransition";
+import useGlobalReducer from "../../hooks/useGlobalReducer";
 import "./account.css";
 
 export const AccountLayout = () => {
-	const token = localStorage.getItem('token');
-	if (!token) {
+	const { store } = useGlobalReducer();
+	if (!store.auth) {
 		return <Navigate to="/login" replace />;
 	}
 

@@ -4,6 +4,10 @@ import './index.css'
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
 import { StoreProvider } from './hooks/useGlobalReducer';
+import { configureTokenStorage } from '@desvan/shared/storage';
+
+// En la web el token se guarda en localStorage (en la app, expo-secure-store)
+configureTokenStorage(window.localStorage);
 
 const Main = () => {
 

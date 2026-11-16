@@ -4,10 +4,9 @@ import mascotafav from "../assets/img/caja03.png";
 
 export const ProtectedRoute = () => {
     const { store } = useGlobalReducer();
-    const token = localStorage.getItem('token');
 
     // Si no hay token, redirigimos al login inmediatamente
-    if (!token) {
+    if (!store.auth) {
         return <Navigate to="/login" replace />;
     }
 

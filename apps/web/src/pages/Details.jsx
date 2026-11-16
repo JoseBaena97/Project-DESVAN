@@ -41,9 +41,7 @@ export const Details = () => {
   useEffect(() => {
     if (!eventId) return;
 
-    const token = localStorage.getItem("token");
-
-    if (!token) {
+    if (!store.auth) {
       navigate("/login", {
         replace: true,
         state: { from: location.state?.from ||"/explorar" },

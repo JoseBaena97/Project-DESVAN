@@ -1,3 +1,4 @@
+import { authHeader } from "@desvan/shared/storage";
 const url = import.meta.env.VITE_BACKEND_URL;
 
 const uploadImage = async (file, folder) => {
@@ -11,7 +12,7 @@ const uploadImage = async (file, folder) => {
     const resp = await fetch(url + "api/upload", {
       method: "POST",
       headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: formData,
     });

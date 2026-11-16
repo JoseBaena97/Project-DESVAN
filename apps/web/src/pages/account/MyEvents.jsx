@@ -40,8 +40,7 @@ export const MyEvents = () => {
 
 	useEffect(() => {
 		const fetchUserEvents = async () => {
-			const token = localStorage.getItem("token");
-			if (!token) return;
+			if (!store.auth) return;
 
 			if (store.userLoading) return;
 

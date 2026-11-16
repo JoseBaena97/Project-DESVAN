@@ -1,3 +1,4 @@
+import { authHeader } from "@desvan/shared/storage";
 const url = import.meta.env.VITE_BACKEND_URL;
 
 const getFavoritesByUser = async (userId) => {
@@ -6,7 +7,7 @@ const getFavoritesByUser = async (userId) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
 
@@ -25,7 +26,7 @@ const createFavorite = async (eventId) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify({ event_id: eventId }),
     });
@@ -47,7 +48,7 @@ const deleteFavorite = async (favoriteId) => {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
 

@@ -1,3 +1,4 @@
+import { authHeader } from "@desvan/shared/storage";
 const url = import.meta.env.VITE_BACKEND_URL;
 
 const createEvent = async (eventData) => {
@@ -6,7 +7,7 @@ const createEvent = async (eventData) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify(eventData),
     });
@@ -43,7 +44,7 @@ const getEvents = async () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
 
@@ -64,7 +65,7 @@ const getEvent = async (eventId) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
 
@@ -89,7 +90,7 @@ const updateEvent = async (eventId, eventData) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify(eventData),
     });
@@ -118,7 +119,7 @@ const deleteEvent = async (eventId) => {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
 
@@ -145,7 +146,7 @@ const getNearbyEvents = async (latitude, longitude, distance = 10) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
 

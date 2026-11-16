@@ -262,7 +262,7 @@ export const Explore = () => {
 
     //Para que carguen los eventos
     useEffect(() => {
-        const loader = localStorage.getItem("token") ? eventService.getEvents() : eventService.getEventsPublic();
+        const loader = store.auth ? eventService.getEvents() : eventService.getEventsPublic();
 
         loader
             .then((data) => {

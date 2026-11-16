@@ -1,3 +1,4 @@
+import { authHeader, tokenStorage } from "@desvan/shared/storage";
 const authService = {};
 const url = import.meta.env.VITE_BACKEND_URL;
 
@@ -21,7 +22,7 @@ authService.auth = async (FormData) => {
     }
     const data = await resp.json(); //se cuela solo la info necesaria
 
-    if (data.access_token) localStorage.setItem("token", data.access_token);
+    if (data.access_token) await tokenStorage.set(data.access_token);
     return data;
   } catch (error) {
     throw error;
@@ -68,15 +69,15 @@ authService.getMe = async () => {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: "Bearer " + localStorage.getItem("token"),
+      ...(await authHeader()),
     },
   });
   if (!resp.ok) throw new Error("Error auth");
   return await resp.json();
 };
 
-authService.logout = () => {
-  localStorage.removeItem("token");
+authService.logout = async () => {
+  await tokenStorage.remove();
 };
 
 authService.updateProfile = async (payload) => {
@@ -85,7 +86,7 @@ authService.updateProfile = async (payload) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify(payload),
     });
@@ -103,7 +104,7 @@ authService.deactivateAccount = async () => {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
     if (!resp.ok) throw new Error("Error deactivating account");
