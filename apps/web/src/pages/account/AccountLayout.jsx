@@ -8,7 +8,7 @@ import "./account.css";
 
 export const AccountLayout = () => {
 	const { store } = useGlobalReducer();
-	if (!store.auth) {
+	if (!store.userLoading && !store.auth) {
 		return <Navigate to="/login" replace />;
 	}
 

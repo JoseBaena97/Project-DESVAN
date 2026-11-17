@@ -72,7 +72,11 @@ authService.getMe = async () => {
       ...(await authHeader()),
     },
   });
-  if (!resp.ok) throw new Error("Error auth");
+  if (!resp.ok) {
+    const error = new Error("Error auth");
+    error.status = resp.status;
+    throw error;
+  }
   return await resp.json();
 };
 

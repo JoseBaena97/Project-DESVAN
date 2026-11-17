@@ -5,12 +5,7 @@ import mascotafav from "../assets/img/caja03.png";
 export const ProtectedRoute = () => {
     const { store } = useGlobalReducer();
 
-    // Si no hay token, redirigimos al login inmediatamente
-    if (!store.auth) {
-        return <Navigate to="/login" replace />;
-    }
-
-    // Si el store todavía está cargando el usuario desde el backend globalmente,
+    // Mientras se recupera la sesión (lectura del token + usuario desde el backend)
     // mostramos una pantalla de carga para evitar "flickering" o errores.
     if (store.userLoading) {
         return (
@@ -26,7 +21,7 @@ export const ProtectedRoute = () => {
 
     // Si terminó de cargar y por algún motivo el usuario no se estableció (ej. token inválido),
     // redirigimos al login.
-    if (!store.user) {
+    if (!store.auth || !store.user) {
         return <Navigate to="/login" replace />;
     }
 

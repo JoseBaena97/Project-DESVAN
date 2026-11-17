@@ -40,9 +40,7 @@ export const MyEvents = () => {
 
 	useEffect(() => {
 		const fetchUserEvents = async () => {
-			if (!store.auth) return;
-
-			if (store.userLoading) return;
+			if (store.userLoading || !store.auth) return;
 
 			let currentUser = store.user;
 			if (!currentUser) {

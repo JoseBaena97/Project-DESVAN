@@ -261,6 +261,8 @@ export const Explore = () => {
 
     //Para que carguen los eventos
     useEffect(() => {
+        // esperar a saber si hay sesión: con sesión se cargan también los eventos privados
+        if (store.userLoading) return;
         const loader = store.auth ? eventService.getEvents() : eventService.getEventsPublic();
 
         loader
@@ -273,7 +275,7 @@ export const Explore = () => {
             })
             .catch(() => {});
 
-    }, []);
+    }, [store.userLoading, store.auth]);
 
     useEffect(() => {
         if (store.user && events.length) {

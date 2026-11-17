@@ -38,14 +38,9 @@ export const Reservations = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (!store.auth) {
-			navigate("/login");
-			return;
-		}
-
 		if (store.userLoading) return;
 
-		if (!store.user) {
+		if (!store.auth || !store.user) {
 			navigate("/login");
 			return;
 		}

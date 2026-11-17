@@ -36,6 +36,8 @@ export const Details = () => {
   // ── FETCH EVENT ──
   useEffect(() => {
     if (!eventId) return;
+    // esperar a saber si hay sesión antes de decidir
+    if (store.userLoading) return;
 
     if (!store.auth) {
       navigate("/login", {
@@ -51,7 +53,7 @@ export const Details = () => {
       })
       .catch(() => {});
 
-  }, [eventId]);
+  }, [eventId, store.userLoading, store.auth]);
 
   useEffect(() => {
     if (!event || !store.user) {

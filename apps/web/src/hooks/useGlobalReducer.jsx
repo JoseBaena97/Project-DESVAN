@@ -1,30 +1,15 @@
 import { useContext, useReducer, createContext, useEffect } from "react";
-import { storeReducer, initialStore } from "@desvan/shared/store";
-import { authService } from "@desvan/shared/services";
+import { storeReducer, initialStore, restoreSession } from "@desvan/shared/store";
 
 const StoreContext = createContext()
 
 export function StoreProvider({ children }) {
     const [store, dispatch] = useReducer(storeReducer, initialStore())
 
+    // Lee el token guardado y carga el usuario (asíncrono).
+    // Mientras tanto store.userLoading es true.
     useEffect(() => {
-        if (localStorage.getItem('token') && !store.user) {
-            authService.getMe()
-                .then(data => {
-                    const currentUser = data?.data ?? data;
-                    if (currentUser) {
-                        dispatch({ type: 'auth', payload: { user: currentUser } });
-                    } else {
-                        dispatch({ type: 'setUserLoading', payload: false });
-                    }
-                })
-                .catch(() => {
-                    localStorage.removeItem('token');
-                    dispatch({ type: 'logout' });
-                });
-        } else if (!localStorage.getItem('token')) {
-            dispatch({ type: 'setUserLoading', payload: false });
-        }
+        restoreSession(dispatch);
     }, [])
 
     return <StoreContext.Provider value={{ store, dispatch }}>

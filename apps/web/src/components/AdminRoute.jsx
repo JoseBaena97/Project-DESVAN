@@ -5,10 +5,6 @@ import mascotafav from "../assets/img/caja03.png";
 export const AdminRoute = () => {
     const { store } = useGlobalReducer();
 
-    if (!store.auth) {
-        return <Navigate to="/login" replace />;
-    }
-
     if (store.userLoading) {
         return (
             <div className="protected-route-container">
@@ -21,7 +17,7 @@ export const AdminRoute = () => {
         );
     }
 
-    if (!store.user) {
+    if (!store.auth || !store.user) {
         return <Navigate to="/login" replace />;
     }
 
