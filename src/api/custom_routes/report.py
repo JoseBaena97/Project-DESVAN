@@ -1,19 +1,15 @@
 from flask import request, jsonify
 from api.routes import api
 from api.models import db, User, Report, ReportReason
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from api.auth_helpers import login_required, current_user
 
 
 @api.route("/report", methods=["POST"])
-@jwt_required()
+@login_required
 def create_report():
-    reporter_id = get_jwt_identity()
-    try:
-        reporter_id = int(reporter_id)
-    except Exception:
-        pass
+    reporter_id = current_user().id
 
-    body = request.get_json()
+    body = request.get_json(silent=True)
     if not body:
         return jsonify({"success": False, "msg": "Body required"}), 400
 
@@ -23,6 +19,11 @@ def create_report():
 
     if not reported_id or not reason_value:
         return jsonify({"success": False, "msg": "reported_id and reason are required"}), 400
+
+    try:
+        reported_id = int(reported_id)
+    except (TypeError, ValueError):
+        return jsonify({"success": False, "msg": "Invalid reported_id"}), 400
 
     if reported_id == reporter_id:
         return jsonify({"success": False, "msg": "No puedes reportarte a ti mismo"}), 400

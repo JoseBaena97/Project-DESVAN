@@ -1,9 +1,9 @@
 import os
 import cloudinary
 import cloudinary.uploader
-from flask import request, jsonify
+from flask import request, jsonify, current_app
 from api.routes import api
-from flask_jwt_extended import jwt_required
+from api.auth_helpers import login_required
 
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -13,8 +13,12 @@ cloudinary.config(
 )
 
 
+# carpetas de Cloudinary en las que se puede subir
+ALLOWED_FOLDERS = {"events", "events/gallery", "profiles"}
+
+
 @api.route("/upload", methods=["POST"])
-@jwt_required()
+@login_required
 def upload_image():
     if "file" not in request.files:
         return jsonify({"success": False, "msg": "No file provided"}), 400
@@ -24,6 +28,8 @@ def upload_image():
         return jsonify({"success": False, "msg": "No file selected"}), 400
 
     folder = request.form.get("folder")
+    if folder and folder not in ALLOWED_FOLDERS:
+        return jsonify({"success": False, "msg": "Invalid folder"}), 400
     try:
         upload_result = cloudinary.uploader.upload(
             file,
@@ -40,5 +46,6 @@ def upload_image():
                 "public_id": upload_result.get("public_id"),
             },
         }), 200
-    except Exception as error:
-        return jsonify({"success": False, "msg": str(error)}), 500
+    except Exception:
+        current_app.logger.exception("Error al subir la imagen a Cloudinary")
+        return jsonify({"success": False, "msg": "No se ha podido subir la imagen"}), 500

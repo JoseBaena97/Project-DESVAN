@@ -57,8 +57,11 @@ MIGRATE = Migrate(app, db, compare_type=True, directory=MIGRATIONS_DIR)
 db.init_app(app)
 mail.init_app(app)
 jwt = JWTManager(app)
-# panel de administración (Flask-Admin)
-setup_admin(app)
+# panel de administración de la base de datos (Flask-Admin): no tiene login,
+# así que solo se activa en desarrollo. En producción se usa el panel de admin
+# de la web (/api/admin/...), protegido por rol.
+if ENV == "development":
+    setup_admin(app)
 
 # comandos CLI (flask insert-test-data)
 setup_commands(app)

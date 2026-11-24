@@ -2,6 +2,7 @@ import os
 import secrets
 from flask import request, jsonify
 from api.routes import api
+from api.auth_helpers import login_required, current_user
 from api.models import db, User
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -55,23 +56,17 @@ def register():
 
 
 @api.route('/profile', methods=['GET'])
-@jwt_required()
+@login_required
 def get_profile():
-    id = get_jwt_identity()
-    user = db.session.get(User, id)
-    if not user:
-        return jsonify({"msg": "User not found"}), 404
+    user = current_user()
     return jsonify({"data": user.serialize()}), 200
 
 
 @api.route('/profile', methods=['PUT'])
-@jwt_required()
+@login_required
 def update_my_profile():
-    id = get_jwt_identity()
-    body = request.get_json() or {}
-    user = db.session.get(User, id)
-    if not user:
-        return jsonify({"msg": "User not found"}), 404
+    body = request.get_json(silent=True) or {}
+    user = current_user()
 
     # Update basic user fields if provided
     email = body.get('email')
@@ -118,12 +113,9 @@ def update_my_profile():
 
 
 @api.route('/profile', methods=['DELETE'])
-@jwt_required()
+@login_required
 def deactivate_my_account():
-    id = get_jwt_identity()
-    user = db.session.get(User, id)
-    if not user or user.deleted_at:
-        return jsonify({"msg": "User not found"}), 404
+    user = current_user()
 
     user.deleted_at = datetime.now(timezone.utc)
     db.session.commit()

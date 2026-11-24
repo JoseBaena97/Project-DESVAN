@@ -1,14 +1,14 @@
 from flask import jsonify
 from api.routes import api
 from api.models import db, Notification, NotificationType, Reservation, ReservationStatus, EventStatus
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from api.auth_helpers import login_required, current_user
 from datetime import datetime, timezone, timedelta
 
 
 @api.route("/notification/my", methods=["GET"])
-@jwt_required()
+@login_required
 def get_my_notifications():
-    user_id = int(get_jwt_identity())
+    user_id = current_user().id
 
     # Generar notificaciones de eventos próximos (próximas 24h)
     now = datetime.now(timezone.utc)
@@ -63,9 +63,9 @@ def get_my_notifications():
 
 
 @api.route("/notification/<int:notification_id>/read", methods=["PATCH"])
-@jwt_required()
+@login_required
 def mark_notification_read(notification_id):
-    user_id = int(get_jwt_identity())
+    user_id = current_user().id
     notification = db.session.get(Notification, notification_id)
     if not notification or notification.user_id != user_id:
         return jsonify({"success": False, "msg": "Notification not found"}), 404
@@ -75,9 +75,9 @@ def mark_notification_read(notification_id):
 
 
 @api.route("/notification/read-all", methods=["PATCH"])
-@jwt_required()
+@login_required
 def mark_all_notifications_read():
-    user_id = int(get_jwt_identity())
+    user_id = current_user().id
     notifications = db.session.execute(
         db.select(Notification).where(
             (Notification.user_id == user_id) & (Notification.is_read == False)
@@ -90,9 +90,9 @@ def mark_all_notifications_read():
 
 
 @api.route("/notification/<int:notification_id>", methods=["DELETE"])
-@jwt_required()
+@login_required
 def delete_notification(notification_id):
-    user_id = int(get_jwt_identity())
+    user_id = current_user().id
     notification = db.session.get(Notification, notification_id)
     if not notification or notification.user_id != user_id:
         return jsonify({"success": False, "msg": "Notification not found"}), 404
@@ -102,9 +102,9 @@ def delete_notification(notification_id):
 
 
 @api.route("/notification/all", methods=["DELETE"])
-@jwt_required()
+@login_required
 def delete_all_notifications():
-    user_id = int(get_jwt_identity())
+    user_id = current_user().id
     notifications = db.session.execute(
         db.select(Notification).where(Notification.user_id == user_id)
     ).scalars().all()

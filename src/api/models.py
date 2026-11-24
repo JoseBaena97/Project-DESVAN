@@ -122,7 +122,7 @@ class Favorite (db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "user": {
                 "id": self.user_id,
-                "email": self.user.email,
+                "username": self.user.username,
                 "profile_picture_url": self.user.profile_picture_url
             } if self.user else None,
             "event": event_data,
@@ -209,7 +209,29 @@ class Event (db.Model):  # ESTA TABLA DEBE IR ARRIBA?
             "start_date": self.start_date.isoformat() if self.start_date else None,
         }
 
-    def serialize(self):
+    def serialize(self, viewer=None):
+        """Detalle del evento.
+
+        El organizador y los admins ven las reservas y favoritos de todos.
+        El resto solo ve los suyos; de las reservas ajenas recibe el estado
+        (para contar plazas libres) pero no quién las ha hecho.
+        """
+        full_access = viewer is not None and (
+            viewer.id == self.seller_id or viewer.is_admin)
+        viewer_id = viewer.id if viewer is not None else None
+
+        if full_access:
+            reservations = [r.serialize() for r in self.reservations]
+            favorites = [f.serialize() for f in self.favorites]
+        else:
+            reservations = [
+                r.serialize() if r.user_id == viewer_id
+                else {"id": r.id, "status": r.status.value, "user": None}
+                for r in self.reservations
+            ]
+            favorites = [f.serialize()
+                         for f in self.favorites if f.user_id == viewer_id]
+
         return {
             "id": self.id,
             "title": self.title,
@@ -230,13 +252,12 @@ class Event (db.Model):  # ESTA TABLA DEBE IR ARRIBA?
             "seller": {
                 "id": self.seller_id,
                 "username": self.seller.username,
-                "email": self.seller.email,
                 "profile_picture_url": self.seller.profile_picture_url,
                 "user_rating": self.seller.user_rating,
                 "full_name": f"{self.seller.profile.firstname} {self.seller.profile.lastname}" if self.seller and self.seller.profile else self.seller.username,
             } if self.seller else None,
-            "favorites": [favorite.serialize()for favorite in self.favorites],
-            "reservations": [reservation.serialize()for reservation in self.reservations],
+            "favorites": favorites,
+            "reservations": reservations,
             "reviews": [review.serialize()for review in self.reviews],
             "event_categories": [event_category.serialize()for event_category in self.event_categories],
             "event_tags": [event_tag.serialize()for event_tag in self.event_tags],
@@ -267,7 +288,7 @@ class Reservation (db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "user": {
                 "id": self.user_id,
-                "email": self.user.email
+                "username": self.user.username
             } if self.user else None,
             "event": {
                 "id": self.event_id,
@@ -317,12 +338,10 @@ class Review (db.Model):
             "created_at": self.created_at,
             "reviewer": {
                 "id": self.reviewer_id,
-                "email": self.reviewer.email,
                 "username": self.reviewer.username
             } if self.reviewer else None,
             "reviewed": {
                 "id": self.reviewed_id,
-                "email": self.reviewed.email,
                 "username": self.reviewed.username
             } if self.reviewed else None,
             "event": {
@@ -447,7 +466,7 @@ class User(db.Model):
             "deleted_at": self.deleted_at.isoformat() if self.deleted_at else None,
             "user_rating": self.user_rating,
             "profile": self.profile.serialize() if self.profile else None,
-            "events": [event.serialize() for event in self.events] if self.events else None,
+            "events": [event.serialize(viewer=self) for event in self.events] if self.events else None,
             "reservations": [reservation.serialize() for reservation in self.reservations] if self.reservations else None,
             "my_written_reviews": [my_written_reviews.serialize() for my_written_reviews in self.my_written_reviews] if self.my_written_reviews else None,
             "my_received_reviews": [my_received_reviews.serialize() for my_received_reviews in self.my_received_reviews] if self.my_received_reviews else None,

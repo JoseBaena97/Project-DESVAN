@@ -1,31 +1,30 @@
 from flask import request, jsonify
 from api.routes import api
 from api.models import db, Favorite, User, Event
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from api.auth_helpers import login_required, admin_required, current_user, is_owner_or_admin
 
 
+# Todos los favoritos: solo admin
 @api.route("/favorite", methods=["GET"])
+@admin_required
 def get_favorites():
     favorites = db.session.execute(db.select(Favorite)).scalars().all()
     return jsonify([f.serialize() for f in favorites]), 200
 
 
 @api.route("/favorite/<int:favorite_id>", methods=["GET"])
+@login_required
 def get_favorite(favorite_id):
     favorite = db.session.get(Favorite, favorite_id)
-    if not favorite:
+    if not favorite or not is_owner_or_admin(current_user(), favorite.user_id):
         return jsonify({"message": "Favorite not found"}), 404
     return jsonify(favorite.serialize()), 200
 
 
 @api.route("/user/<int:user_id>/favorites", methods=["GET"])
-@jwt_required()
+@login_required
 def get_favorites_by_user(user_id):
-    try:
-        current_user_id = int(get_jwt_identity())
-    except (TypeError, ValueError):
-        return jsonify({"message": "Invalid token identity"}), 401
-    if current_user_id != user_id:
+    if not is_owner_or_admin(current_user(), user_id):
         return jsonify({"message": "Forbidden"}), 403
     user = db.session.get(User, user_id)
     if not user:
@@ -35,32 +34,30 @@ def get_favorites_by_user(user_id):
     return jsonify([f.serialize() for f in favs]), 200
 
 
+# Quién tiene un evento en favoritos: solo el organizador o un admin
 @api.route("/event/<int:event_id>/favorites", methods=["GET"])
+@login_required
 def get_favorites_by_event(event_id):
     event = db.session.get(Event, event_id)
     if not event:
         return jsonify({"message": "Event not found"}), 404
+    if not is_owner_or_admin(current_user(), event.seller_id):
+        return jsonify({"message": "Forbidden"}), 403
     favs = db.session.execute(db.select(Favorite).where(
         Favorite.event_id == event_id)).scalars().all()
     return jsonify([f.serialize() for f in favs]), 200
 
 
 @api.route("/favorite", methods=["POST"])
-@jwt_required()
+@login_required
 def create_favorite():
-    body = request.get_json()
+    body = request.get_json(silent=True)
     if not body:
         return jsonify({"message": "Request body is required"}), 400
     event_id = body.get("event_id")
     if not event_id:
         return jsonify({"message": "event_id is required"}), 400
-    try:
-        user_id = int(get_jwt_identity())
-    except (TypeError, ValueError):
-        return jsonify({"message": "Invalid token identity"}), 401
-    user = db.session.get(User, user_id)
-    if not user:
-        return jsonify({"message": "User not found"}), 404
+    user_id = current_user().id
     event = db.session.get(Event, event_id)
     if not event:
         return jsonify({"message": "Event not found"}), 404
@@ -77,16 +74,12 @@ def create_favorite():
 
 
 @api.route("/favorite/<int:favorite_id>", methods=["DELETE"])
-@jwt_required()
+@login_required
 def delete_favorite(favorite_id):
     favorite = db.session.get(Favorite, favorite_id)
     if not favorite:
         return jsonify({"message": "Favorite not found"}), 404
-    try:
-        current_user_id = int(get_jwt_identity())
-    except (TypeError, ValueError):
-        return jsonify({"message": "Invalid token identity"}), 401
-    if favorite.user_id != current_user_id:
+    if favorite.user_id != current_user().id:
         return jsonify({"message": "Forbidden"}), 403
     db.session.delete(favorite)
     db.session.commit()

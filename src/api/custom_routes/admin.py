@@ -1,26 +1,10 @@
-from functools import wraps
-from flask import jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import jsonify, current_app
 from api.routes import api
 from api.models import db, User, Event, Reservation, Review, Report, EventStatus, ReservationStatus, Notification, NotificationType
 from datetime import datetime, timezone
 from sqlalchemy import func
 from api.custom_routes.account import is_erased
-
-
-def admin_required(fn):
-    @wraps(fn)
-    @jwt_required()
-    def wrapper(*args, **kwargs):
-        try:
-            user_id = int(get_jwt_identity())
-        except Exception:
-            return jsonify({"success": False, "msg": "Invalid token"}), 401
-        user = db.session.get(User, user_id)
-        if not user or not user.is_admin:
-            return jsonify({"success": False, "msg": "Admin access required"}), 403
-        return fn(*args, **kwargs)
-    return wrapper
+from api.auth_helpers import admin_required, current_user
 
 
 @api.route("/admin/stats", methods=["GET"])
@@ -112,7 +96,7 @@ def admin_get_events():
     events = db.session.execute(db.select(Event)).scalars().all()
     result = []
     for e in events:
-        data = e.serialize()
+        data = e.serialize(viewer=current_user())
         seller = db.session.get(User, e.seller_id)
         data["seller_username"] = seller.username if seller else None
         result.append(data)
@@ -149,6 +133,12 @@ def admin_delete_event(event_id):
     event = db.session.get(Event, event_id)
     if not event:
         return jsonify({"success": False, "msg": "Event not found"}), 404
+    # las notificaciones que apuntan al evento se conservan, desvinculadas
+    db.session.execute(
+        db.update(Notification)
+        .where(Notification.related_event_id == event.id)
+        .values(related_event_id=None)
+    )
     db.session.delete(event)
     db.session.commit()
     return jsonify({"success": True, "msg": "Event deleted"}), 200
@@ -202,8 +192,9 @@ def admin_get_reports():
                 "reported": {"id": r.reported_id, "username": reported.username if reported else None},
             })
         return jsonify({"success": True, "data": result}), 200
-    except Exception as e:
-        return jsonify({"success": False, "msg": str(e)}), 500
+    except Exception:
+        current_app.logger.exception("Error al cargar los reportes")
+        return jsonify({"success": False, "msg": "No se han podido cargar los reportes"}), 500
 
 
 @api.route("/admin/reports/<int:report_id>/resolve", methods=["PUT"])
