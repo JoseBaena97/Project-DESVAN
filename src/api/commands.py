@@ -535,3 +535,16 @@ def setup_commands(app):
 
         db.session.commit()
         print(f"Done: {added_cats} categorías y {added_tags} tags añadidos.")
+    @app.cli.command("secure-db")
+    def secure_db():
+        """Aplica los permisos mínimos en la base de datos (ver api/db_security.py).
+
+        Ejecutar después de cada `flask db upgrade`. Usa MIGRATIONS_DATABASE_URL.
+        La primera vez crea el rol de la app con APP_DB_PASSWORD.
+        """
+        import os
+        from api.db_security import secure_database
+        secure_database(
+            app_role=os.getenv("APP_DB_ROLE", "desvan_app"),
+            app_password=os.getenv("APP_DB_PASSWORD"),
+        )

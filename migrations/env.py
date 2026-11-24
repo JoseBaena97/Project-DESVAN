@@ -1,4 +1,5 @@
 import logging
+import os
 from logging.config import fileConfig
 
 from flask import current_app
@@ -36,7 +37,14 @@ def get_engine_url():
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-config.set_main_option('sqlalchemy.url', get_engine_url())
+# Las migraciones crean y modifican tablas, así que necesitan el usuario dueño
+# (MIGRATIONS_DATABASE_URL). La app se conecta con otro usuario sin esos permisos.
+MIGRATIONS_URL = os.getenv("MIGRATIONS_DATABASE_URL")
+if MIGRATIONS_URL:
+    MIGRATIONS_URL = MIGRATIONS_URL.replace("postgres://", "postgresql://", 1)
+    config.set_main_option('sqlalchemy.url', MIGRATIONS_URL.replace('%', '%%'))
+else:
+    config.set_main_option('sqlalchemy.url', get_engine_url())
 target_db = current_app.extensions['migrate'].db
 
 # other values from the config, defined by the needs of env.py,
@@ -94,7 +102,11 @@ def run_migrations_online():
     if conf_args.get("process_revision_directives") is None:
         conf_args["process_revision_directives"] = process_revision_directives
 
-    connectable = get_engine()
+    if MIGRATIONS_URL:
+        from sqlalchemy import create_engine
+        connectable = create_engine(MIGRATIONS_URL)
+    else:
+        connectable = get_engine()
 
     with connectable.connect() as connection:
         context.configure(
