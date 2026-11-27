@@ -1,5 +1,6 @@
 from flask import request, jsonify
 from api.routes import api
+from api.auth_helpers import admin_required
 from api.models import db, Tag
 
 @api.route("/tag", methods=["GET"])
@@ -15,6 +16,7 @@ def get_tag(tag_id):
     return jsonify(tag.serialize()), 200
 
 @api.route("/tag", methods=["POST"])
+@admin_required
 def create_tag():
     body = request.get_json()
     if not body:
@@ -33,6 +35,7 @@ def create_tag():
     return jsonify({"message": "Tag created successfully", "tag": new_tag.serialize()}), 201
 
 @api.route("/tag/<int:tag_id>", methods=["PUT"])
+@admin_required
 def update_tag(tag_id):
     tag = db.session.get(Tag, tag_id)
     if not tag:
@@ -46,6 +49,7 @@ def update_tag(tag_id):
     return jsonify({"message": "Tag updated successfully", "tag": tag.serialize()}), 200
 
 @api.route("/tag/<int:tag_id>", methods=["DELETE"])
+@admin_required
 def delete_tag(tag_id):
     tag = db.session.get(Tag, tag_id)
     if not tag:

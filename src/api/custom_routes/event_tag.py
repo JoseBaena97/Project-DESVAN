@@ -1,6 +1,7 @@
 from flask import request, jsonify
 from api.routes import api
 from api.models import db, EventTag, Event, Tag
+from api.auth_helpers import login_required, current_user, is_owner_or_admin
 
 @api.route("/event-tag", methods=["GET"])
 def get_event_tags():
@@ -25,7 +26,9 @@ def get_tags_by_event(event_id):
     ).scalars().all()
     return jsonify([et.serialize() for et in ets]), 200
 
+# Asignar un tag a un evento: solo su organizador o un admin
 @api.route("/event-tag", methods=["POST"])
+@login_required
 def create_event_tag():
     body = request.get_json()
     if not body:
@@ -37,6 +40,8 @@ def create_event_tag():
     event = db.session.get(Event, event_id)
     if not event:
         return jsonify({"message": "Event not found"}), 404
+    if not is_owner_or_admin(current_user(), event.seller_id):
+        return jsonify({"message": "Forbidden"}), 403
     tag = db.session.get(Tag, tag_id)
     if not tag:
         return jsonify({"message": "Tag not found"}), 404
@@ -53,10 +58,13 @@ def create_event_tag():
     return jsonify({"message": "EventTag created successfully", "event_tag": new_et.serialize()}), 201
 
 @api.route("/event-tag/<int:et_id>", methods=["DELETE"])
+@login_required
 def delete_event_tag(et_id):
     et = db.session.get(EventTag, et_id)
     if not et:
         return jsonify({"message": "EventTag not found"}), 404
+    if not is_owner_or_admin(current_user(), et.event.seller_id):
+        return jsonify({"message": "Forbidden"}), 403
     db.session.delete(et)
     db.session.commit()
     return jsonify({"message": "EventTag deleted successfully"}), 200

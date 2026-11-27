@@ -1,5 +1,6 @@
 from flask import request, jsonify
 from api.routes import api
+from api.auth_helpers import admin_required
 from api.models import db, Category
 
 
@@ -24,6 +25,7 @@ def get_category(category_id):
 
 
 @api.route("/category", methods=['POST'])
+@admin_required
 def create_category():
     body = request.get_json()
     #verificación de datos necesarios  
@@ -39,6 +41,7 @@ def create_category():
 
 
 @api.route("/category/<int:category_id>", methods=['PUT'])
+@admin_required
 def update_category(category_id):
     category = db.session.get(Category, category_id)
     if not category:
@@ -56,6 +59,7 @@ def update_category(category_id):
 
 
 @api.route("/category/<int:category_id>", methods=['DELETE'])
+@admin_required
 def delete_category(category_id):
     category = db.session.get(Category, category_id)
     if not category:

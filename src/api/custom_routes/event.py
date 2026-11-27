@@ -1,8 +1,8 @@
-from flask import request, jsonify
+from flask import request, jsonify, current_app
 from api.routes import api
 from api.models import db, Event, EventType, EventStatus, User, EventCategory, EventTag, Category, Tag, Reservation, ReservationStatus, Notification, NotificationType
 from datetime import datetime
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from api.auth_helpers import login_required, current_user
 
 
 @api.route("/event/public", methods=['GET'])
@@ -13,43 +13,34 @@ def get_events_public():
 
 
 @api.route("/event/private", methods=['GET'])
-@jwt_required()
+@login_required
 def get_events_private():
+    viewer = current_user()
     events = db.session.execute(db.select(Event)).scalars().all()
-    transformed = [event.serialize() for event in events]
+    transformed = [event.serialize(viewer=viewer) for event in events]
     return jsonify({"success": True, "data": transformed}), 200
 
 
 @api.route("/event/<int:event_id>", methods=['GET'])
-@jwt_required()
+@login_required
 def get_event(event_id):
     event = db.session.get(Event, event_id)
     if not event:
         return jsonify({"success": False, "msg": "Event not found"}), 404
-
-    try:
-        transformed = event.serialize()
-        return jsonify({"success": True, "data": transformed}), 200
-    except Exception as e:
-        return jsonify({"success": False, "msg": str(e)}), 500
+    return jsonify({"success": True, "data": event.serialize(viewer=current_user())}), 200
 
 
 @api.route("/event", methods=['POST'])
-@jwt_required()
+@login_required
 def create_event():
     # Verificación de datos necesarios
-    body = request.get_json()
+    body = request.get_json(silent=True)
+    if not body:
+        return jsonify({"success": False, "msg": "Body is required"}), 400
 
-    seller_id = get_jwt_identity()
-
-    # Intentar convertir identity a entero si vino como string (tokens antiguos)
-    try:
-        seller_id = int(seller_id)
-    except Exception:
-        pass
-
-    user = db.session.get(User, seller_id)
-    if (not user or not user.profile
+    user = current_user()
+    seller_id = user.id
+    if (not user.profile
             or not (user.profile.phone and user.profile.phone.strip())
             or not (user.profile.address and user.profile.address.strip())):
         return jsonify({
@@ -136,23 +127,18 @@ def create_event():
 
 
 @api.route("/event/<int:event_id>", methods=['PUT'])
-@jwt_required()
+@login_required
 def update_event(event_id):
     event = db.session.get(Event, event_id)
     if not event:
         return jsonify({"success": False, "data": "Event not found"}), 404
 
-    try:
-        body = request.get_json()
-        seller_id = get_jwt_identity()
-        try:
-            seller_id = int(seller_id)
-        except Exception:
-            pass
+    # solo el organizador; los admins usan /admin/events
+    if event.seller_id != current_user().id:
+        return jsonify({"success": False, "data": "Forbidden"}), 403
 
-        # Comparación robusta aceptando string o int
-        if str(event.seller_id) != str(seller_id):
-            return jsonify({"success": False, "data": "Unauthorized"}), 400
+    try:
+        body = request.get_json(silent=True)
         if not body:
             return jsonify({"success": False, "data": "Missing body"}), 400
 
@@ -237,32 +223,35 @@ def update_event(event_id):
 
         db.session.commit()
         return jsonify({"success": True, "data": "All Ok"}), 200
-    except Exception as e:
-        return jsonify({"success": False, "msg": str(e)}), 500
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Error al actualizar el evento %s", event_id)
+        return jsonify({"success": False, "msg": "No se ha podido actualizar el evento"}), 500
 
 
 @api.route("/event/<int:event_id>", methods=['DELETE'])
-@jwt_required()
+@login_required
 def delete_event(event_id):
     event = db.session.get(Event, event_id)
     if not event:
         return jsonify({"success": False, "msg": "Event not found"}), 404
 
-    seller_id = get_jwt_identity()
-    try:
-        seller_id = int(seller_id)
-    except Exception:
-        pass
-
-    if str(event.seller_id) != str(seller_id):
-        return jsonify({"success": False, "data": "Unauthorized"}), 400
+    # solo el organizador; los admins usan /admin/events
+    if event.seller_id != current_user().id:
+        return jsonify({"success": False, "data": "Forbidden"}), 403
+    # las notificaciones que apuntan al evento se conservan, desvinculadas
+    db.session.execute(
+        db.update(Notification)
+        .where(Notification.related_event_id == event.id)
+        .values(related_event_id=None)
+    )
     db.session.delete(event)
     db.session.commit()
     return jsonify({"success": True, "data": "Event deleted successfully"}), 200
 
 
 @api.route("/event/nearby", methods=['GET'])
-@jwt_required()
+@login_required
 def get_nearby_events():
     """
     Obtiene eventos cercanos a una ubicación específica.
@@ -282,6 +271,7 @@ def get_nearby_events():
                 "msg": "latitude and longitude are required"
             }), 400
 
+        viewer = current_user()
         # Obtener todos los eventos
         all_events = db.session.execute(db.select(Event)).scalars().all()
 
@@ -307,7 +297,7 @@ def get_nearby_events():
                     latitude, longitude, event.latitude, event.longitude)
                 if dist <= distance:
                     nearby_events.append({
-                        "event": event.serialize(),
+                        "event": event.serialize(viewer=viewer),
                         "distance_km": round(dist, 2)
                     })
 
@@ -320,5 +310,6 @@ def get_nearby_events():
             "count": len(nearby_events)
         }), 200
 
-    except Exception as e:
-        return jsonify({"success": False, "msg": str(e)}), 500
+    except Exception:
+        current_app.logger.exception("Error al buscar eventos cercanos")
+        return jsonify({"success": False, "msg": "No se han podido cargar los eventos"}), 500

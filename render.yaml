@@ -6,7 +6,7 @@ services:
     name: el-desvan
     env: python
     buildCommand: "./render_build.sh"
-    startCommand: "flask --app src/app.py db upgrade && gunicorn wsgi --chdir ./src/"
+    startCommand: "flask --app src/app.py db upgrade && flask --app src/app.py secure-db && gunicorn wsgi --chdir ./src/"
     plan: free
     numInstances: 1
     envVars:
