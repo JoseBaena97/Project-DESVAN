@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import "./Reservations.css";
-import reservationService from "../../services/reservation.service";
+import { reservationService } from "@desvan/shared/services";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import mascotareservas from "../../assets/img/caja01.png";
 
@@ -38,15 +38,9 @@ export const Reservations = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			navigate("/login");
-			return;
-		}
-
 		if (store.userLoading) return;
 
-		if (!store.user) {
+		if (!store.auth || !store.user) {
 			navigate("/login");
 			return;
 		}

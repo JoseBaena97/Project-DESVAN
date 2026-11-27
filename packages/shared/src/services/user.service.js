@@ -1,15 +1,16 @@
-const url = import.meta.env.VITE_BACKEND_URL;
+import { getApiUrl } from "../config/index.js";
+import { authHeader } from "../storage/index.js";
 
-const getAuthHeaders = () => ({
+const getAuthHeaders = async () => ({
   "Content-Type": "application/json",
-  Authorization: "Bearer " + localStorage.getItem("token"),
+  ...(await authHeader()),
 });
 
 const getPublicProfile = async (userId) => {
   try {
-    const resp = await fetch(`${url}api/user/${userId}/public`, {
+    const resp = await fetch(`${getApiUrl()}user/${userId}/public`, {
       method: "GET",
-      headers: getAuthHeaders(),
+      headers: await getAuthHeaders(),
     });
     const data = await resp.json();
     if (!resp.ok) {

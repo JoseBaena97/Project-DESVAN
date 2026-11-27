@@ -1,9 +1,10 @@
+import { getApiUrl } from "../config/index.js";
+import { authHeader, tokenStorage } from "../storage/index.js";
 const authService = {};
-const url = import.meta.env.VITE_BACKEND_URL;
 
 authService.auth = async (FormData) => {
   try {
-    const resp = await fetch(url + "api/auth", {
+    const resp = await fetch(getApiUrl() + "auth", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -21,7 +22,7 @@ authService.auth = async (FormData) => {
     }
     const data = await resp.json(); //se cuela solo la info necesaria
 
-    if (data.access_token) localStorage.setItem("token", data.access_token);
+    if (data.access_token) await tokenStorage.set(data.access_token);
     return data;
   } catch (error) {
     throw error;
@@ -30,7 +31,7 @@ authService.auth = async (FormData) => {
 
 authService.forgotPassword = async (email) => {
   try {
-    const resp = await fetch(url + "api/auth/forgot-password", {
+    const resp = await fetch(getApiUrl() + "auth/forgot-password", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -46,7 +47,7 @@ authService.forgotPassword = async (email) => {
 
 authService.resetPassword = async (token, password) => {
   try {
-    const resp = await fetch(url + "api/auth/reset-password", {
+    const resp = await fetch(getApiUrl() + "auth/reset-password", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -64,28 +65,32 @@ authService.resetPassword = async (token, password) => {
 };
 
 authService.getMe = async () => {
-  const resp = await fetch(url + "api/profile", {
+  const resp = await fetch(getApiUrl() + "profile", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: "Bearer " + localStorage.getItem("token"),
+      ...(await authHeader()),
     },
   });
-  if (!resp.ok) throw new Error("Error auth");
+  if (!resp.ok) {
+    const error = new Error("Error auth");
+    error.status = resp.status;
+    throw error;
+  }
   return await resp.json();
 };
 
-authService.logout = () => {
-  localStorage.removeItem("token");
+authService.logout = async () => {
+  await tokenStorage.remove();
 };
 
 authService.updateProfile = async (payload) => {
   try {
-    const resp = await fetch(url + "api/profile", {
+    const resp = await fetch(getApiUrl() + "profile", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify(payload),
     });
@@ -99,11 +104,11 @@ authService.updateProfile = async (payload) => {
 
 authService.deactivateAccount = async () => {
   try {
-    const resp = await fetch(url + "api/profile", {
+    const resp = await fetch(getApiUrl() + "profile", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
     if (!resp.ok) throw new Error("Error deactivating account");
@@ -117,7 +122,7 @@ authService.deactivateAccount = async () => {
 // Borrado definitivo (página pública /eliminar-cuenta). Funciona sin sesión
 // y también con cuentas desactivadas. Lanza un Error con el mensaje de la API.
 authService.deleteAccount = async (email, password) => {
-  const resp = await fetch(url + "api/v1/account/delete", {
+  const resp = await fetch(getApiUrl() + "account/delete", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),

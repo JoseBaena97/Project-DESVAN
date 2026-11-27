@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate,useLocation, Link } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
-import authService from "../services/auth.service";
+import { authService } from "@desvan/shared/services";
 import "./Login.css";
 
 
@@ -118,7 +118,7 @@ export const Login = () => {
 
 
   useEffect(() => {
-    if (localStorage.getItem('token') && store.user) {
+    if (store.auth && store.user) {
       navigate(store.user.is_admin ? '/backoffice' : returnPath, { replace: true });
     }
   }, [store.user, navigate, returnPath]);

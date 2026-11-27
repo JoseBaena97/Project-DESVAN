@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import adminService from "../../services/admin.service";
+import { adminService } from "@desvan/shared/services";
 
 const REASON_LABELS = {
     spam: "Spam",

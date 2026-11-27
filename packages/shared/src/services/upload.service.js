@@ -1,4 +1,5 @@
-const url = import.meta.env.VITE_BACKEND_URL;
+import { getApiUrl } from "../config/index.js";
+import { authHeader } from "../storage/index.js";
 
 const uploadImage = async (file, folder) => {
   try {
@@ -8,10 +9,10 @@ const uploadImage = async (file, folder) => {
       formData.append("folder", folder);
     }
 
-    const resp = await fetch(url + "api/upload", {
+    const resp = await fetch(getApiUrl() + "upload", {
       method: "POST",
       headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: formData,
     });

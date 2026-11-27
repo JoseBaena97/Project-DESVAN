@@ -3,8 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Explore.css";
 import caja05 from "../assets/img/caja05.png";
 import logoBw from "../assets/img/logo_bw.png";
-import eventService from "../services/event.service";
-import favoriteService from "../services/favorite.service";
+import { eventService, favoriteService } from "@desvan/shared/services";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { Map } from "../components/Map";
 
@@ -262,7 +261,9 @@ export const Explore = () => {
 
     //Para que carguen los eventos
     useEffect(() => {
-        const loader = localStorage.getItem("token") ? eventService.getEvents() : eventService.getEventsPublic();
+        // esperar a saber si hay sesión: con sesión se cargan también los eventos privados
+        if (store.userLoading) return;
+        const loader = store.auth ? eventService.getEvents() : eventService.getEventsPublic();
 
         loader
             .then((data) => {
@@ -274,7 +275,7 @@ export const Explore = () => {
             })
             .catch(() => {});
 
-    }, []);
+    }, [store.userLoading, store.auth]);
 
     useEffect(() => {
         if (store.user && events.length) {

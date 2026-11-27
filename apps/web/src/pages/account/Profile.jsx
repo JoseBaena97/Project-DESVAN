@@ -2,8 +2,7 @@ import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import "./Profile.css";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import authService from "../../services/auth.service";
-import uploadService from "../../services/upload.service";
+import { authService, uploadService } from "@desvan/shared/services";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 
 const FALLBACK = {

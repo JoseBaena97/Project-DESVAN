@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import adminService from "../../services/admin.service";
+import { adminService } from "@desvan/shared/services";
 
 const SortIcon = ({ field, sort }) => {
     if (sort.field !== field) return <i className="bi bi-arrow-down-up admin-sort-icon admin-sort-icon--inactive"></i>;

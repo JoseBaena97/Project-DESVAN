@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import "./Favorites.css";
-import favoriteService from "../../services/favorite.service";
+import { favoriteService } from "@desvan/shared/services";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
 import mascotafav from "../../assets/img/caja03.png";
 import logoBw from "../../assets/img/logo_bw.png";

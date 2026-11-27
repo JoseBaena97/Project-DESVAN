@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
+import { notificationService } from "@desvan/shared/services";
 import notificacionIco from "../assets/img/notificacion.png";
 import "./NotificationBell.css";
 
-const BACKEND = import.meta.env.VITE_BACKEND_URL;
 
 const TYPE_ICONS = {
     reservation_created: "fa-ticket",
@@ -35,16 +35,10 @@ export const NotificationBell = ({ compact = false }) => {
     const dropdownRef = useRef(null);
 
     const fetchNotifications = async () => {
-        const token = localStorage.getItem("token");
-        if (!token || !store.user) return;
+        if (!store.user) return;
         try {
-            const res = await fetch(`${BACKEND}api/notification/my`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.ok) {
-                const data = await res.json();
-                dispatch({ type: "setNotifications", payload: data.data });
-            }
+            const notifications = await notificationService.getMyNotifications();
+            dispatch({ type: "setNotifications", payload: notifications });
         } catch (e) {
             // silently fail — bell stays with last known state
         }
@@ -70,12 +64,8 @@ export const NotificationBell = ({ compact = false }) => {
         const willOpen = !open;
         setOpen(willOpen);
         if (willOpen && unreadCount > 0) {
-            const token = localStorage.getItem("token");
             try {
-                await fetch(`${BACKEND}api/notification/read-all`, {
-                    method: "PATCH",
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                await notificationService.markAllAsRead();
                 dispatch({ type: "markAllRead" });
             } catch (e) {
                 // silently fail
@@ -84,14 +74,10 @@ export const NotificationBell = ({ compact = false }) => {
     };
 
     const unreadCount = store.notifications?.filter((n) => !n.is_read).length ?? 0;
-    const token = () => localStorage.getItem("token");
 
     const handleDelete = async (id) => {
         try {
-            await fetch(`${BACKEND}api/notification/${id}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token()}` },
-            });
+            await notificationService.deleteNotification(id);
             dispatch({ type: "deleteNotification", payload: id });
         } catch (e) {
             // silently fail
@@ -100,10 +86,7 @@ export const NotificationBell = ({ compact = false }) => {
 
     const handleClearAll = async () => {
         try {
-            await fetch(`${BACKEND}api/notification/all`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token()}` },
-            });
+            await notificationService.deleteAllNotifications();
             dispatch({ type: "clearNotifications" });
         } catch (e) {
             // silently fail

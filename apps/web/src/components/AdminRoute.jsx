@@ -4,11 +4,6 @@ import mascotafav from "../assets/img/caja03.png";
 
 export const AdminRoute = () => {
     const { store } = useGlobalReducer();
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-        return <Navigate to="/login" replace />;
-    }
 
     if (store.userLoading) {
         return (
@@ -22,7 +17,7 @@ export const AdminRoute = () => {
         );
     }
 
-    if (!store.user) {
+    if (!store.auth || !store.user) {
         return <Navigate to="/login" replace />;
     }
 

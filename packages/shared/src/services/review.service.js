@@ -1,12 +1,13 @@
-const url = import.meta.env.VITE_BACKEND_URL;
+import { getApiUrl } from "../config/index.js";
+import { authHeader } from "../storage/index.js";
 
 const createReview = async (reviewData) => {
   try {
-    const resp = await fetch(url + "api/review", {
+    const resp = await fetch(getApiUrl() + "review", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify(reviewData),
     });
@@ -24,11 +25,11 @@ const createReview = async (reviewData) => {
 
 const getWrittenReviewsByUser = async (userId) => {
   try {
-    const resp = await fetch(url + `api/user/${userId}/written_reviews`, {
+    const resp = await fetch(getApiUrl() + `user/${userId}/written_reviews`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
     const data = await resp.json();
@@ -43,11 +44,11 @@ const getWrittenReviewsByUser = async (userId) => {
 
 const updateReview = async (reviewId, reviewData) => {
   try {
-    const resp = await fetch(url + `api/review/${reviewId}`, {
+    const resp = await fetch(getApiUrl() + `review/${reviewId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify(reviewData),
     });
@@ -65,11 +66,11 @@ const updateReview = async (reviewId, reviewData) => {
 
 const deleteReview = async (reviewId) => {
   try {
-    const resp = await fetch(url + `api/review/${reviewId}`, {
+    const resp = await fetch(getApiUrl() + `review/${reviewId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
 
@@ -86,11 +87,11 @@ const deleteReview = async (reviewId) => {
 
 const getReceivedReviewsByUser = async (userId) => {
   try {
-    const resp = await fetch(url + `api/user/${userId}/recieved_reviews`, {
+    const resp = await fetch(getApiUrl() + `user/${userId}/recieved_reviews`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
     const data = await resp.json();

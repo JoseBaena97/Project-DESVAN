@@ -3,11 +3,7 @@ import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import "./Details.css";
 import caja04 from "../assets/img/caja04.png";
 import logoBw from "../assets/img/logo_bw.png";
-import eventService from "../services/event.service";
-import favoriteService from "../services/favorite.service";
-import reservationService from "../services/reservation.service";
-import reviewService from "../services/review.service";
-import adminService from "../services/admin.service";
+import { eventService, favoriteService, reservationService, reviewService, adminService } from "@desvan/shared/services";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { Map } from "../components/Map";
 
@@ -40,10 +36,10 @@ export const Details = () => {
   // ── FETCH EVENT ──
   useEffect(() => {
     if (!eventId) return;
+    // esperar a saber si hay sesión antes de decidir
+    if (store.userLoading) return;
 
-    const token = localStorage.getItem("token");
-
-    if (!token) {
+    if (!store.auth) {
       navigate("/login", {
         replace: true,
         state: { from: location.state?.from ||"/explorar" },
@@ -57,7 +53,7 @@ export const Details = () => {
       })
       .catch(() => {});
 
-  }, [eventId]);
+  }, [eventId, store.userLoading, store.auth]);
 
   useEffect(() => {
     if (!event || !store.user) {

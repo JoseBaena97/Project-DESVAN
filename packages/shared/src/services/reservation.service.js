@@ -1,13 +1,14 @@
-const url = import.meta.env.VITE_BACKEND_URL;
+import { getApiUrl } from "../config/index.js";
+import { authHeader } from "../storage/index.js";
 
 const getReservationsByUser = async (userId) => {
   if (!userId) throw new Error("userId is required");
   try {
-    const resp = await fetch(url + `api/user/${userId}/reservations`, {
+    const resp = await fetch(getApiUrl() + `user/${userId}/reservations`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
 
@@ -25,11 +26,11 @@ const getReservationsByUser = async (userId) => {
 const createReservation = async (eventId, userId) => {
   if (!userId) throw new Error("userId is required");
   try {
-    const resp = await fetch(url + "api/reservation", {
+    const resp = await fetch(getApiUrl() + "reservation", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify({ event_id: eventId, user_id: userId }),
     });
@@ -47,11 +48,11 @@ const createReservation = async (eventId, userId) => {
 
 const deleteReservation = async (reservationId) => {
   try {
-    const resp = await fetch(url + `api/reservation/${reservationId}`, {
+    const resp = await fetch(getApiUrl() + `reservation/${reservationId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
     });
 
@@ -68,11 +69,11 @@ const deleteReservation = async (reservationId) => {
 
 const cancelReservation = async (reservationId) => {
   try {
-    const resp = await fetch(url + `api/reservation/${reservationId}`, {
+    const resp = await fetch(getApiUrl() + `reservation/${reservationId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        ...(await authHeader()),
       },
       body: JSON.stringify({ status: "cancelled" }),
     });

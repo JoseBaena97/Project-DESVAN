@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
-import authService from "../../services/auth.service";
+import { authService } from "@desvan/shared/services";
 
 export const AdminSidebar = () => {
     const { dispatch } = useGlobalReducer();

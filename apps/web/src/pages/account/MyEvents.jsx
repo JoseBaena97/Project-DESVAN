@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { AccountPageHeader } from "../../components/account/AccountPageHeader";
 import "./MyEvents.css";
 import useGlobalReducer from "../../hooks/useGlobalReducer";
-import eventService from "../../services/event.service";
+import { eventService } from "@desvan/shared/services";
 import mascotamyev from "../../assets/img/caja02.png";
 
 const TABS = ["TODOS", "ACTIVOS", "FINALIZADOS", "CANCELADOS"];
@@ -40,10 +40,7 @@ export const MyEvents = () => {
 
 	useEffect(() => {
 		const fetchUserEvents = async () => {
-			const token = localStorage.getItem("token");
-			if (!token) return;
-
-			if (store.userLoading) return;
+			if (store.userLoading || !store.auth) return;
 
 			let currentUser = store.user;
 			if (!currentUser) {

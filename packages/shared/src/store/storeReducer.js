@@ -1,11 +1,13 @@
+// Estado inicial sin lecturas síncronas: la sesión se desconoce hasta que
+// restoreSession() lee el token (userLoading: true mientras tanto).
 export const initialStore=()=>{
   return{
-    auth: localStorage.getItem('token') ? true : false,
+    auth: false,
     user: null,
     name: null,
     error: null,
     loading: false,
-    userLoading: localStorage.getItem('token') ? true : false,
+    userLoading: true,
     notifications: [],
   }
 }

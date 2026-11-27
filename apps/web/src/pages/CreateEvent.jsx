@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./CreateEvent.css";
 import mascotOpen from "../assets/img/caja04.png";
-import eventService from "../services/event.service";
-import uploadService from "../services/upload.service";
+import { eventService, uploadService } from "@desvan/shared/services";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
 
